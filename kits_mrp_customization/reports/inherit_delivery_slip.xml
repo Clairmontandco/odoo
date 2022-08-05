@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <data>
+        <template id="inherit_report_delivery_document" inherit_id="stock.report_delivery_document" >
+            <xpath expr="//table[@name='stock_move_table']/tbody/tr[1]/td[1]/span" position="replace">
+                <span t-field="move.sale_line_id.name" />
+            </xpath>
+        </template>
+    </data>
+
+</odoo>
