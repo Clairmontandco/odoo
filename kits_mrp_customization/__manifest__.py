@@ -9,9 +9,13 @@
     "description": """
     """,
     "license" : "OPL-1",
-    "depends" : ['sale_management','stock','mrp'],
+    "depends" : ['sale_management','stock','mrp','sale_mrp'],
     "data": [
+        # Views
         'views/mrp_production_view.xml',
+        'views/sale_order_view.xml',
+        
+        # Reports
         'reports/inherit_delivery_slip.xml',
     ],
     "auto_install": False,

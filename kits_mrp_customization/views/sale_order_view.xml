@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <data>
+        <record id="kits_mrp_customization_inherit_sale_order" model="ir.ui.view">
+            <field name="name">kits.mrp.customization.inherit.sale.order</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <button name="action_view_manufacturings" type="object" class="oe_stat_button" icon="fa-gavel" attrs="{'invisible': [('kits_mo_count', '=', 0)]}">
+                        <field name="kits_mo_count" widget="statinfo" string="Manufacture"/>
+                    </button>
+                </xpath>
+            </field>
+        </record>
+    </data>
+
+</odoo>
