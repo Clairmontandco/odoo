@@ -7,6 +7,15 @@
                 <span t-field="move.sale_line_id.name" />
             </xpath>
         </template>
+
+        <template id="mrp_customization_inherit_report_saleorder_document" inherit_id="sale.report_saleorder_document">
+            <xpath expr="//div[@name]" position="replace">
+                <div t-if="doc.validity_date" class="col-auto col-3 mw-100 mb-2" name="expiration_date">
+                    <strong>Delivery Date:</strong>
+                    <p class="m-0" t-field="doc.validity_date"/>
+                </div>
+            </xpath>
+        </template>
     </data>
 
 </odoo>

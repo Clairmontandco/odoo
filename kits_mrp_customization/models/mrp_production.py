@@ -33,11 +33,18 @@ class mrp_production(models.Model):
                 data.update({'origin':','.join(record.so_ids.mapped('name'))})
             record.write(data)
     
-    @api.depends('so_ids')
+    @api.depends('so_ids','state','product_id')
     def compute_sales_description(self):
-        sale_obj = self.env['sale.order']
+        sale_obj = self.env['sale.order'].sudo()
         for record in self:
-            so_ids = self.env['sale.order'].search([('mo_ids','in',record.ids)])
+            # so_ids = sale_obj.search([('mo_ids','in',record.ids)])
+            
+            so_ids = self.env['sale.order'].sudo()
+            for line in self.env['report.stock.report_product_product_replenishment']._get_report_lines(False,[record.product_id.id],[record.location_src_id.id]):
+                if line['document_in'] and line['document_in'] == record:
+                    if isinstance(line['document_out'],sale_obj.__class__):
+                            so_ids |= line['document_out']
+            
             sales_description = ''
             for sol in so_ids.mapped('order_line').filtered(lambda x: x.product_id == record.product_id):
                 desc = sol.name.replace(record.product_id.display_name,'').strip()
