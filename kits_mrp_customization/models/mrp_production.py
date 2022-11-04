@@ -47,9 +47,8 @@ class mrp_production(models.Model):
             
             sales_description = ''
             for sol in so_ids.mapped('order_line').filtered(lambda x: x.product_id == record.product_id):
-                desc = sol.name.replace(record.product_id.display_name,'').strip()
-                if desc:
-                    sales_description += desc+'\n\n'
+                if sol.name:
+                    sales_description += sol.name+'\n\n'
                 else:
                     continue
             # record.sales_description = sales_description.strip()
