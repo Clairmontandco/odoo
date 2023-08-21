@@ -11,11 +11,17 @@
     "license" : "OPL-1",
     "depends" : ['sale_management','stock','mrp','sale_mrp'],
     "data": [
+        # Security
+        'security/ir.model.access.csv',
+
         # Views
         'views/mrp_production_view.xml',
         'views/sale_order_view.xml',
         'views/stock_picking_view.xml',
         
+        # Data
+        'data/ir_server_actions.xml',
+
         # Reports
         'reports/inherit_delivery_slip.xml',
     ],
