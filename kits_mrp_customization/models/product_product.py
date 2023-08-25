@@ -200,9 +200,19 @@ class ProductProduct(models.Model):
             content_col += 1
             
             # Product category.
-            sheet.merge_cells('C%s:C%s'%(table_content_row,table_content_row+7))
+            sheet.merge_cells('C%s:C%s'%(table_content_row,table_content_row+3))
             sheet.cell(row=table_content_row,column=content_col).value = report_data.get(data).get('product_categ')
             sheet.cell(row=table_content_row,column=content_col).alignment = left_aligment
+            sheet.cell(row=table_content_row+8,column=3).fill = styles.PatternFill("solid",start_color="7f7f7f")
+
+            product_tags = ''
+            if product_id.product_tmpl_id.x_studio_many2many_field_bOjgj:
+                product_tags = ', '.join(product_id.product_tmpl_id.x_studio_many2many_field_bOjgj.mapped('display_name')) if product_id.product_tmpl_id.x_studio_many2many_field_bOjgj else ''
+
+            # Product tags.
+            sheet.merge_cells('C%s:C%s'%(table_content_row+4,table_content_row+7))
+            sheet.cell(row=table_content_row+4,column=content_col).value = 'Tags : ' + product_tags
+            sheet.cell(row=table_content_row+4,column=content_col).alignment = left_aligment
             sheet.cell(row=table_content_row+8,column=3).fill = styles.PatternFill("solid",start_color="7f7f7f")
             content_col += 1
             
@@ -322,16 +332,17 @@ class ProductProduct(models.Model):
             sheet.cell(row=table_content_row+1,column=content_col).border = top_bottom_border
             table_content_row += 1
             
-            product_tags = ''
-            # If product tags then merge rows.
+            key_web_accounts = ''
+            # If product key/web accounts then merge rows.
             if product_id.product_tmpl_id.x_studio_many2many_field_T5tHX:
-                product_tags = ', '.join(product_id.product_tmpl_id.x_studio_many2many_field_T5tHX.mapped('display_name')) if product_id.product_tmpl_id.x_studio_many2many_field_T5tHX else ''
+                key_web_accounts = ', '.join(product_id.product_tmpl_id.x_studio_many2many_field_T5tHX.mapped('display_name')) if product_id.product_tmpl_id.x_studio_many2many_field_T5tHX else ''
             
+
             sheet.cell(row=table_content_row+1,column=content_col).value = "Create Date : " + str(report_data.get(data).get('create_date'))
             sheet.cell(row=table_content_row+1,column=content_col).alignment = styles.Alignment(horizontal="left", vertical="top",wrap_text=True)
             sheet.cell(row=table_content_row+1,column=content_col).border = top_border
 
-            sheet.cell(row=table_content_row+2,column=content_col).value = "Key/Web Accounts : " + product_tags
+            sheet.cell(row=table_content_row+2,column=content_col).value = "Key/Web Accounts : " + key_web_accounts
             sheet.cell(row=table_content_row+2,column=content_col).alignment = styles.Alignment(horizontal="left", vertical="top",wrap_text=True)
             sheet.cell(row=table_content_row+2,column=content_col).border = top_border
             table_content_row += 2
