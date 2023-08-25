@@ -324,14 +324,14 @@ class ProductProduct(models.Model):
             
             product_tags = ''
             # If product tags then merge rows.
-            if product_id.product_tmpl_id.x_studio_many2many_field_bOjgj:
-                product_tags = ', '.join(product_id.product_tmpl_id.x_studio_many2many_field_bOjgj.mapped('display_name')) if product_id.product_tmpl_id.x_studio_many2many_field_bOjgj else ''
+            if product_id.product_tmpl_id.x_studio_many2many_field_T5tHX:
+                product_tags = ', '.join(product_id.product_tmpl_id.x_studio_many2many_field_T5tHX.mapped('display_name')) if product_id.product_tmpl_id.x_studio_many2many_field_T5tHX else ''
             
             sheet.cell(row=table_content_row+1,column=content_col).value = "Create Date : " + str(report_data.get(data).get('create_date'))
             sheet.cell(row=table_content_row+1,column=content_col).alignment = styles.Alignment(horizontal="left", vertical="top",wrap_text=True)
             sheet.cell(row=table_content_row+1,column=content_col).border = top_border
 
-            sheet.cell(row=table_content_row+2,column=content_col).value = "Tags : " + product_tags
+            sheet.cell(row=table_content_row+2,column=content_col).value = "Key/Web Accounts : " + product_tags
             sheet.cell(row=table_content_row+2,column=content_col).alignment = styles.Alignment(horizontal="left", vertical="top",wrap_text=True)
             sheet.cell(row=table_content_row+2,column=content_col).border = top_border
             table_content_row += 2
