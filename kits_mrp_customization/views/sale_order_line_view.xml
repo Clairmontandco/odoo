@@ -7,10 +7,12 @@
             <field name="name">sale.order.line.product.forecast.view.tree</field>
             <field name="model">sale.order.line</field>
             <field name="arch" type="xml">
-                <tree string="">
+                <tree string="" default_order="delivery_date desc">
                     <field name="product_id" />
                     <field name="product_uom_qty" />
                     <field name="delivery_date" />
+                    <field name="product_category_id" />
+                    <field name="product_tags_ids" widget="many2many_tags"/>
                 </tree>
             </field>
         </record>
@@ -24,6 +26,7 @@
                 <xpath expr="//group" position="inside">
                     <filter string="Delivery Month" name="delivery_date_month" domain="[]" context="{'group_by':'delivery_date:month'}"/>
                     <filter string="Delivery Week" name="delivery_date_week" domain="[]" context="{'group_by':'delivery_date:week'}"/>
+                    <filter string="Product Category" name="product_category" domain="[]" context="{'group_by':'product_category_id'}"/>
                 </xpath>    
 
             </field>
@@ -34,6 +37,7 @@
             <field name="name">Product Delivery Forecast</field>
             <field name="res_model">sale.order.line</field>
             <field name="view_mode">tree</field>
+            <field name="domain">[('state','not in',('cancel','draft'))]</field>
             <field name="context">{'search_default_product': 1,'search_default_delivery_date_month':1,'search_default_delivery_date_week':1}</field>
             <field name="view_id" ref="kits_mrp_customization.sale_order_line_product_forecast_view_tree"/>
         </record>
