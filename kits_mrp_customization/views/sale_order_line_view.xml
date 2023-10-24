@@ -36,7 +36,7 @@
         <record id="product_delivery_forecast_action_spt" model="ir.actions.act_window">
             <field name="name">Product Delivery Forecast</field>
             <field name="res_model">sale.order.line</field>
-            <field name="view_mode">tree</field>
+            <field name="view_mode">tree,form</field>
             <field name="domain">[('state','not in',('cancel','draft'))]</field>
             <field name="context">{'search_default_product': 1,'search_default_delivery_date_month':1,'search_default_delivery_date_week':1}</field>
             <field name="view_id" ref="kits_mrp_customization.sale_order_line_product_forecast_view_tree"/>

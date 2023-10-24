@@ -11,16 +11,58 @@
                     <button name="action_view_manufacturings" type="object" class="oe_stat_button" icon="fa-gavel" attrs="{'invisible': [('kits_mo_count', '=', 0)]}">
                         <field name="kits_mo_count" widget="statinfo" string="Manufacture"/>
                     </button>
+                    <button name="action_kcash" type="object" class="oe_stat_button" icon="fa-money" attrs="{'invisible': ['|',('state','in',('cancel')),('kcash', '=', 0)]}">
+                        <field name="kcash" widget="statinfo" string="K-Cash"/>
+                    </button>
                 </xpath>
 
                 <xpath expr="//group[@name='sale_info']/field[@name='invoice_status']" position="after">
                     <field name="invoice_payment_status" readonly="1" force_save="1" />
+                </xpath>
+                <xpath expr="//header/field[@name='authorized_transaction_ids']" position="after">
+                    <button name="action_kcash_wizard" class="oe_highlight" type="object" string="Apply K-Cash" attrs="{'invisible': ['|',('state','in',('sale','done','cancel')),('kcash', '=', 0)]}"/>
                 </xpath>
 
                 <field name="validity_date" position="attributes" >
                     <attribute name="attrs"></attribute>
                     <attribute name="string">Delivery Date</attribute>
                 </field>
+                <xpath expr="//field[@name='order_line']//tree/field[@name='product_id']" position="before">
+                    <field name="kcash_product" invisible="1"/>
+                </xpath>
+                <xpath expr="//field[@name='order_line']//tree/field[@name='product_id']" position="attributes">
+                    <attribute name="attrs">{'readonly': [('product_updatable', '=', False),('kcash_product','=',True)],'required': [('display_type', '=', False)]}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']//tree/field[@name='product_template_id']" position="attributes">
+                    <attribute name="attrs">{'readonly': [('product_updatable', '=', False),('kcash_product','=',True)],'required': [('display_type', '=', False)]}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']//tree/field[@name='name']" position="attributes">
+                    <attribute name="attrs">{'readonly': [('kcash_product','=',True)]}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']//tree/field[@name='analytic_tag_ids']" position="attributes">
+                    <attribute name="attrs">{'readonly': [('kcash_product','=',True)]}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']//tree/field[@name='route_id']" position="attributes">
+                    <attribute name="attrs">{'readonly': [('kcash_product','=',True)]}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']//tree/field[@name='customer_lead']" position="attributes">
+                    <attribute name="attrs">{'readonly': [('parent.state', 'not in', ['draft', 'sent', 'sale']),('kcash_product','=',True)]}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']//tree/field[@name='product_uom_qty']" position="attributes">
+                    <attribute name="attrs">{'readonly': [('kcash_product','=',True)]}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']//tree/field[@name='product_uom']" position="attributes">
+                    <attribute name="attrs">{'readonly': [('kcash_product','=',True)]}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']//tree/field[@name='price_unit']" position="attributes">
+                    <attribute name="attrs">{'readonly': [('kcash_product','=',True)]}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']//tree/field[@name='tax_id']" position="attributes">
+                    <attribute name="attrs">{'readonly': [('kcash_product','=',True)]}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']//tree/field[@name='discount']" position="attributes">
+                    <attribute name="attrs">{'readonly': [('kcash_product','=',True)]}</attribute>
+                </xpath>
             </field>
         </record>
 

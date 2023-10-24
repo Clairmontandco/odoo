@@ -1,6 +1,5 @@
 from odoo import models, fields, api,_
-from datetime import datetime
-
+from datetime import datetime,date
 class mrp_production(models.Model):
     _inherit = 'mrp.production'
 

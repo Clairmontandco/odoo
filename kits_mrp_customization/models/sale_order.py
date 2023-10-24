@@ -11,6 +11,10 @@ class sale_order(models.Model):
 
     invoice_payment_status = fields.Selection(selection=INVOICE_PAYMENT,compute="_compute_invoice_payment_status",store=True,compute_sudo=True)
 
+    kcash = fields.Integer('K-cash')
+    kcash_id = fields.Many2one('kcash.bonus')
+    kcash_history_ids = fields.One2many('kcash.history', 'order_id')
+
     @api.depends('invoice_status','invoice_ids','invoice_ids.payment_state')
     def _compute_invoice_payment_status(self):
         for record in self:
@@ -30,6 +34,8 @@ class sale_order(models.Model):
     @api.depends('mo_ids')
     def _compute_mo_count(self):
         mo_obj = self.env['mrp.production']
+        kcash=0
+        kcash_id = 0
         for record in self:
             mo_ids = mo_obj
             for line in record.order_line:
@@ -40,10 +46,16 @@ class sale_order(models.Model):
                             mo_ids |= line['document_in']
             # record.kits_mo_count = len(mo_ids)
             # record.mo_ids = mo_ids
+            kcash += sum(record.partner_id.kcash_bonus_ids.search([('partner_id','=',record.partner_id.id),('sale_id','!=',record.id),('expiry_date','>=',fields.Date.today())]).mapped('credit'))
+            kcash -= sum(record.partner_id.kcash_bonus_ids.search([('partner_id','=',record.partner_id.id),('sale_id','!=',record.id),('expiry_date','>=',fields.Date.today())]).mapped('debit'))
             record.write({
                 'kits_mo_count':len(mo_ids),
                 'mo_ids':mo_ids.ids,
+                'kcash':kcash
             })
+
+    def action_kcash(self):
+        pass 
 
     def action_view_manufacturings(self):
         self.ensure_one()
@@ -130,9 +142,33 @@ class sale_order(models.Model):
         if not is_html_empty(template.note):
             self.note = template.note
 
+    def _action_cancel(self):
+        res = super()._action_cancel()
+        for rec in self.kcash_history_ids:
+            rec.kcash_id.debit -= rec.amount
+            rec.kcash_id.reward_fullfill = False
+            rec.unlink()
+        k_cash_line = self.order_line.filtered(lambda ol: ol.product_id.name == 'K-Cash Reward')
+        k_cash_line.price_unit = 0
+        k_cash_line.unlink()
+        return res
+
     @api.model
     def create(self,vals):
         res = super(sale_order,self).create(vals)
         if not res.validity_date and bool(res.commitment_date or res.expected_date):
             res.validity_date = res.commitment_date or res.expected_date
         return res
+
+    def action_kcash_wizard(self):
+        line_kcash = self.kcash + abs(self.order_line.filtered(lambda ol: ol.product_id.name == 'K-Cash Reward').price_unit)
+        return {
+                    'name': 'Apply K-Cash',
+                    'view_mode': 'form',
+                    'target': 'new',
+                    'res_model': 'k.cash.wizard',
+                    'context':{'default_sale_id': self.id,
+                               'default_available_kcash': line_kcash,
+                               'default_remain_kcash':line_kcash},
+                    'type': 'ir.actions.act_window',
+                }

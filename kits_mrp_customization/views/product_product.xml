@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="inherit_product_template_form_view" model="ir.ui.view">
+            <field name="name">inherit.template.product.form.view</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_form_view" />
+            <field name="arch" type="xml">
+                <xpath expr="//div[@name='options']/span[@class='d-inline-block'][2]" position="after">
+                    <span class="d-inline-block">
+                        <field name="is_kcash_rewards" />
+                        <label for="is_kcash_rewards"/>
+                    </span>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

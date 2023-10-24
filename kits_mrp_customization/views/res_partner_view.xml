@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <data>
+    
+        <record id="view_partner_form_inherit_kits_mrp_customization" model="ir.ui.view">
+            <field name="name">view.partner.form.inherit.kits.mrp.customization</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook" position="inside">
+                    <page name="kcash_bonus" string="KCash Reward">
+                        <field name="kcash_bonus_ids" context="{'default_partner_id': id}">
+                            <tree editable='bottom'>
+                                <field name="partner_id" invisible="1"/>
+                                <field name="domain_order_ids" widget="many2many_tags" invisible="1" />
+                                <field name="sale_id" domain="[('partner_id','=',partner_id),('id','not in',domain_order_ids),('state','in',['sale','done'])]" options="{'no_create': True}" required="1"/>
+                                <field name="expiry_date"/>
+                                <field name="credit"/>
+                                <!-- <field name="debit"/> -->
+                            </tree>
+                        </field>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="calendar_view_partners_form_inherit_kits_mrp_customization" model="ir.ui.view">
+            <field name="name">calendar.view.partners.form.inherit.kits.mrp.customization</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="calendar.view_partners_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='schedule_meeting']" position="after">
+                    <button class="oe_stat_button" type="object" name="action_kcash_balance" icon="fa-money">
+                        <field string="KCash Balance" name="kcash_balance" widget="statinfo"/>
+                    </button>
+                </xpath>
+            </field>
+        </record>
+        <record id="kits_res_partner_inherit_view_search" model="ir.ui.view">
+            <field name="name">res.partner.search.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_res_partner_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//search" position="inside">
+                    <field name="kcash_balance"/>
+                    <filter string="Has K-Cash" name="has_kcash" domain="[('kcash_balance','>',0)]"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+    
+
+</odoo>

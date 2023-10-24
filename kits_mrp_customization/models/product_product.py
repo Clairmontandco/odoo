@@ -1,4 +1,4 @@
-from odoo import _,models
+from odoo import _,models,fields
 from datetime import datetime
 from io import BytesIO
 from openpyxl import Workbook, styles
@@ -571,3 +571,10 @@ class ProductProduct(models.Model):
             'url': 'web/content/?model=report.wizard&download=true&field=file&id=%s&filename=%s.xlsx' % (wizard_id.id,f_name),
             'target': 'self',
         }
+
+
+
+class ProductTemplate(models.Model):
+    _inherit = 'product.template'
+
+    is_kcash_rewards = fields.Boolean('K-Cash Product')

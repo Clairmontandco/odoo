@@ -19,12 +19,20 @@
         'views/sale_order_view.xml',
         'views/stock_picking_view.xml',
         'views/sale_order_line_view.xml',
+        'views/account_move_views.xml',
+        'views/res_partner_view.xml',
+        'views/product_product.xml',
         
         # Data
         'data/ir_server_actions.xml',
 
         # Reports
         'reports/inherit_delivery_slip.xml',
+        'reports/report_sale_order.xml',
+        'reports/report_invoice.xml',
+
+        # Wizards 
+        'wizards/k_cash_wizard_view.xml',
     ],
     "auto_install": False,
     "installable": True,

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="kits_mrp_report_saleorder_document_inherit" inherit_id="sale.report_saleorder_document">
+            <xpath expr="//div[@id='informations']" position="inside">
+                <t t-set="kcash_value" t-value="abs(sum(doc.order_line.search([('order_id','=',doc.id),('product_id.name','=','K-Cash Reward')]).mapped('price_unit')))"/>
+                <div t-if="kcash_value" class="col-auto col-3 mw-100 mb-2">
+                    <strong>Applied K-Cash:</strong>
+                    <p class="m-0">
+                        <t t-esc="kcash_value"/>
+                    </p>
+                </div>
+            </xpath>
+            <xpath expr="//tbody//tr" position="attributes">
+                <attribute name="t-if">not line.product_id.is_kcash_rewards</attribute>
+            </xpath>
+        </template>
+    </data>
+</odoo>
