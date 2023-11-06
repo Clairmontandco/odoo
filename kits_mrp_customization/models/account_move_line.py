@@ -13,12 +13,12 @@ class AccountMoveLine(models.Model):
             else:
                 rec.kcash_product = False
 
-    def unlink(self):
-        for rec in self:
-            if rec.kcash_product:
-                if rec.price_unit == 0:
-                    return super(AccountMoveLine, rec).unlink()
-                else:
-                    raise UserError(_('Sorry you can not remove line with kcash reward.'))
-            else:
-                return super(AccountMoveLine, rec).unlink()
+    # def unlink(self):
+    #     for rec in self:
+    #         if rec.kcash_product:
+    #             if rec.price_unit == 0:
+    #                 return super(AccountMoveLine, rec).unlink()
+    #             else:
+    #                 raise UserError(_('Sorry you can not remove line with kcash reward.'))
+    #         else:
+    #             return super(AccountMoveLine, rec).unlink()
