@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_stock_return_picking_form" model="ir.ui.view">
+        <field name="name">Return lines</field>
+        <field name="model">stock.return.picking</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="parent_location_id" invisible="1"/>
+                <field name="original_location_id" invisible="1"/>
+                <field name="company_id" invisible="1"/>
+                <field name="product_return_moves">
+                    <tree editable="top" create="0">
+                        <field name="product_id" options="{'no_create': True, 'no_open': True}" force_save="1"/>
+                        <field name="quantity"/>
+                        <field name="uom_id" groups="uom.group_uom"/>
+                        <field name="move_id" invisible="1"/>
+                    </tree>
+                </field>
+                <footer>
+                    <button name="create_returns_ts" string="Return" type="object" class="btn-primary" data-hotkey="q"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="act_stock_return_picking_ts" model="ir.actions.act_window">
+        <field name="name">Reverse Stock</field>
+        <field name="res_model">stock.return.picking</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_stock_return_picking_form"/>
+        <field name="target">new</field>
+    </record>
+</odoo>
+

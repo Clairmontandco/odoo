@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+        <record id="shopify_financial_workflow_config_form_view" model="ir.ui.view">
+            <field name="name">shopify_financial_workflow_config_form_view</field>
+            <field name="model">shopify.financial.workflow.config</field>
+            <field name="arch" type="xml">
+                <form string="Order Workflow Configuration">
+                    <sheet>
+                        <group>
+                            <field name="payment_term_id" required="1"/>
+                            <field name="order_workflow_id" required="1" domain="[('company_id', '=', company_id)]"/>
+                            <field name="payment_gateway_id" required="1" domain="[('mk_instance_id', '=', mk_instance_id)]"/>
+                            <field name="financial_status" required="1"/>
+                            <field name="mk_instance_id" readonly="1" force_save="1" invisible="1"/>
+                            <field name="company_id" invisible="1"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

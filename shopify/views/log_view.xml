@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="marketplace_log_line_shopify_view_tree" model="ir.ui.view">
+            <field name="name">marketplace.log.line.shopify.tree</field>
+            <field name="model">mk.log.line</field>
+            <field name="inherit_id" ref="base_marketplace.marketplace_log_line_view_tree"/>
+            <field name="arch" type="xml">
+                <field name="state" position="after">
+                    <field name="financial_status" invisible="1"/>
+                    <field name="payment_gateway_id" invisible="1"/>
+                    <button name="do_configure_shopify_order_workflow" type="object" icon="fa-cog" title="Conifgure Workflow" aria-label="Configure Workflow" string="Configure Workflow" class="float-right"
+                            attrs="{'invisible': ['|',('payment_gateway_id','=',False),('financial_status','=',False)]}"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="marketplace_log_line_shopify_view_form" model="ir.ui.view">
+            <field name="name">marketplace.log.line.shopify.form</field>
+            <field name="model">mk.log.line</field>
+            <field name="inherit_id" ref="base_marketplace.marketplace_log_line_view_form"/>
+            <field name="arch" type="xml">
+                <header position="inside">
+                    <field name="financial_status" invisible="1"/>
+                    <field name="payment_gateway_id" invisible="1"/>
+                    <button name="do_configure_shopify_order_workflow" type="object" icon="fa-cog" title="Conifgure Workflow" aria-label="Configure Workflow" string="Configure Workflow" class="oe_highlight"
+                            attrs="{'invisible': ['|',('payment_gateway_id','=',False),('financial_status','=',False)]}"/>
+                </header>
+            </field>
+        </record>
+    </data>
+</odoo>	

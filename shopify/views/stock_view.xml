@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_picking_form_inherit_shopify" model="ir.ui.view">
+            <field name="name">stock.picking.form.inherit.base.shopify</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@name='button_box']" position="after">
+                    <div name="marketplace" class="badge rounded-pill float-right fs-6 text-white"
+                         style="background-color: #95BF46; font-size: 1.08333333rem !important; border: 1px solid #95BF46 !important;"
+                         attrs="{'invisible': [('marketplace', '!=', 'shopify')]}"><field name="marketplace" style="margin-bottom: auto;"/>
+                    </div>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="action_shopify_delivery_dashboard" model="ir.actions.act_window">
+            <field name="name">Shopify Delivery Orders</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.picking</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('mk_instance_id', '=', active_id)]</field>
+        </record>
+    </data>
+</odoo>

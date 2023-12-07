@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_order_form_ext">
+            <field name="name">View Order Form Ext</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <data>
+                    <field name="fiscal_position_id" position="after">
+                        <field name="order_workflow_id" readonly="1" attrs="{'invisible': [('mk_instance_id','=', False)]}"/>
+                    </field>
+                    <xpath expr="//button[@name='action_view_invoice']" position="before">
+                        <button type="object" name="action_view_stock_moves_ts" class="oe_stat_button"
+                                attrs="{'invisible': [('stock_moves_count', '=', 0)]}"
+                                icon="fa-truck"
+                                groups="base.group_user">
+                            <field name="stock_moves_count" widget="statinfo"/>
+                        </button>
+                    </xpath>
+                </data>
+            </field>
+        </record>
+    </data>
+</odoo>

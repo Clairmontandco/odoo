@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+        <record id="mk_listing_form_view" model="ir.ui.view">
+            <field name="name">mk.listing.form.view</field>
+            <field name="model">mk.listing</field>
+            <field name="arch" type="xml">
+                <form string="Listing" create="0" edit="1">
+                    <header>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="%(base_marketplace.action_listing_items_from_listing)d" type="action"
+                                    icon="fa-sitemap" class="oe_stat_button"
+                                    attrs="{'invisible': [('item_count', '&lt;=', 1)]}">
+                                <field string="Items" name="item_count" widget="statinfo"/>
+                            </button>
+                            <!--NOTE: Shifted this to each marketplace wise-->
+                            <!--<button class="oe_stat_button o_stat_text o_value text-danger" name="marketplace_published"
+                                    type="object" icon="fa-globe"
+                                    attrs="{'invisible': ['|',('is_listed','=',False),('is_published','=',True)]}"
+                                    string="Unpublished" confirm="Are you sure you want to publish listing? This action directly reflect on Marketplace.">
+                            </button>
+                            <button class="oe_stat_button o_stat_text o_value text-success" name="marketplace_published"
+                                    type="object" icon="fa-globe"
+                                    attrs="{'invisible': ['|',('is_listed','=',False),('is_published','=',False)]}"
+                                    string="Published" confirm="Are you sure you want to unpublish listing? This action directly reflect on Marketplace.">
+                            </button>-->
+                            <button type="object" name="open_listing_in_marketplace" class="oe_stat_button" icon='fa-eye' string="Show in Marketplace"
+                                    attrs="{'invisible': [('mk_id','=',False)]}"/>
+                        </div>
+                        <div class="oe_title">
+                            <label class="oe_edit_only" for="name" string="Listing Name"/>
+                            <h1>
+                                <field name="name" placeholder="Listing Name"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="product_tmpl_id" readonly="1"/>
+                                <field name="product_category_id"/>
+                                <field name="is_listed" readonly="1"/>
+                                <field name="mk_id" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="mk_instance_id" readonly="1"/>
+                                <field name="mk_id" readonly="1" invisible="1"/>
+                                <field name="marketplace" invisible="1"/>
+                                <field name="listing_create_date" readonly="1"/>
+                                <field name="listing_update_date" readonly="1"/>
+                                <field name="listing_publish_date" readonly="1"/>
+                                <field name="is_published" invisible="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Description" name="description">
+                                <field name="description"/>
+                            </page>
+                            <page string="Variants" name="variant_count">
+                                <field name="listing_item_ids"/>
+                            </page>
+                            <!-- TODO: Add Product Images field for each listing -->
+                            <page string="Product Images" name="product_images">
+                                <group>
+                                    <field name="image_ids" class="o_website_sale_image_list" context="{'default_name': name}" mode="kanban" options="{'create_text':'Add a Image'}" nolabel="1"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="activity_ids" widget="mail_activity"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="mk_listing_tree_view" model="ir.ui.view">
+            <field name="name">mk.listing.tree.view</field>
+            <field name="model">mk.listing</field>
+            <field name="arch" type="xml">
+                <tree string="Listing" create="0" edit="0" decoration-success="is_listed">
+                    <field name="name"/>
+                    <field name="product_tmpl_id"/>
+                    <field name="mk_instance_id"/>
+                    <field name="listing_item_ids"/>
+                    <field name="is_listed" readonly="1"/>
+                    <field name="is_published" readonly="1"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="mk_listing_search_view" model="ir.ui.view">
+            <field name="name">mk.listing.search.view</field>
+            <field name="model">mk.listing</field>
+            <field name="arch" type="xml">
+                <search string="Listing Search">
+                    <field name="name" filter_domain="['|', '|', '|', ('name', 'ilike', self), ('mk_id', '=', self), ('listing_item_ids.default_code', '=', self), ('listing_item_ids.barcode', '=', self)]"/>
+                    <field name="mk_id"/>
+                    <field name="mk_instance_id"/>
+
+                    <separator/>
+                    <filter string="Published" name="published" domain="[('is_published', '=', True)]"/>
+                    <filter string="UnPublished" name="unpublished" domain="[('is_published', '=', False)]"/>
+
+                    <separator/>
+                    <filter string="Listed" name="listed" domain="[('is_listed', '=', True)]"/>
+                    <filter string="Not Listed" name="not_listed" domain="[('is_listed', '=', False)]"/>
+
+                    <group expand="0" string="Group By">
+                        <filter string="Instance" name="group_by_instance" context="{'group_by': 'mk_instance_id'}"/>
+                    </group>
+                    <searchpanel>
+                        <field name="mk_instance_id" icon="fa-shopping-bag" enable_counters="1"/>
+                    </searchpanel>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_marketplace_listing_all" model="ir.actions.act_window">
+            <field name="name">Listing</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mk.listing</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p>
+                </p>
+            </field>
+        </record>
+
+        <record id="action_marketplace_listing_kanban" model="ir.actions.act_window">
+            <field name="name">Listing</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mk.listing</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="mk_listing_tree_view"/>
+            <field name="domain">[('mk_instance_id','=',active_id)]</field>
+        </record>
+    </data>
+</odoo>

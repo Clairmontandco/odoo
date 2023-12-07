@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+        <record id="shopify_mk_listing_form_view" model="ir.ui.view">
+            <field name="name">shopify.marketplace.listing.form.view</field>
+            <field name="model">mk.listing</field>
+            <field name="inherit_id" ref="base_marketplace.mk_listing_form_view"/>
+            <field name="arch" type="xml">
+                <page name="product_images" position="after">
+                    <page string="Configuration" attrs="{'invisible':[('marketplace','!=','shopify')]}">
+                        <group>
+                            <group>
+                                <field name="inventory_management"/>
+                                <field name="continue_selling"/>
+                            </group>
+                            <group>
+                            </group>
+                        </group>
+                    </page>
+                    <page string="Other Details" attrs="{'invisible':[('marketplace','!=','shopify')]}">
+                        <group>
+                            <group>
+                            </group>
+                            <group>
+                                <field name="number_of_variants_in_mk" readonly="1"/>
+                            </group>
+                        </group>
+                    </page>
+                </page>
+                <field name="is_listed" position="after">
+                    <field name="tag_ids" widget="many2many_tags" attrs="{'invisible':[('marketplace','!=','shopify')]}"/>
+                    <field name="shopify_published_scope" attrs="{'invisible':[('marketplace','!=','shopify')]}" readonly="1"/>
+                </field>
+
+                <div class="oe_button_box" position="inside">
+                    <button class="oe_stat_button" name="shopify_published" context="{'shopify_published_scope': 'web'}"
+                            type="object" icon="fa-globe" attrs="{'invisible': ['|','|',('is_listed','=',False),('shopify_published_scope','=','web'),('marketplace','!=','shopify')]}"
+                            confirm="Are you sure you want to publish listing to Online Store? This action directly reflect on Shopify.">
+                        <div class="o_stat_info o_field_widget">
+                            <span class="text-success">Publish in</span>
+                            <span class="o_stat_text">Store only</span>
+                        </div>
+                    </button>
+                    <button class="oe_stat_button" name="shopify_published" context="{'shopify_published_scope': 'global'}"
+                            type="object" icon="fa-globe" attrs="{'invisible': ['|','|',('is_listed','=',False),('shopify_published_scope','=','global'),('marketplace','!=','shopify')]}"
+                            confirm="Are you sure you want to publish listing to Online Store and POS? This action directly reflect on Shopify.">
+                        <div class="o_stat_info o_field_widget">
+                            <span class="text-success">Publish in</span>
+                            <span class="o_stat_text">Store &amp; POS</span>
+                        </div>
+                    </button>
+                    <button class="oe_stat_button" name="shopify_published" context="{'shopify_published_scope': 'unpublished'}"
+                            type="object" icon="fa-globe" attrs="{'invisible': ['|','|',('is_listed','=',False),('shopify_published_scope','=','unpublished'),('marketplace','!=','shopify')]}"
+                            confirm="Are you sure you want to unpublish listing? This action directly reflect on Shopify.">
+                        <div class="o_stat_info o_field_widget">
+                            <span class="text-danger">Unpublish</span>
+                        </div>
+                    </button>
+                </div>
+            </field>
+        </record>
+    </data>
+</odoo>

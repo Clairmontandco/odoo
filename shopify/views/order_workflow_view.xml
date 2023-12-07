@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+        <record id="order_workflow_form_view" model="ir.ui.view">
+            <field name="name">order_workflow_form_view</field>
+            <field name="model">order.workflow.config.ts</field>
+            <field name="inherit_id" ref="marketplace_automation_ts.order_workflow_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='is_register_payment']" position="after">
+                    <field name="is_create_credit_note" widget="boolean_toggle" attrs="{'invisible':[('is_validate_invoice','=', False)]}"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

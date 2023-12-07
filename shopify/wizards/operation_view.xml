@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+        <record id="mk_operation_export_form_view" model="ir.ui.view">
+            <field name="name">shopify.operation.export.form.view</field>
+            <field name="model">mk.operation</field>
+            <field name="inherit_id" ref="base_marketplace.mk_operation_export_form_view"/>
+            <field name="arch" type="xml">
+                <field name="is_update_order_status" position="after">
+                    <field name="is_export_collection" attrs="{'invisible':[('marketplace','!=','shopify')]}" widget="boolean_toggle"/>
+                    <field name="is_update_collection" attrs="{'invisible':[('marketplace','!=','shopify')]}" widget="boolean_toggle"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="mk_operation_export_listing_to_shopify_view" model="ir.ui.view">
+            <field name="name">mk.operation.export.listing.to.shopify.form.view</field>
+            <field name="model">mk.operation</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <group>
+                            <field name="is_set_price" widget="boolean_toggle"/>
+                            <field name="is_set_quantity" widget="boolean_toggle"/>
+                            <field name="is_set_images" widget="boolean_toggle"/>
+                        </group>
+                        <group>
+                            <field name="shopify_published_scope"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-danger" role="alert">
+                        <h4 class="alert alert-heading" role="alert"><strong>Notes</strong></h4>
+                        <p colspan="2" class="my-0">
+                            <strong>
+                                <ol>
+                                    <li>
+                                        Limit of 80 products can be handled at a time.
+                                    </li>
+                                    <li>
+                                        Already exported product will be skipped.
+                                    </li>
+                                </ol>
+                            </strong>
+                        </p>
+                    </div>
+                    <footer>
+                        <button string="Export Listing" type="object" class="btn-primary" name="export_listing_to_mk"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="mk_operation_update_listing_to_shopify_view" model="ir.ui.view">
+            <field name="name">mk.operation.update.listing.shopify.form.view</field>
+            <field name="model">mk.operation</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <group>
+                            <field name="is_update_product" widget="boolean_toggle"/>
+                            <field name="is_set_price" widget="boolean_toggle"/>
+                            <field name="is_set_quantity" widget="boolean_toggle"/>
+                        </group>
+                        <group>
+                            <field name="is_set_images" widget="boolean_toggle"/>
+                            <field name="shopify_published_scope"/>
+                        </group>
+                    </group>
+                    <p class="alert alert-warning" role="alert" attrs="{'invisible':[('is_set_images','!=',True)]}"
+                       style="border-radius: 1em;">
+                        <h3>Information:</h3>
+                        <ul>
+                            <li>
+                                If there are no images in the Listings then update listings will be removed this product's images from the Shopify.
+                            </li>
+                        </ul>
+                    </p>
+                    <footer>
+                        <button string="Update Listing" type="object" class="btn-primary" name="update_listing_to_mk"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="shopify_mk_operation_form_view" model="ir.ui.view">
+            <field name="name">mk.operation.shopify.export.form.view</field>
+            <field name="model">mk.operation</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <group>
+                            <field name="mk_instance_id" required="1" options='{"no_open": True, "no_create": True}' readonly="1"/>
+                            <field name="marketplace" invisible="1"/>
+                            <field name="shopify_operations" widget="radio" options="{'horizontal':True}"/>
+                        </group>
+                        <group></group>
+                    </group>
+
+                    <group>
+                        <group>
+                            <field name="shopify_import_operations" attrs="{'invisible':[('shopify_operations','!=','import')]}" widget="radio"/>
+                            <field name="shopify_export_operations" attrs="{'invisible':[('shopify_operations','!=','export')]}" widget="radio"/>
+
+                            <!--Fields for import order operations-->
+                            <label for="from_date" string="Date Range" attrs="{'invisible':['|',('shopify_import_operations','!=','import_orders'), ('shopify_operations','!=','import')]}"/>
+                            <div class="o_row" attrs="{'invisible':['|',('shopify_import_operations','!=','import_orders'), ('shopify_operations','!=','import')]}">
+                                <field name="from_date" widget="daterange" nolabel="1" class="oe_inline" options="{'related_end_date': 'to_date'}"
+                                       attrs="{'required':[('shopify_import_operations','=','import_orders'), ('shopify_operations','=','import')]}"/>
+                                <i class="fa fa-long-arrow-right mx-2" aria-label="Arrow icon" title="Arrow"/>
+                                <field name="to_date" widget="daterange" nolabel="1" class="oe_inline" options="{'related_start_date': 'from_date'}"
+                                       attrs="{'required':[('shopify_import_operations','=','import_orders'), ('shopify_operations','=','import')]}"/>
+                            </div>
+                            <field name="mk_order_id" placeholder="5869502038181, 9869502038181"
+                                   attrs="{'invisible':['|',('shopify_import_operations','!=','import_orders'), ('shopify_operations','!=','import')]}"/>
+
+                            <!--Fields for import listing operations-->
+                            <label for="from_listing_date" string="Date Range"
+                                   attrs="{'invisible':['|',('shopify_import_operations','!=','import_listings'), ('shopify_operations','!=','import')]}"/>
+                            <div class="o_row" attrs="{'invisible':['|',('shopify_import_operations','!=','import_listings'), ('shopify_operations','!=','import')]}">
+                                <field name="from_listing_date" widget="daterange" nolabel="1" class="oe_inline" options="{'related_end_date': 'to_listing_date'}"/>
+                                <i class="fa fa-long-arrow-right mx-2" aria-label="Arrow icon" title="Arrow"/>
+                                <field name="to_listing_date" widget="daterange" nolabel="1" class="oe_inline" options="{'related_start_date': 'from_listing_date'}"/>
+                            </div>
+                            <field name="import_date_based_on" attrs="{'invisible':['|',('shopify_import_operations','!=','import_listings'), ('shopify_operations','!=','import')]}"/>
+                            <field name="mk_listing_id" placeholder="5869502038181, 9869502038181"
+                                   attrs="{'invisible':['|',('shopify_import_operations','!=','import_listings'), ('shopify_operations','!=','import')]}"/>
+
+                            <!--Fields for import payout report operations-->
+                            <label for="from_payout_date" string="Date Range"
+                                   attrs="{'invisible':['|',('shopify_import_operations','!=','import_payout_report'), ('shopify_operations','!=','import')]}"/>
+                            <div class="o_row" attrs="{'invisible':['|',('shopify_import_operations','!=','import_payout_report'), ('shopify_operations','!=','import')]}">
+                                <field name="from_payout_date" widget="daterange" nolabel="1" class="oe_inline" options="{'related_end_date': 'to_payout_date'}"
+                                       attrs="{'required':[('shopify_import_operations','=','import_payout_report'), ('shopify_operations','=','import')]}"/>
+                                <i class="fa fa-long-arrow-right mx-2" aria-label="Arrow icon" title="Arrow"/>
+                                <field name="to_payout_date" widget="daterange" nolabel="1" class="oe_inline" options="{'related_start_date': 'from_payout_date'}"
+                                       attrs="{'required':[('shopify_import_operations','=','import_payout_report'), ('shopify_operations','=','import')]}"/>
+                            </div>
+                        </group>
+                        <group>
+                            <field name="update_existing_product" attrs="{'invisible':['|',('shopify_import_operations','!=','import_listings'), ('shopify_operations','!=','import')]}"
+                                   widget="boolean_toggle"/>
+                            <field name="update_product_price"
+                                   attrs="{'invisible':['|','|',('update_existing_product','=',False),('shopify_import_operations','!=','import_listings'), ('shopify_operations','!=','import')]}"
+                                   widget="boolean_toggle"/>
+                            <field name="shopify_published_scope"
+                                   attrs="{'invisible':['|',('shopify_export_operations','!=','export_listings'), ('shopify_operations','!=','export')]}"/>
+                        </group>
+                    </group>
+
+                    <!--Information regarding Order Import-->
+                    <p class="alert alert-warning" role="alert" attrs="{'invisible':['|',('shopify_import_operations','!=','import_customers'), ('shopify_operations','!=','import')]}"
+                       style="border-radius: 1em;">
+                        <h3>Information:</h3>
+                        <ul>
+                            <li>
+                                This will fetch customers data from Shopify and create <strong>Customer Queue Jobs</strong> in Odoo. <strong>Marketplace > Queues</strong>.
+                            </li>
+                            <li>
+                                Customer Queue Jobs are processed automatically at certain time interval and Customers will be created in Odoo.
+                            </li>
+                            <li>
+                                Customers will be import after date configured under <strong>Last Customer Imported On</strong> field in the instance.
+                            </li>
+                            <li>
+                                If <strong>Last Customer Imported On</strong> date not set in the instance then it will fetch all the customers from Shopify.
+                            </li>
+                        </ul>
+                    </p>
+
+                    <!--Information regarding Order Import-->
+                    <p class="alert alert-warning" role="alert" attrs="{'invisible':['|',('shopify_import_operations','!=','import_orders'), ('shopify_operations','!=','import')]}"
+                       style="border-radius: 1em;">
+                        <h3>Information:</h3>
+                        <ul>
+                            <li>
+                                This will fetch orders data from Shopify and create <strong>Order Queue Jobs</strong> in Odoo. <strong>Marketplace > Queues</strong>.
+                            </li>
+                            <li>
+                                Order Queue Jobs are processed automatically at a certain time interval and orders will be created in Odoo.
+                            </li>
+                            <li>
+                                The orders corresponding to the dates specified in the <strong>Date Range</strong> fields will be retrieved from Shopify.
+                            </li>
+                            <li>
+                                This will import orders that were created after a specific date, as set in the configuration under <strong>Marketplace > Configuration > Instance > Last Order
+                                Imported On.</strong>
+                            </li>
+                            <li>
+                                Orders will be only imported by their fulfillment status. You can configure Fulfillment Status here <strong>Marketplace > Configuration > Instance >
+                                Fulfillment Status </strong> (located under Orders tab).
+                            </li>
+                            <li>
+                                If order is partially or fully refunded in Shopify and Order workflow is set to validate invoice then credit notes are also created in Odoo.
+                            </li>
+                            <li>
+                                You can import multiple orders by separating the IDs with a comma (','). For example: <strong>5869502038181, 9869502038181, 4586950203818.</strong>
+                            </li>
+                        </ul>
+                    </p>
+
+                    <!--Information regarding Order Import-->
+                    <p class="alert alert-warning" role="alert" attrs="{'invisible':['|',('shopify_import_operations','!=','import_listings'), ('shopify_operations','!=','import')]}"
+                       style="border-radius: 1em;">
+                        <h3>Information:</h3>
+                        <ul>
+                            <li>
+                                This will fetch listing's data from Shopify and create <strong>Product Queue Jobs</strong> in Odoo. <strong>Marketplace > Queues</strong>
+                            </li>
+                            <li>
+                                Products Queue Jobs are processed automatically at a certain time interval and Listings will be created in Odoo.
+                            </li>
+                            <li>
+                                Products corresponding to the dates specified in the <strong>Date Range</strong> fields will be retrieved from Shopify.
+                            </li>
+                            <li>
+                                You can choose <strong>Update/Create Date</strong> based on which date you want to import listings to Odoo.
+                            </li>
+                            <li>
+                                If you want to update already imported listings then enable <strong>Update Existing Listing?</strong>.
+                            </li>
+                            <li>
+                                If you want to update price enable <strong>Update Price?</strong>. <strong>Note:</strong> Price will be updated in instance's pricelist.
+                            </li>
+                            <li>
+                                You can import multiple records using by giving <strong>comma ' , '</strong> between ids. <strong>Exp. 5869502038181, 9869502038181,
+                                4586950203818</strong>
+                            </li>
+                        </ul>
+                    </p>
+
+                    <!--Information regarding Collection Import-->
+                    <p class="alert alert-warning" role="alert" attrs="{'invisible':['|',('shopify_import_operations','!=','import_collections'), ('shopify_operations','!=','import')]}"
+                       style="border-radius: 1em;">
+                        <h3>Information:</h3>
+                        <ul>
+                            <li>
+                                Make sure you import all <b>Listings</b> before <b>Import Collections</b>.
+                            </li>
+                        </ul>
+                    </p>
+
+                    <!--Information regarding Collection Import-->
+                    <p class="alert alert-warning" role="alert" attrs="{'invisible':['|',('shopify_import_operations','!=','import_stock'), ('shopify_operations','!=','import')]}"
+                       style="border-radius: 1em;">
+                        <h3>Information:</h3>
+                        <ul>
+                            <li>
+                                While importing inventory from Shopify to Odoo we are only import products with Tracking field set to <strong>No Tracking</strong> in Odoo.
+                            </li>
+                            <li>
+                                Make sure you enable <b>Enable Import/Export Stock?</b> option under<strong> Marketplace > Shopify > Locations</strong>
+                            </li>
+                            <li>
+                                Inventory will be imported based on Location configured under<strong> Marketplace > Shopify > Locations > Stock Location Field.</strong>
+                            </li>
+                            <li>
+                                Import Inventory will create <strong> Inventory Adjustment</strong> for each location. You can locate Inventory Adjustment from <strong> Inventory >
+                                Operations > Inventory Adjustment.</strong>
+                            </li>
+                            <li>
+                                If <strong>Validate Inventory Adjustment?</strong> configuration is enabled under Instance setting, the system will automatically apply the
+                                inventory changes. Otherwise, you will need to manually process the inventory adjustment record in order for the stock changes to take effect.
+                            </li>
+                        </ul>
+                    </p>
+
+                    <!--Information regarding Update Listing to Shopify-->
+                    <p class="alert alert-warning" role="alert" attrs="{'invisible':['|',('shopify_export_operations','!=','update_listings'), ('shopify_operations','!=','export')]}"
+                       style="border-radius: 1em;">
+                        <h3>Information:</h3>
+                        <ul>
+                            <li>
+                                It will update following listings details to the Shopify.
+                                <strong>Description, Name, Tags, Product Category, Vendor, Weight, Weight Unit, Internal Reference, Charge tax on this variant, Barcode, Track quantity,
+                                    Continue selling when out of stock, Attributes and its Attribute Value.</strong>
+                            </li>
+                        </ul>
+                    </p>
+
+                    <!--Information regarding Update Listing price to Shopify-->
+                    <p class="alert alert-warning" role="alert" attrs="{'invisible':['|',('shopify_export_operations','!=','update_prices'), ('shopify_operations','!=','export')]}"
+                       style="border-radius: 1em;">
+                        <h3>Information:</h3>
+                        <ul>
+                            <li>
+                                This will allow the updating of the price of the listings to Shopify.
+                            </li>
+                        </ul>
+                    </p>
+
+                    <!--Information regarding Update Listing to Shopify-->
+                    <p class="alert alert-warning" role="alert" attrs="{'invisible':['|',('shopify_export_operations','!=','update_stock'), ('shopify_operations','!=','export')]}"
+                       style="border-radius: 1em;">
+                        <h3>Information:</h3>
+                        <ul>
+                            <li>
+                                This feature update inventory to Shopify location for a specific Shopify store.
+                            </li>
+                            <li>
+                                Inventory will be updated in Shopify based on configured location in the Instance configuration under <strong> Marketplace > Shopify > Locations > Stock
+                                Location Field. </strong>
+                            </li>
+                            <li>
+                                Inventory will be exported based on the date configured under <strong>Last Stock Exported On</strong> field for the instance.
+                            </li>
+                        </ul>
+                    </p>
+
+                    <!--Information regarding Update Order status to Shopify-->
+                    <p class="alert alert-warning" role="alert" attrs="{'invisible':['|',('shopify_export_operations','!=','update_order_status'), ('shopify_operations','!=','export')]}"
+                       style="border-radius: 1em;">
+                        <h3>Information:</h3>
+                        <ul>
+                            <li>
+                                This feature update Fulfillment detail with Tracking Number to Shopify.
+                            </li>
+                            <li>
+                                Only validated Delivery Orders will be going to update in Shopify.
+                            </li>
+                        </ul>
+                    </p>
+
+                    <!--Information regarding Export Listing to Shopify-->
+                    <p class="alert alert-warning" role="alert" attrs="{'invisible':['|',('shopify_export_operations','!=','export_listings'), ('shopify_operations','!=','export')]}"
+                       style="border-radius: 1em;">
+                        <h3>Information:</h3>
+                        <ul>
+                            <li>
+                                With Export Listings, you can export your listings to Shopify, including all information such as pricing, inventory, and images.
+                            </li>
+                            <li>
+                                If you want to publish those listings directly then you can enable <strong>Publish in Store?</strong> from this screen.
+                            </li>
+                        </ul>
+                    </p>
+
+                    <!--Information regarding Export Collection to Shopify-->
+                    <p class="alert alert-warning" role="alert" attrs="{'invisible':['|',('shopify_export_operations','!=','export_collections'), ('shopify_operations','!=','export')]}"
+                       style="border-radius: 1em;">
+                        <h3>Information:</h3>
+                        <ul>
+                            <li>
+                                This will allow to Export Collection to Shopify.
+                            </li>
+                        </ul>
+                    </p>
+
+                    <!--Information regarding Export Collection to Shopify-->
+                    <p class="alert alert-warning" role="alert" attrs="{'invisible':['|',('shopify_export_operations','!=','update_collections'), ('shopify_operations','!=','export')]}"
+                       style="border-radius: 1em;">
+                        <h3>Information:</h3>
+                        <ul>
+                            <li>
+                                This will allow to Update Collection to Shopify.
+                            </li>
+                        </ul>
+                    </p>
+
+                    <footer>
+                        <button string="Process" type="object" class="btn-primary" name="do_shopify_operations"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

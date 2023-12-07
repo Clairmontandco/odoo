@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+        <record id="shopify_marketplace_instance_form_view" model="ir.ui.view">
+            <field name="name">shopify.marketplace.instance.form</field>
+            <field name="model">mk.instance</field>
+            <field name="inherit_id" ref="base_marketplace.marketplace_instance_form_view"/>
+            <field name="arch" type="xml">
+                <page name="credentials" position="inside">
+                    <div class="row mt16 o_settings_container" attrs="{'invisible':[('marketplace','!=','shopify')]}">
+                        <div class="col-xs-12 col-md-6 o_setting_box" name="is_token">
+                            <div class="o_setting_left_pane">
+                                <b>
+                                    <field name="is_token" attrs="{'readonly':[('state','=','confirmed')]}"/>
+                                </b>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label string="I have API Access Token" for="is_token"/>
+                                <div class="text-muted">
+                                    You can find Admin API Access token from Shopify Apps.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-6 o_setting_box" attrs="{'invisible':[('is_token','=',False)]}">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label string="API Access Token" for="api_token"/>
+                                <div class="text-muted">
+                                    API Access Token is used to request data from the Admin API.
+                                </div>
+                                <div class="text-muted">
+                                    <b>
+                                        <field name="api_token" password="True" attrs="{'required':[('marketplace','=','shopify'),('is_token','=',True)], 'readonly':[('state','=','confirmed')]}"/>
+                                    </b>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-6 o_setting_box" attrs="{'invisible':[('is_token','=',True)]}">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label string="Password" for="password"/>
+                                <div class="text-muted">
+                                    Password used for authentication.
+                                </div>
+                                <div class="text-muted">
+                                    <b>
+                                        <field name="password" attrs="{'required':[('marketplace','=','shopify'),('is_token','=',False)], 'readonly':[('state','=','confirmed')]}"/>
+                                    </b>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label string="Shop URL" for="shop_url"/>
+                                <div class="text-muted">
+                                    Shop URL used for authentication (Exp. https://teqstars.myshopify.com).
+                                </div>
+                                <div class="text-muted">
+                                    <b>
+                                        <field name="shop_url" attrs="{'required':[('marketplace','=','shopify')], 'readonly':[('state','=','confirmed')]}"/>
+                                    </b>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </page>
+                <page name="order_config" position="after">
+                    <page name="payout" string="Payout" attrs="{'invisible':[('marketplace','!=','shopify')]}">
+                        <group>
+                            <group>
+                                <field name="payout_journal_id" attrs="{'readonly':[('state','=','confirmed')]}" domain="[('type','in',['bank','cash'])]" options="{'no_create' : True}"/>
+                            </group>
+                            <group>
+                                <field name="is_payout_auto_process" attrs="{'invisible':[('payout_journal_id', '=', False)]}" widget="boolean_toggle"/>
+                            </group>
+                        </group>
+                        <separator string="Payout Account Configuration" attrs="{'invisible':[('payout_journal_id', '=', False)]}"/>
+                        <field name="payout_account_config_ids" nolabel="1" attrs="{'invisible':[('payout_journal_id', '=', False)], 'readonly':[('state','=','confirmed')]}">
+                            <tree string="Account Configuration" editable="bottom">
+                                <field name="transaction_type" required="1"/>
+                                <field name="account_id" required="1" options='{"no_create": True}'/>
+                                <field name="company_id" invisible="1"/>
+                            </tree>
+                            <form string="Order lines">
+                                <group col="4">
+                                    <field name="transaction_type" />
+                                    <field name="account_id" />
+                                    <field name="company_id" invisible="1" />
+                                </group>
+                            </form>
+                        </field>
+                    </page>
+                </page>
+                <xpath expr="//div[@name='delivery_product_id']" position="after">
+                    <div class="col-xs-12 col-md-6 o_setting_box" attrs="{'invisible':[('marketplace','!=','shopify')]}" groups="base.group_no_one">
+                        <div class="o_setting_left_pane"/>
+                        <div class="o_setting_right_pane">
+                            <label for="custom_product_id"/>
+                            <div class="text-muted">
+                                Shopify order with having custom item will be imported with this product in order.
+                            </div>
+                            <div class="text-muted">
+                                <b>
+                                    <field name="custom_product_id" attrs="{'required':[('marketplace','=','shopify')]}" domain="[('type', 'in', ['service', 'consu'])]"
+                                           options="{'no_quick_create':True,'no_create_edit':True}"/>
+                                </b>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-6 o_setting_box" attrs="{'invisible':[('marketplace','!=','shopify')]}" groups="base.group_no_one">
+                        <div class="o_setting_left_pane"/>
+                        <div class="o_setting_right_pane">
+                            <label for="custom_storable_product_id"/>
+                            <div class="text-muted">
+                                Shopify order with having custom fulfillable item will be imported with this product in order..
+                            </div>
+                            <div class="text-muted">
+                                <b>
+                                    <field name="custom_storable_product_id" attrs="{'required':[('marketplace','=','shopify')]}" domain="[('type', '=', 'product')]"
+                                           options="{'no_quick_create':True,'no_create_edit':True}"/>
+                                </b>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-6 o_setting_box" attrs="{'invisible':[('marketplace','!=','shopify')]}" groups="base.group_no_one">
+                        <div class="o_setting_left_pane"/>
+                        <div class="o_setting_right_pane">
+                            <label for="gift_card_product_id"/>
+                            <div class="text-muted">
+                                Shopify gift card orders will be imported with this product (Only Service type product).
+                            </div>
+                            <div class="text-muted">
+                                <b>
+                                    <field name="gift_card_product_id" attrs="{'required':[('marketplace','=','shopify')]}" options="{'no_quick_create':True,'no_create_edit':True}"/>
+                                </b>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-6 o_setting_box" attrs="{'invisible':[('marketplace','!=','shopify')]}" groups="base.group_no_one">
+                        <div class="o_setting_left_pane"/>
+                        <div class="o_setting_right_pane">
+                            <label for="tip_product_id"/>
+                            <div class="text-muted">
+                                Shopify Tip order line will be imported with this product (Only Service type product).
+                            </div>
+                            <div class="text-muted">
+                                <b>
+                                    <field name="tip_product_id" attrs="{'required':[('marketplace','=','shopify')]}" options="{'no_quick_create':True,'no_create_edit':True}"/>
+                                </b>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-6 o_setting_box" attrs="{'invisible':[('marketplace','!=','shopify')]}" groups="base.group_no_one">
+                        <div class="o_setting_left_pane"/>
+                        <div class="o_setting_right_pane">
+                            <label for="duties_product_id"/>
+                            <div class="text-muted">
+                                Shopify Duties order line will be imported with this product (Only Service type product).
+                            </div>
+                            <div class="text-muted">
+                                <b>
+                                    <field name="duties_product_id" attrs="{'required':[('marketplace','=','shopify')]}" options="{'no_quick_create':True,'no_create_edit':True}"/>
+                                </b>
+                            </div>
+                        </div>
+                    </div>
+                </xpath>
+                <xpath expr="//page[@name='order_config']//div[hasclass('o_settings_container')][last()]" position="inside">
+                    <div class="col-xs-12 col-md-6 o_setting_box" attrs="{'invisible':[('marketplace','!=','shopify')]}">
+                        <div class="o_setting_left_pane"/>
+                        <div class="o_setting_right_pane">
+                            <label string="Fulfillment Status" for="fulfillment_status_ids"/>
+                            <div class="text-muted">
+                                Filter orders by their fulfillment status at the time of Import Orders.
+                            </div>
+                            <div class="text-muted">
+                                <b>
+                                    <field name="fulfillment_status_ids" widget="many2many_tags" attrs="{'required':[('marketplace','=','shopify')]}" options="{'no_create' : True}"/>
+                                </b>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-6 o_setting_box" attrs="{'invisible':[('marketplace','!=','shopify')]}">
+                        <div class="o_setting_left_pane">
+                            <b>
+                                <field name="is_notify_customer"/>
+                            </b>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <label for="is_notify_customer"/>
+                            <div class="text-muted">
+                                Whether the customer should be notified. If set to true, then an email will be sent(from Shopify) when the fulfillment is created or updated.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-6 o_setting_box" attrs="{'invisible':[('marketplace','!=','shopify')]}">
+                        <div class="o_setting_left_pane">
+                            <b>
+                                <field name="is_fetch_fraud_analysis_data"/>
+                            </b>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <label string="Fetch Fraud Analysis Data?" for="is_fetch_fraud_analysis_data"/>
+                            <div class="text-muted">
+                                Order risks show the results of fraud checks that have been completed on a Shopify orders.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-6 o_setting_box" attrs="{'invisible':[('marketplace','!=','shopify')]}" groups="base.group_no_one">
+                        <div class="o_setting_left_pane"/>
+                        <div class="o_setting_right_pane">
+                            <label for="default_pos_customer_id"/>
+                            <div class="text-muted">
+                                This customer is set in the Shopify POS Order if not found.
+                            </div>
+                            <div class="text-muted">
+                                <b>
+                                    <field name="default_pos_customer_id" options="{'no_quick_create':True,'no_create_edit':True}"/>
+                                </b>
+                            </div>
+                        </div>
+                    </div>
+                </xpath>
+                <xpath expr="//page[@name='customer_config']//div[hasclass('o_settings_container')][last()]" position="inside">
+                    <div class="col-xs-12 col-md-6 o_setting_box" attrs="{'invisible':[('marketplace','!=','shopify')]}">
+                        <div class="o_setting_left_pane">
+                            <b>
+                                <field name="is_create_company_contact"/>
+                            </b>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <label string="Create Company Contact?" for="is_create_company_contact"/>
+                            <div class="text-muted">
+                                Create company contact if found a company while creating Contact.
+                            </div>
+                        </div>
+                    </div>
+                </xpath>
+                <xpath expr="//page[@name='stock_config']//div[hasclass('o_settings_container')]" position="before">
+                    <p colspan="2" class="alert alert-warning" role="alert" attrs="{'invisible':[('marketplace','!=','shopify')]}">
+                        <b>
+                            <h3>Note</h3>
+                            <ul>
+                                <li>
+                                    While Importing Stock from Shopify to Odoo we are only import products with Tracking field set to <strong>No Tracking</strong> in Odoo.
+                                </li>
+                            </ul>
+                        </b>
+                    </p>
+                </xpath>
+                <page name="workflow_config" position="inside">
+                    <field name="financial_workflow_config_ids" attrs="{'invisible':[('marketplace','!=','shopify')]}">
+                        <tree editable="bottom">
+                            <field name="payment_term_id" required="1"/>
+                            <field name="order_workflow_id" required="1" domain="[('company_id', '=', company_id)]"/>
+                            <field name="mk_instance_id" invisible="1"/>
+                            <field name="payment_gateway_id" context="{'default_mk_instance_id':parent.id}" domain="[('mk_instance_id', '=', parent.id)]" required="1" />
+                            <field name="financial_status" required="1"/>
+                            <field name="company_id" invisible="1"/>
+                        </tree>
+                    </field>
+                </page>
+                <page name="workflow_config" position="after">
+                    <page name="webhook_config" string="Webhook" attrs="{'invisible':[('marketplace','!=','shopify')]}">
+                        <div class="alert alert-info info_icon pull-left" role="alert">
+                            <span class="fa fa-lightbulb-o fa-lg">
+                            </span>
+                            &amp;nbsp;Webhook URL for this Instance:
+                            <strong>
+                                <field name="webhook_url" readonly="1"/>
+                            </strong>
+                        </div>
+                        <button type="object" class="oe_right btn btn-danger" name="delete_shopify_webhook" icon="fa-trash" string="Delete Webhook" groups="base.group_no_one"/>
+                        <button type="object" class="oe_right btn btn-primary" name="fetch_shopify_webhook" icon="fa-cogs" string="Fetch Webhook"/>
+                        <br/>
+                        <field name="webhook_ids">
+                            <tree editable="bottom">
+                                <field name="name" required="1"/>
+                                <field name="webhook_event" required="1"/>
+                                <field name="active_webhook" widget="boolean_toggle"/>
+                            </tree>
+                        </field>
+                    </page>
+                </page>
+                <div name="button_box" position="inside">
+                    <button name="%(shopify.action_shopify_automated_collection_dashboard_ts)d" type="action"
+                            icon="fa-gift" class="oe_stat_button"
+                            attrs="{'invisible': [('shopify_collection_count', '&lt;=', 0)]}">
+                        <field string="Collections" name="shopify_collection_count" widget="statinfo"/>
+                    </button>
+                    <button name="%(shopify.action_shopify_location_dashboard_ts)d" type="action"
+                            icon="fa-map-marker" class="oe_stat_button"
+                            attrs="{'invisible': [('shopify_location_count', '&lt;=', 0)]}">
+                        <field string="Locations" name="shopify_location_count" widget="statinfo"/>
+                    </button>
+                </div>
+            </field>
+        </record>
+    </data>
+</odoo>

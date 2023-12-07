@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="marketplace_sale_order_form_view" model="ir.ui.view">
+        <field name="name">marketplace.sale.order.form.view</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Marketplace Detail" attrs="{'invisible':[('mk_instance_id','=',False)]}">
+                    <group name="main_group">
+                        <group name="sub_group1">
+                            <field name="mk_instance_id" readonly="1"/>
+                            <field name="mk_id" readonly="1"/>
+                        </group>
+                        <group name="sub_group2">
+                            <field name="mk_order_number" readonly="1"/>
+                            <field name="canceled_in_marketplace" readonly="1" invisible="1"/>
+                            <field name="marketplace" invisible="1"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/tree/field[@name='price_subtotal']" position="after">
+                <field name="mk_id" optional="hide"/>
+            </xpath>
+            <div name="button_box" position="inside">
+                <button type="object" name="open_sale_order_in_marketplace" class="oe_stat_button" icon='fa-eye' string="Show in Marketplace" attrs="{'invisible': [('mk_id','=',False)]}"/>
+            </div>
+        </field>
+    </record>
+
+    <record id="markeplace_sale_order_tree_view" model="ir.ui.view">
+        <field name="name">marketplace.sale.order.tree.view</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <tree string="Markeplace Orders"
+                  decoration-success="updated_in_marketplace==True"
+                  decoration-muted="state=='cancel'"
+                  decoration-info="state in ('sale', 'done')"
+                  decoration-bf="message_unread == True" create="0" edit="1" multi_edit="1">
+                <field name="message_unread" invisible="1"/>
+                <field name="name" decoration-bf="1"/>
+                <field name="date_order" widget="date" optional="show"/>
+                <field name="partner_id" readonly="1"/>
+                <field name="user_id" widget="many2one_avatar_user" optional="show"/>
+                <field name="activity_ids" widget="list_activity" optional="show"/>
+                <field name="tag_ids" optional="hide" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                <field name="updated_in_marketplace"/>
+                <field name="amount_untaxed" sum="Total Tax Excluded" widget="monetary" optional="hide"/>
+                <field name="amount_tax" sum="Tax Total" widget="monetary" optional="hide"/>
+                <field name="amount_total" sum="Total Tax Included" widget="monetary" decoration-bf="1" optional="show"/>
+                <field name="state" decoration-success="state == 'sale' or state == 'done'" decoration-info="state == 'draft' or state == 'sent'" widget="badge" optional="show"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="marketplace_view_sales_order_filter" model="ir.ui.view">
+        <field name="name">marketplace.sale.order.list.select</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="mk_id"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_marketplace_quotation" model="ir.actions.act_window">
+        <field name="name">Quotations</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
+        <field name="context">{'search_default_draft': 1}</field>
+        <field name="domain">[('mk_id','!=',False)]</field>
+        <field name="search_view_id" ref="sale.sale_order_view_search_inherit_quotation"/>
+    </record>
+
+    <record id="action_marketplace_orders" model="ir.actions.act_window">
+        <field name="name">Sales Orders</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
+        <field name="search_view_id" ref="sale.sale_order_view_search_inherit_sale"/>
+        <field name="context">{}</field>
+        <field name="domain">[('mk_id', '!=', False), ('state', 'not in', ('draft', 'sent', 'cancel'))]</field>
+    </record>
+
+    <record id="action_marketplace_orders_kanban" model="ir.actions.act_window">
+        <field name="name">Marketplace Sale Orders</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="markeplace_sale_order_tree_view"/>
+        <field name="domain">[('mk_instance_id','=',active_id)]</field>
+    </record>
+
+    <record id="action_marketplace_invoice" model="ir.actions.act_window">
+        <field name="name">Invoices</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="view_id" ref="account.view_invoice_tree"/>
+        <field name="search_view_id" ref="account.view_account_invoice_filter"/>
+        <field name="domain">[('move_type', '=', 'out_invoice'), ('mk_instance_id', '!=', False)]</field>
+        <field name="context">{'default_move_type': 'out_invoice'}</field>
+    </record>
+
+    <record id="action_marketplace_credit_notes" model="ir.actions.act_window">
+        <field name="name">Credit Notes</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="view_id" ref="account.view_invoice_tree"/>
+        <field name="search_view_id" ref="account.view_account_invoice_filter"/>
+        <field name="domain">[('move_type', '=', 'out_refund'), ('mk_instance_id', '!=', False)]</field>
+        <field name="context">{'default_move_type': 'out_refund'}</field>
+    </record>
+
+    <record id="action_marketplace_customer" model="ir.actions.act_window">
+        <field name="name">Customers</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="view_id" ref="base.view_partner_tree"/>
+        <field name="domain">[('mk_instance_ids', '!=', False)]</field>
+        <field name="context">{}</field>
+    </record>
+</odoo>
