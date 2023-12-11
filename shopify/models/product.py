@@ -29,8 +29,25 @@ class ProductTemplate(models.Model):
 class ProductProduct(models.Model):
     _inherit = "product.product"
 
+    def shopify_prepare_vals_for_update_listing_item(self, mk_instance_id):
+        return {'barcode': self.barcode}
+
+    def convert_weight_uom_for_shopify(self):
+        default_uom_id = self.env['product.template']._get_weight_uom_id_from_ir_config_parameter()
+        if default_uom_id == self.env.ref('uom.product_uom_lb'):
+            return 'lb'
+        elif default_uom_id == self.env.ref('uom.product_uom_oz'):
+            return 'oz'
+        elif default_uom_id == self.env.ref('uom.product_uom_kgm'):
+            return 'kg'
+        elif default_uom_id == self.env.ref('uom.product_uom_gram'):
+            return 'g'
+        raise UserError(_("Unsupported Weight UOM for Shopify. Supported weight UOM: g, kg, oz, and lb"))
+
     def shopify_prepare_vals_for_create_listing_item(self, mk_instance_id):
-        vals = {'weight_unit': self.weight_uom_name}
+        vals = {'weight_unit': self.convert_weight_uom_for_shopify()}
         if self.type == 'consu':
             vals.update({'inventory_management': 'dont_track'})
+        if self.barcode:
+            vals.update({'barcode': self.barcode})
         return vals

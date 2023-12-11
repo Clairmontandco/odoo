@@ -48,8 +48,8 @@ class Partner(models.Model):
         name = default_address_dict.get('name', False)
         company_type = 'person'
         if mk_instance_id.is_create_company_contact and type == 'contact':
-            name = customer_dict.get('company', False) if customer_dict.get('company', False) else default_address_dict.get('name', False)
-            company_type = 'company' if customer_dict.get('company', False) else 'person'
+            name = default_address_dict.get('company', customer_dict.get('company')) or default_address_dict.get('name', False)
+            company_type = 'company' if default_address_dict.get('company', False) or customer_dict.get('company', False) else 'person'
         if not name:
             if customer_dict.get('first_name', '') or customer_dict.get('last_name', ''):
                 name = "{} {}".format(customer_dict.get('first_name', ''), customer_dict.get('last_name', ''))
@@ -61,6 +61,9 @@ class Partner(models.Model):
         if not state and default_address_dict.get('province') and default_address_dict.get('province_code'):
             state = self.env['res.country.state'].with_context(tracking_disable=True).create(
                 {'country_id': country.id, 'name': default_address_dict.get('province'), 'code': default_address_dict.get('province_code')})
+        tag_list = []
+        if customer_dict.get('tags', False):
+            tag_list = self.shopify_prepare_tag_vals(customer_dict.get('tags'))
         partner_vals = {
             'name': name,
             'email': default_address_dict.get('email') or customer_dict.get('email'),
@@ -73,7 +76,8 @@ class Partner(models.Model):
             'phone': default_address_dict.get('phone') or customer_dict.get('phone'),
             'type': type,
             'comment': customer_dict.get('note', ''),
-            'company_type': company_type
+            'company_type': company_type,
+            'category_id': tag_list,
         }
         return partner_vals
 
@@ -114,3 +118,14 @@ class Partner(models.Model):
                     }
                     queue_id.action_create_queue_lines(line_vals)
         return True
+
+    def shopify_prepare_tag_vals(self, shopify_tags):
+        shopify_tag_list, shopify_tag_obj = [], self.env['res.partner.category']
+        for tag in shopify_tags.split(','):
+            if len(tag) < 1:
+                continue
+            shopify_tag_id = shopify_tag_obj.search([('name', '=', tag)], limit=1)
+            if not shopify_tag_id:
+                shopify_tag_id = shopify_tag_obj.create({'name': tag})
+            shopify_tag_list.append(shopify_tag_id.id)
+        return [(6, 0, shopify_tag_list)]

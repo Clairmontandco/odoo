@@ -299,9 +299,10 @@ class MkListing(models.Model):
         return action
 
     def get_mk_listing_item(self, mk_instance_id):
-        where_clause = ""
         if mk_instance_id.last_stock_update_date:
             where_clause = "sm.write_date >= '{}' and ".format(mk_instance_id.last_stock_update_date)
+        else:
+            return self.env['mk.listing.item'].search([('mk_instance_id', '=', mk_instance_id.id), ('is_listed', '=', True)])
         query = """
                 select mkli.id
                 from stock_move sm

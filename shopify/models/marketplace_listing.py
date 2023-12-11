@@ -666,7 +666,7 @@ class MkListing(models.Model):
         option_list, variant_list = ['option1', 'option2', 'option3'], []
         is_set_price = operation_wizard.is_set_price
         for listing_item_id in self.listing_item_ids.sorted(key='sequence'):
-            variant_vals, option_index = {}, 0
+            variant_vals, option_index = {'inventory_management': None, 'inventory_policy': 'deny'}, 0
             if operation_wizard.is_update_product:
                 if listing_item_id.mk_id:
                     variant_vals.update({'id': listing_item_id.mk_id})
@@ -674,14 +674,17 @@ class MkListing(models.Model):
                                      'grams': int(listing_item_id.product_id.weight * 1000),
                                      'weight': self._marketplace_convert_weight(listing_item_id.product_id.weight, listing_item_id.weight_unit, reverse=True),
                                      'weight_unit': listing_item_id.weight_unit,
-                                     'sku': listing_item_id.default_code,
-                                     'taxable': listing_item_id.is_taxable and 'true' or 'false', })
-                if listing_item_id.product_id.barcode:
-                    variant_vals.update({'barcode': listing_item_id.product_id.barcode})
-                if self.inventory_management == 'shopify':
-                    variant_vals.update({'inventory_management': self.inventory_management})
-                if self.continue_selling:
+                                     'taxable': listing_item_id.is_taxable and 'true' or 'false'})
+                if listing_item_id.default_code:
+                    variant_vals.update({'sku': listing_item_id.default_code})
+                if listing_item_id.barcode or listing_item_id.product_id.barcode:
+                    variant_vals.update({'barcode': listing_item_id.barcode or listing_item_id.product_id.barcode})
+                if listing_item_id.inventory_management == 'shopify':
+                    variant_vals.update({'inventory_management': 'shopify'})
+                if listing_item_id.continue_selling == 'continue':
                     variant_vals.update({'inventory_policy': 'continue'})
+                if listing_item_id.continue_selling == 'parent_product':
+                    variant_vals.update({'inventory_policy': 'continue' if self.continue_selling else 'deny'})
                 for atts in listing_item_id.product_id.product_template_attribute_value_ids:
                     variant_vals.update({option_list[option_index]: atts.name})
                     option_index += 1
@@ -946,8 +949,9 @@ class MkListing(models.Model):
                     mk_log_id.unlink()
                 continue
             mk_instance_id.connection_to_shopify()
-            result = self.get_mk_listing_item(mk_instance_id)
-            listing_item_ids = self.env['mk.listing.item'].browse(result)
+            listing_item_ids = self.get_mk_listing_item(mk_instance_id)
+            if isinstance(listing_item_ids, list):
+                listing_item_ids = self.env['mk.listing.item'].browse(listing_item_ids)
             new_listing_item_ids = listing_item_ids.filtered(lambda x: x.inventory_management == 'shopify')
             new_listing_item_ids = new_listing_item_ids.filtered(
                 lambda x: not x.shopify_last_stock_update_date or (mk_instance_id.last_stock_update_date and x.shopify_last_stock_update_date <= mk_instance_id.last_stock_update_date))
@@ -969,6 +973,8 @@ class MkListing(models.Model):
                     continue
                 counter_for_commit = 0
                 for shopify_variant_id in new_listing_item_ids:
+                    if not shopify_variant_id.exists():
+                        continue
                     counter_for_commit += 1
 
                     # Check template's inventory management status.
@@ -984,6 +990,17 @@ class MkListing(models.Model):
                                                                                        mk_instance_id.stock_field_id.name)
                     try:
                         shopify.InventoryLevel.set(shopify_location_id.shopify_location_id, shopify_variant_id.inventory_item_id, int(variant_quantity))
+                    except ResourceNotFound:
+                        mk_listing_id = shopify_variant_id.mk_listing_id
+                        if mk_listing_id.number_of_variants_in_mk == 1:
+                            log_message = "Listing {} deleted from Odoo as it is not exist in Shopify!".format(mk_listing_id.display_name)
+                            need_to_delete_record = mk_listing_id
+                        else:
+                            log_message = "Listing Item {} deleted from Odoo as it is not exist in Shopify!".format(shopify_variant_id.display_name)
+                            need_to_delete_record = shopify_variant_id
+                        need_to_delete_record.unlink()
+                        mk_log_line_dict['error'].append({'log_message': 'UPDATE STOCK: {}'.format(log_message)})
+                        continue
                     except Exception as e:
                         log_message = "Error while trying to export stock for Shopify Product Variant: {}, ERROR: {}.".format(shopify_variant_id.name, e)
                         mk_log_line_dict['error'].append({'log_message': 'UPDATE STOCK: {}'.format(log_message)})
