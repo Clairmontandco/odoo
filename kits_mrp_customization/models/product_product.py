@@ -17,6 +17,9 @@ class ProductProduct(models.Model):
 
         for year in range_of_year:
             for rec in self:
+                # if rec._context.get('consume_report') == True:
+                #     if not self.env['mrp.bom.line'].search([('product_tmpl_id','=',rec.product_tmpl_id.id)]):
+                #         continue
                 quary = ''' 
                             SELECT sol.id FROM sale_order_line AS sol
                             WHERE product_id = %s and (SELECT EXTRACT(YEAR FROM sol.create_date)) = %s 
@@ -477,6 +480,450 @@ class ProductProduct(models.Model):
                 sheet.cell(row=total_row,column=month_data_col).alignment = right_aligment
                 sheet.cell(row=total_row,column=month_data_col).font = styles.Font(name='Arial',bold=True)
                 sheet.cell(row=total_row,column=month_data_col).fill = styles.PatternFill("solid",start_color="fef2cb")
+
+                # sheet.cell(row=table_content_row-1,column=month_data_col).value = '$ {:,.2f}'.format(sum([month_total_dict.get(i).get('total') for i in month_total_dict])) or 0.0
+                sheet.cell(row=total_row+1,column=month_data_col).value = '$ {:,.2f}'.format(sum([month_total_dict.get(y).get(i).get('total') for i in month_total_dict.get(y)])) or 0.0
+                sheet.cell(row=total_row+1,column=month_data_col).alignment = right_aligment
+                sheet.cell(row=total_row+1,column=month_data_col).font = styles.Font(name='Arial',bold=True)
+                sheet.cell(row=total_row+1,column=month_data_col).fill = styles.PatternFill("solid",start_color="b4c6e7")
+
+                total_qty += month_total_dict.get(y).get(month_data).get('total_qty')
+                main_total += month_total_dict.get(y).get(month_data).get('total')
+                month_data_col += 1
+
+            sheet.cell(row=total_row-2,column=month_data_col).value = 'Total'
+            sheet.cell(row=total_row-2,column=month_data_col).alignment = center_aligment
+            sheet.cell(row=total_row-2,column=month_data_col).fill = styles.PatternFill("solid",start_color="2f5496")
+            sheet.cell(row=total_row-2,column=month_data_col).font = styles.Font(name='Arial',bold=True,color='ffffff',size=12)
+
+            sheet.cell(row=total_row-1,column=month_data_col).value = total_qty
+            sheet.cell(row=total_row-1,column=month_data_col).alignment = right_aligment
+            sheet.cell(row=total_row-1,column=month_data_col).fill = styles.PatternFill("solid",start_color="b4c6e7")
+
+            sheet.cell(row=total_row,column=month_data_col).value = '$ {:,.2f}'.format(main_total)
+            sheet.cell(row=total_row,column=month_data_col).alignment = right_aligment
+            sheet.cell(row=total_row,column=month_data_col).fill = styles.PatternFill("solid",start_color="d9e2f3")
+
+            month_data_col = content_col+1
+            total_row += 3
+
+        sheet.merge_cells('B%s:R%s'%(table_content_row+4,table_content_row+4))
+        sheet.cell(row=table_content_row+4,column=2).fill = styles.PatternFill("solid",start_color="7f7f7f")
+        sheet.row_dimensions[table_content_row+4].height = 10
+
+        # Header of yearly total.
+        merge_col_range = get_column_letter(20+len(year_total_dict)-1)
+        sheet.merge_cells('T%s:%s%s'%(table_header_row+1,merge_col_range,table_header_row+1))
+        sheet.cell(row=table_header_row+1,column=year_table_col-len(year_range)).value = "YEARLY TOTALS"
+        sheet.cell(row=table_header_row+1,column=year_table_col-len(year_range)).alignment = styles.Alignment(horizontal="center", vertical="center",wrap_text=False)
+        sheet.cell(row=table_header_row+1,column=year_table_col-len(year_range)).fill = styles.PatternFill("solid",start_color="2f5496")
+        sheet.cell(row=table_header_row+1,column=year_table_col-len(year_range)).font = styles.Font(name='Arial',bold=True,color='ffffff')
+
+        # Add value of yearly total.
+        end_report_seperator = year_table_col-len(year_range)
+        for r in year_range:
+            year_total_data = year_total_dict.get(r)
+            sheet.cell(row=table_content_row-2,column=end_report_seperator).value = year_total_data.get('total_qty') or 0.0
+            sheet.cell(row=table_content_row-2,column=end_report_seperator).fill = styles.PatternFill("solid",start_color="d9e2f3")
+
+            sheet.cell(row=table_content_row-1,column=end_report_seperator).value = '$ {:,.2f}'.format(year_total_data.get('total') or 0.0)
+            sheet.cell(row=table_content_row-1,column=end_report_seperator).font = styles.Font(name='Arial',bold=True)
+            sheet.cell(row=table_content_row-1,column=end_report_seperator).fill = styles.PatternFill("solid",start_color="b4c6e7")
+            sheet.cell(row=table_content_row-1,column=end_report_seperator).alignment = right_aligment
+
+            sheet.cell(row=table_content_row+4,column=end_report_seperator).fill = styles.PatternFill("solid",start_color="7f7f7f")
+            end_report_seperator += 1
+
+        # Width of all col.
+        sheet.column_dimensions['A'].width = 2
+        sheet.column_dimensions['B'].width = 26
+        sheet.column_dimensions['C'].width = 27
+        sheet.column_dimensions['D'].width = 33
+        sheet.column_dimensions['E'].width = 19
+        sheet.column_dimensions['F'].width = 13
+        sheet.column_dimensions['G'].width = 13
+        sheet.column_dimensions['H'].width = 13
+        sheet.column_dimensions['I'].width = 13
+        sheet.column_dimensions['J'].width = 13
+        sheet.column_dimensions['K'].width = 13
+        sheet.column_dimensions['L'].width = 13
+        sheet.column_dimensions['M'].width = 13
+        sheet.column_dimensions['N'].width = 13
+        sheet.column_dimensions['O'].width = 13
+        sheet.column_dimensions['P'].width = 13
+        sheet.column_dimensions['Q'].width = 13
+        sheet.column_dimensions['R'].width = 13
+        sheet.column_dimensions['S'].width = 2
+        sheet.column_dimensions['T'].width = 16
+        sheet.column_dimensions['U'].width = 16
+        sheet.column_dimensions['V'].width = 16
+        sheet.column_dimensions['W'].width = 16
+        sheet.column_dimensions['X'].width = 16
+        sheet.column_dimensions['Y'].width = 16
+        sheet.column_dimensions['Z'].width = 16
+
+        fp = BytesIO()
+        workbook.save(fp)
+        fp.seek(0)
+        data = fp.read()
+        fp.close()
+        wizard_id = self.env['report.wizard'].create({'file':base64.b64encode(data)})
+
+        return {
+            'type': 'ir.actions.act_url',
+            'url': 'web/content/?model=report.wizard&download=true&field=file&id=%s&filename=%s.xlsx' % (wizard_id.id,f_name),
+            'target': 'self',
+        }
+
+    def action_create_product_consume_report(self):
+
+        product = self.env['product.product']
+        for rec in self:
+            product |= rec.filtered(lambda p:p.product_tmpl_id.bom_line_ids.ids != [])
+        report_data = product.get_report_data()
+        yearly_table_data = product.get_yearly_table_data()
+        
+        # report_data = self.get_report_data()
+        f_name = 'Sales_Spreadsheet'
+        workbook = Workbook()
+        sheet = workbook.create_sheet(title="Sales Forecast", index=0)
+        center_aligment = styles.Alignment(horizontal="center", vertical="center",wrap_text=True)
+        left_aligment = styles.Alignment(horizontal="left", vertical="center",wrap_text=True)
+        right_aligment = styles.Alignment(horizontal="right", vertical="center",wrap_text=True)
+        bd = styles.Side(style='thin', color="FFFFFF")
+        bottom_border = styles.Border(bottom=bd)
+        top_border = styles.Border(top=bd)
+        top_bottom_border = styles.Border(top=bd, bottom=bd)
+        header_row = 2
+
+        sheet.row_dimensions[1].height = 12
+
+        # Sheet header
+        sheet.merge_cells('B2:F3')
+        sheet.cell(row=header_row, column=2).value = "PRODUCTS CONSUME REPORT"
+        sheet.cell(row=header_row, column=2).alignment = styles.Alignment(horizontal="center", vertical="center",wrap_text=False)
+        sheet.cell(row=header_row, column=2).font = styles.Font(name='Arial',bold=True, size=36,color='4472c4')
+        sheet.row_dimensions[header_row].height = 21
+        sheet.row_dimensions[header_row+1].height = 21
+
+        sheet.row_dimensions[header_row+2].height = 10
+
+        # Table header
+        table_header_row = header_row + 3
+        sheet.cell(row=table_header_row, column=2).value = "PRODUCT NAME"
+        sheet.cell(row=table_header_row, column=2).alignment = styles.Alignment(horizontal="center", vertical="center",wrap_text=False)
+        sheet.cell(row=table_header_row, column=2).font = styles.Font(name='Arial',bold=True, size=12,color='ffffff')
+        sheet.row_dimensions[table_header_row].height = 24
+
+        # Set row bg color.
+        for row in range(table_header_row,table_header_row+1):
+            for col in range(2,19):
+                sheet.cell(row=row, column=col).fill = styles.PatternFill("solid",start_color="7f7f7f")
+        
+        # For yearly table header.
+        year_table_header_row = table_header_row
+        for y in (yearly_table_data[1].get('max'),yearly_table_data[0].get('min')):
+            for row in range(year_table_header_row,year_table_header_row+1):
+                for col in range(20,20+len(list(range(yearly_table_data[1].get('max'), yearly_table_data[0].get('min') - 1, -1)))):
+                    sheet.cell(row=row,column=col).fill = styles.PatternFill("solid",start_color="7f7f7f")
+        
+        # Table content.
+        table_content_row = table_header_row + 1
+        content_col = 2
+        next_product_index = 2
+        month_total_dict = {}
+        year_total_dict = {}
+        for data in yearly_table_data[2:]:
+            
+            # Product name.
+            # product_id = self.browse(report_data.get(data).get('product_id'))
+            product_id = self.browse(eval(list(data.keys())[0]))
+            data = product_id.name
+
+            sheet.merge_cells('B%s:B%s'%(table_content_row,table_content_row+5))
+            sheet.cell(row=table_content_row,column=content_col).value = product_id.display_name
+            sheet.cell(row=table_content_row,column=content_col).alignment = center_aligment
+            sheet.cell(row=table_content_row+6,column=2).fill = styles.PatternFill("solid",start_color="7f7f7f")
+            content_col += 1
+            
+            # Product category.
+            sheet.merge_cells('C%s:C%s'%(table_content_row,table_content_row+2))
+            sheet.cell(row=table_content_row,column=content_col).value = report_data.get(data).get('product_categ')
+            sheet.cell(row=table_content_row,column=content_col).alignment = left_aligment
+            # sheet.cell(row=table_content_row+8,column=3).fill = styles.PatternFill("solid",start_color="7f7f7f")
+
+            product_tags = ''
+            if product_id.product_tmpl_id.x_studio_many2many_field_bOjgj:
+                product_tags = ', '.join(product_id.product_tmpl_id.x_studio_many2many_field_bOjgj.mapped('display_name')) if product_id.product_tmpl_id.x_studio_many2many_field_bOjgj else ''
+
+            # Product tags.
+            sheet.merge_cells('C%s:C%s'%(table_content_row+3,table_content_row+5))
+            sheet.cell(row=table_content_row+3,column=content_col).value = 'Tags : ' + product_tags
+            sheet.cell(row=table_content_row+3,column=content_col).alignment = left_aligment
+            sheet.cell(row=table_content_row+6,column=3).fill = styles.PatternFill("solid",start_color="7f7f7f")
+            content_col += 1
+            
+            # Print monthly data in first table (Jan - Dec)
+            month_row = table_content_row + 1
+            for year in (datetime.now().year-1,datetime.now().year):
+                col = 6
+                total_sale_price = 0.0
+                total_product_qty = 0.0
+                month_total = 0.0
+                sheet.cell(row=month_row-1,column=content_col+1).fill = styles.PatternFill("solid",start_color="7f7f7f")
+                # sheet.cell(row=month_row,column=content_col+1).value = "SALE PRICE"
+                # sheet.cell(row=month_row,column=content_col+1).fill = styles.PatternFill("solid",start_color="d8d8d8")
+                sheet.cell(row=month_row+1-1,column=content_col+1).value = "UNITS SOLD"
+                sheet.cell(row=month_row+1-1,column=content_col+1).fill = styles.PatternFill("solid",start_color="f2f2f2")
+                sheet.cell(row=month_row+2-1,column=content_col+1).value = "TOTAL"
+                sheet.cell(row=month_row+2-1,column=content_col+1).font = styles.Font(name='Arial',bold=True)
+                sheet.cell(row=month_row+2-1,column=content_col+1).fill = styles.PatternFill("solid",start_color="d8d8d8")
+                sheet.cell(row=month_row+3-1,column=content_col+1).fill = styles.PatternFill("solid",start_color="7f7f7f")
+
+                # Loop of year months.
+                for month_data in report_data.get(data).get(year):
+
+                    month_short_name = month_data[:3] + '-' + str(year)[-2:]
+
+                    sheet.cell(row=month_row-1,column=col).value = month_short_name
+                    sheet.cell(row=month_row-1,column=col).alignment = center_aligment
+                    sheet.cell(row=month_row-1,column=col).fill = styles.PatternFill("solid",start_color="77933C")
+                    sheet.cell(row=month_row-1,column=col).font = styles.Font(name='Arial',bold=True,color='ffffff',size=12)
+
+                    # sheet.cell(row=month_row,column=col).value = '$ {:,.2f}'.format(report_data.get(data).get(year).get(month_data).get('sale_price'),2)
+                    # sheet.cell(row=month_row,column=col).alignment = right_aligment
+                    # sheet.cell(row=month_row,column=col).fill = styles.PatternFill("solid",start_color="ffe598")
+                    # total_sale_price += report_data.get(data).get(year).get(month_data).get('sale_price')
+
+                    sheet.cell(row=month_row+1-1,column=col).value = report_data.get(data).get(year).get(month_data).get('product_qty')
+                    sheet.cell(row=month_row+1-1,column=col).alignment = right_aligment
+                    sheet.cell(row=month_row+1-1,column=col).fill = styles.PatternFill("solid",start_color="C3D69B")
+                    total_product_qty += report_data.get(data).get(year).get(month_data).get('product_qty')
+
+                    sheet.cell(row=month_row+2-1,column=col).value = '$ {:,.2f}'.format(report_data.get(data).get(year).get(month_data).get('total'))
+                    sheet.cell(row=month_row+2-1,column=col).font = styles.Font(name='Arial',bold=True)
+                    sheet.cell(row=month_row+2-1,column=col).fill = styles.PatternFill("solid",start_color="EBF1DE")
+                    sheet.cell(row=month_row+2-1,column=col).alignment = right_aligment
+                    month_total += report_data.get(data).get(year).get(month_data).get('total')
+
+
+                    sheet.cell(row=month_row+3-1,column=col).fill = styles.PatternFill("solid",start_color="7f7f7f")
+
+                    # Prepared data for month total.
+                    if year in month_total_dict.keys():
+                        if not month_data in month_total_dict.get(year).keys():
+                            month_total_dict.get(year)[month_data] = {
+                                'total_qty':report_data.get(data).get(year).get(month_data).get('product_qty'),
+                                'total':report_data.get(data).get(year).get(month_data).get('total')
+                            }
+                        else:
+                            month_total_dict.get(year).get(month_data).update({
+                                'total_qty':month_total_dict.get(year).get(month_data).get('total_qty') + report_data.get(data).get(year).get(month_data).get('product_qty'),
+                                'total':month_total_dict.get(year).get(month_data).get('total') + report_data.get(data).get(year).get(month_data).get('total')
+                            })
+                    else:
+                        month_total_dict[year] = {
+                            month_data : {
+                                'total_qty': report_data.get(data).get(year).get(month_data).get('product_qty'),
+                                'total':report_data.get(data).get(year).get(month_data).get('total')
+                            }
+                        }
+                    col += 1
+
+                # Month total section.
+                sheet.cell(row=month_row-1,column=col).value = 'Total'
+                sheet.cell(row=month_row-1,column=col).alignment = center_aligment
+                sheet.cell(row=month_row-1,column=col).fill = styles.PatternFill("solid",start_color="2f5496")
+                sheet.cell(row=month_row-1,column=col).font = styles.Font(name='Arial',bold=True,color='ffffff',size=12)
+
+                # sheet.cell(row=month_row,column=col).value = '$ {:,.2f}'.format(total_sale_price)
+                # sheet.cell(row=month_row,column=col).alignment = right_aligment
+                # sheet.cell(row=month_row,column=col).fill = styles.PatternFill("solid",start_color="b4c6e7")
+
+                sheet.cell(row=month_row+1-1,column=col).value = total_product_qty
+                sheet.cell(row=month_row+1-1,column=col).alignment = right_aligment
+                sheet.cell(row=month_row+1-1,column=col).fill = styles.PatternFill("solid",start_color="d9e2f3")
+
+                sheet.cell(row=month_row+2-1,column=col).value = '$ {:,.2f}'.format(month_total)
+                sheet.cell(row=month_row+2-1,column=col).alignment = right_aligment
+                sheet.cell(row=month_row+2-1,column=col).fill = styles.PatternFill("solid",start_color="b4c6e7")
+
+                sheet.cell(row=month_row+3-1,column=col).fill = styles.PatternFill("solid",start_color="7f7f7f")
+
+                month_row += 3
+            sheet.cell(row=table_content_row,column=content_col).border = bottom_border
+
+            # Product information section.
+            sheet.cell(row=table_content_row,column=content_col).value = "Sale Price : "+'$ {:,.2f}'.format(report_data.get(data).get('sale_price')) or 0.0
+            sheet.cell(row=table_content_row,column=content_col).border = bottom_border
+            sheet.cell(row=table_content_row,column=content_col).alignment = left_aligment
+            table_content_row += 1
+
+            sheet.cell(row=table_content_row,column=content_col).value = "Qty On Hand : " + str(round(product_id.qty_available,2)) or 0
+            sheet.cell(row=table_content_row,column=content_col).alignment = left_aligment
+            sheet.cell(row=table_content_row,column=content_col).border = top_bottom_border
+            table_content_row += 1
+
+            sheet.cell(row=table_content_row,column=content_col).value = "In Stock : " + report_data.get(data).get('stock_or_not')
+            sheet.cell(row=table_content_row,column=content_col).alignment = left_aligment
+            sheet.cell(row=table_content_row,column=content_col).border = top_bottom_border
+            table_content_row += 1
+
+            sheet.cell(row=table_content_row,column=content_col).value = "Cost : " + '$ {:,.2f}'.format(report_data.get(data).get('cost')) or 0.0
+            sheet.cell(row=table_content_row,column=content_col).alignment = left_aligment
+            sheet.cell(row=table_content_row,column=content_col).border = top_bottom_border
+            table_content_row += 1
+
+            sheet.cell(row=table_content_row,column=content_col).value = "Margin : " + '$ {:,.2f}'.format(report_data.get(data).get('sale_price') - report_data.get(data).get('cost')) or 0.0
+            sheet.cell(row=table_content_row,column=content_col).alignment = left_aligment
+            sheet.cell(row=table_content_row,column=content_col).border = top_bottom_border
+            table_content_row += 1
+            
+            key_web_accounts = ''
+            # If product key/web accounts then merge rows.
+            if product_id.product_tmpl_id.x_studio_many2many_field_T5tHX:
+                key_web_accounts = ', '.join(product_id.product_tmpl_id.x_studio_many2many_field_T5tHX.mapped('display_name')) if product_id.product_tmpl_id.x_studio_many2many_field_T5tHX else ''
+            
+
+            sheet.cell(row=table_content_row,column=content_col).value = "Create Date : " + str(report_data.get(data).get('create_date'))
+            sheet.cell(row=table_content_row,column=content_col).alignment = styles.Alignment(horizontal="left", vertical="top",wrap_text=True)
+            sheet.cell(row=table_content_row,column=content_col).border = top_border
+
+            # sheet.cell(row=table_content_row+2,column=content_col).value = "Key/Web Accounts : " + key_web_accounts
+            # sheet.cell(row=table_content_row+2,column=content_col).alignment = styles.Alignment(horizontal="left", vertical="top",wrap_text=True)
+            # sheet.cell(row=table_content_row+2,column=content_col).border = top_border
+            # table_content_row += 2
+
+            # Row seperator with color.
+            sheet.cell(row=table_content_row+1,column=content_col).fill = styles.PatternFill("solid",start_color="7f7f7f")
+            sheet.row_dimensions[table_content_row+1].height = 10
+            table_content_row += 2
+
+            year_table_col = col + 2
+            product_data = yearly_table_data[next_product_index] or False
+            product_name_row = table_header_row+2
+            year_range = list(range(yearly_table_data[1].get('max'), yearly_table_data[0].get('min') - 1, -1))
+
+            # Merge yearly data table header.
+            merge_col_range = get_column_letter(20+len(list(range(yearly_table_data[1].get('max'), yearly_table_data[0].get('min'), -1))))
+            sheet.merge_cells('T%s:%s%s'%(table_header_row+2,merge_col_range,table_header_row+2))
+            sheet.cell(row=product_name_row,column=year_table_col).value = product_id.display_name
+            sheet.cell(row=product_name_row,column=year_table_col).alignment = styles.Alignment(horizontal="center", vertical="center",wrap_text=False)
+
+            # Add value of yearly data in table.
+            for year in list(range(yearly_table_data[1].get('max'), yearly_table_data[0].get('min') - 1, -1)):
+                converted_dict_data = eval(product_data.get(str(product_id.id),{}).get(str(year))) if product_data.get(str(product_id.id),{}).get(str(year)) else {}
+                if product_data and product_data.get(str(product_id.id),{}).get(str(year)):
+
+                    sheet.cell(row=table_header_row+1,column=year_table_col).value = year
+                    sheet.cell(row=table_header_row+1,column=year_table_col).fill = styles.PatternFill("solid",start_color="2F5496")
+                    sheet.cell(row=table_header_row+1,column=year_table_col).font = styles.Font(name='Arial',bold=True,color='ffffff',size=12)
+                    sheet.cell(row=table_header_row+1,column=year_table_col).alignment = center_aligment
+
+                    # sheet.cell(row=table_header_row+3,column=year_table_col).value = '$ {:,.2f}'.format(converted_dict_data.get('average_price'))
+                    # sheet.cell(row=table_header_row+3,column=year_table_col).alignment = right_aligment
+                    # sheet.cell(row=table_header_row+3,column=year_table_col).fill = styles.PatternFill("solid",start_color="ffe598")
+
+                    sheet.cell(row=table_header_row+4-1,column=year_table_col).value = converted_dict_data.get('total_ordered')
+                    sheet.cell(row=table_header_row+4-1,column=year_table_col).fill = styles.PatternFill("solid",start_color="D9E2F3")
+
+                    sheet.cell(row=table_header_row+5-1,column=year_table_col).value = '$ {:,.2f}'.format(converted_dict_data.get('total'))
+                    sheet.cell(row=table_header_row+5-1,column=year_table_col).alignment = right_aligment
+                    sheet.cell(row=table_header_row+5-1,column=year_table_col).font = styles.Font(name='Arial',bold=True)
+                    sheet.cell(row=table_header_row+5-1,column=year_table_col).fill = styles.PatternFill("solid",start_color="B4C6E7")
+                else:
+                    sheet.cell(row=table_header_row+1,column=year_table_col).value = year
+                    sheet.cell(row=table_header_row+1,column=year_table_col).fill = styles.PatternFill("solid",start_color="2F5496")
+                    sheet.cell(row=table_header_row+1,column=year_table_col).font = styles.Font(name='Arial',bold=True,color='ffffff',size=12)
+                    sheet.cell(row=table_header_row+1,column=year_table_col).alignment = center_aligment
+
+                    # sheet.cell(row=table_header_row+3,column=year_table_col).value = '$ {:,.2f}'.format(0.0)
+                    # sheet.cell(row=table_header_row+3,column=year_table_col).alignment = right_aligment
+                    # sheet.cell(row=table_header_row+3,column=year_table_col).fill = styles.PatternFill("solid",start_color="ffe598")
+
+                    sheet.cell(row=table_header_row+4-1,column=year_table_col).value = 0
+                    sheet.cell(row=table_header_row+4-1,column=year_table_col).fill = styles.PatternFill("solid",start_color="D9E2F3")
+
+                    sheet.cell(row=table_header_row+5-1,column=year_table_col).value = '$ {:,.2f}'.format(0.0)
+                    sheet.cell(row=table_header_row+5-1,column=year_table_col).alignment = right_aligment
+                    sheet.cell(row=table_header_row+5-1,column=year_table_col).font = styles.Font(name='Arial',bold=True)
+                    sheet.cell(row=table_header_row+5-1,column=year_table_col).fill = styles.PatternFill("solid",start_color="B4C6E7")
+                product_name_row += 11
+
+                # Prepared yearly table total.
+                if not year in year_total_dict.keys():
+                        year_total_dict[year] = {
+                            'total_qty':converted_dict_data.get('total_ordered') or 0.0,
+                            'total':converted_dict_data.get('total') or 0.0
+                        }
+                else:
+                    if converted_dict_data and converted_dict_data.get('total_ordered'):
+                        year_total_dict.get(year).update({'total_qty':year_total_dict.get(year).get('total_qty') + converted_dict_data.get('total_ordered')})
+                    if converted_dict_data and converted_dict_data.get('total'):
+                        year_total_dict.get(year).update({'total':year_total_dict.get(year).get('total') + converted_dict_data.get('total')})
+                
+                sheet.cell(row=table_header_row+7,column=year_table_col).fill = styles.PatternFill("solid",start_color="7f7f7f")
+                year_table_col += 1
+            content_col = 2
+            next_product_index += 1
+            table_header_row += 7
+
+        # Heading of monthly total.
+        sheet.merge_cells('B%s:R%s'%(table_content_row,table_content_row))
+        sheet.cell(row=table_content_row,column=2).value = 'MONTHLY TOTALS'
+        sheet.cell(row=table_content_row,column=2).alignment = center_aligment
+        sheet.cell(row=table_content_row,column=2).fill = styles.PatternFill("solid",start_color="2f5496")
+        sheet.cell(row=table_content_row,column=2).font = styles.Font(name='Arial',bold=True,color='ffffff',size=12)
+        table_content_row += 1
+        content_col += 3
+
+        sheet.merge_cells('B%s:B%s'%(table_content_row,table_content_row+5))
+        sheet.merge_cells('C%s:C%s'%(table_content_row,table_content_row+5))
+        sheet.merge_cells('D%s:D%s'%(table_content_row,table_content_row+5))
+
+        sheet.cell(row=table_content_row,column=content_col).fill = styles.PatternFill("solid",start_color="7f7f7f")
+
+        sheet.cell(row=table_content_row+1,column=content_col).value = 'UNITS SOLD'
+        sheet.cell(row=table_content_row+1,column=content_col).fill = styles.PatternFill("solid",start_color="f2f2f2")
+        table_content_row += 1
+
+        sheet.cell(row=table_content_row+1,column=content_col).value = 'TOTAL'
+        sheet.cell(row=table_content_row+1,column=content_col).font = styles.Font(name='Arial',bold=True)
+        sheet.cell(row=table_content_row+1,column=content_col).fill = styles.PatternFill("solid",start_color="d8d8d8")
+        table_content_row += 1
+
+        # sheet.cell(row=table_content_row+1,column=content_col).value = 'TOTAL'
+        # sheet.cell(row=table_content_row+1,column=content_col).font = styles.Font(name='Arial',bold=True)
+        sheet.cell(row=table_content_row+1,column=content_col).fill = styles.PatternFill("solid",start_color="7f7f7f")
+
+        sheet.cell(row=table_content_row+2,column=content_col).value = 'UNITS SOLD'
+        sheet.cell(row=table_content_row+2,column=content_col).fill = styles.PatternFill("solid",start_color="f2f2f2")
+
+        sheet.cell(row=table_content_row+3,column=content_col).value = 'TOTAL'
+        sheet.cell(row=table_content_row+3,column=content_col).fill = styles.PatternFill("solid",start_color="d8d8d8")
+        sheet.cell(row=table_content_row+3,column=content_col).font = styles.Font(name='Arial',bold=True,color='000000',size=12)
+        
+        # Add value of monthly total.
+        month_data_col = content_col+1
+        total_row = table_content_row
+        for y in (datetime.now().year-1,datetime.now().year):
+            total_qty = 0.0
+            main_total = 0.0
+            for month_data in month_total_dict.get(y):
+                sheet.cell(row=total_row-2,column=month_data_col).value = month_data[:3] + '-' + str(y)[-2:] or ''
+                sheet.cell(row=total_row-2,column=month_data_col).alignment = center_aligment
+                sheet.cell(row=total_row-2,column=month_data_col).font = styles.Font(name='Arial',bold=True,color='ffffff',size=12)
+                sheet.cell(row=total_row-2,column=month_data_col).fill = styles.PatternFill("solid",start_color="779337")
+
+                sheet.cell(row=total_row-1,column=month_data_col).value = month_total_dict.get(y).get(month_data).get('total_qty') or 0
+                sheet.cell(row=total_row-1,column=month_data_col).alignment = right_aligment
+                sheet.cell(row=total_row-1,column=month_data_col).font = styles.Font(name='Arial',bold=False)
+                sheet.cell(row=total_row-1,column=month_data_col).fill = styles.PatternFill("solid",start_color="C3d69B")
+
+                sheet.cell(row=total_row,column=month_data_col).value = '$ {:,.2f}'.format(month_total_dict.get(y).get(month_data).get('total')) or 0.0
+                sheet.cell(row=total_row,column=month_data_col).alignment = right_aligment
+                sheet.cell(row=total_row,column=month_data_col).font = styles.Font(name='Arial',bold=True)
+                sheet.cell(row=total_row,column=month_data_col).fill = styles.PatternFill("solid",start_color="EBF1DE")
 
                 # sheet.cell(row=table_content_row-1,column=month_data_col).value = '$ {:,.2f}'.format(sum([month_total_dict.get(i).get('total') for i in month_total_dict])) or 0.0
                 sheet.cell(row=total_row+1,column=month_data_col).value = '$ {:,.2f}'.format(sum([month_total_dict.get(y).get(i).get('total') for i in month_total_dict.get(y)])) or 0.0

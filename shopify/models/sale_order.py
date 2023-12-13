@@ -294,7 +294,7 @@ class SaleOrder(models.Model):
             price = shopify_order_line_dict.get('price', 0.0)
 
         line_vals = {
-            'name': description if description else (shopify_order_line_dict.get('name') or odoo_product_id.name),
+            'name': description if description else (shopify_order_line_dict.get('name') or odoo_product_id.display_name),
             'product_id': odoo_product_id.id or False,
             'order_id': order_id.id,
             'company_id': order_id.company_id.id,
@@ -306,7 +306,7 @@ class SaleOrder(models.Model):
         order_line_data = sale_order_line_obj.prepare_sale_order_line_ts(line_vals)
 
         order_line_data.update({
-            'name': description if description else (shopify_order_line_dict.get('name') or odoo_product_id.name),
+            'name': description if description else (shopify_order_line_dict.get('name') or odoo_product_id.display_name),
             'is_delivery': is_delivery,
             'is_discount': is_discount,
             'mk_id': shopify_order_line_dict.get('id')

@@ -14,5 +14,18 @@
                 </xpath>
             </field>
         </record>
+
+        <record id="kits_product_search_form_view" model="ir.ui.view">
+            <field name="name">kits.product.search.stock.form</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_search_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='inactive']" position="after">
+                    <separator/>
+                    <filter name="kits_bom_component" string="BOM Component" domain="[('product_tmpl_id.bom_line_ids','!=',False)]"/>
+                </xpath>
+            </field>
+        </record>
+
     </data>
 </odoo>
