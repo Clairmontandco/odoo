@@ -13,14 +13,12 @@ class ProductProduct(models.Model):
     # Method for monthly data of current and previws year.
     def get_report_data(self):
         product_report_data = {}
-        range_of_year = (datetime.now().year, datetime.now().year-1)
+        range_of_year = (datetime.now().year,datetime.now().year-1,datetime.now().year-2)
         months_of_year = list(calendar.month_name)
 
         for year in range_of_year:
             for rec in self:
-                # if rec._context.get('consume_report') == True:
-                #     if not self.env['mrp.bom.line'].search([('product_tmpl_id','=',rec.product_tmpl_id.id)]):
-                #         continue
+               
                 quary = ''' 
                             SELECT sol.id FROM sale_order_line AS sol
                             WHERE product_id = %s and (SELECT EXTRACT(YEAR FROM sol.create_date)) = %s 
@@ -77,68 +75,88 @@ class ProductProduct(models.Model):
     # Method for monthly data of product consume at manufacturing.
     def get_product_consume_report_data(self):
         product_consume_report_data = {}
-        range_of_year = (datetime.now().year, datetime.now().year-1)
+        range_of_year = (datetime.now().year,datetime.now().year-1,datetime.now().year-2)
         months_of_year = list(calendar.month_name)
 
         for year in range_of_year:
             for rec in self:
-                # if rec._context.get('consume_report') == True:
-                #     if not self.env['mrp.bom.line'].search([('product_tmpl_id','=',rec.product_tmpl_id.id)]):
-                #         continue
-                quary = ''' 
-                            SELECT SM.ID
-                            FROM STOCK_MOVE SM
-                            WHERE RAW_MATERIAL_PRODUCTION_ID IS NOT NULL
-                                AND PRODUCT_ID = %s
-                                AND (SELECT EXTRACT(YEAR FROM SM.CREATE_DATE)) = %s
-                                AND STATE = 'done' 
-                        ''' % (rec.id, year)
-                self._cr.execute(quary)
-                stock_move_ids = self._cr.fetchall()
-
                 if not rec.name in product_consume_report_data.keys():
                     product_consume_report_data[rec.name] = {
                         'product_categ': rec.categ_id.display_name,
                         'product_id' : rec.id,
+                        'sale_price': rec.lst_price or 0.0,
                         'stock_or_not': 'True' if rec.x_studio_stocked else 'False',
+                        'cost': rec.standard_price or 0.0,
+                        'profit_margin': rec.lst_price / rec.standard_price if rec.standard_price else rec.lst_price,
                         'create_date': rec.create_date.date() or '',
                     }
-
-                stock_move_ids = self.env['stock.move'].browse([id[0] for id in stock_move_ids])
-                
-                # Prepared dict for month wize data.
-                for month in months_of_year:
-                    if month:
-                        month_move_lines = stock_move_ids.filtered(lambda x: x.create_date.month == months_of_year.index(month))
-                        # avg_sale_price = sum(month_order_lines.mapped('price_unit'))/len(month_order_lines.mapped('price_unit')) if month_order_lines else 0.0
-                        product_qty = sum(month_move_lines.mapped('product_uom_qty'))
-                        if year not in product_consume_report_data.get(rec.name).keys():
-                            product_consume_report_data.get(rec.name).update(
-                                {
-                                    year: {
-                                        month: {
-                                            'sale_price': 0.0,
-                                            'product_qty': product_qty,
-                                            'total': 0.0
-                                        }
-                                    }
-                                }
-                            )
-                        else:
-                            if month in product_consume_report_data.get(rec.name).get(year).keys():
-                                product_consume_report_data.get(rec.name).get(year).get(month).update()
-                            else:
-                                product_consume_report_data.get(rec.name).get(year).update(
+                bom_lines = self.env['mrp.bom.line'].search([('product_id','=',rec.id)])
+                for line in bom_lines:
+                    bom_product_tmpl = line.bom_id.product_tmpl_id
+                    bom_main_product = self.env['product.product'].search([('product_tmpl_id','=',bom_product_tmpl.id)])
+                    sale_lines = self.env['sale.order.line'].search([('product_id','=',bom_main_product.id)])
+                    for month in months_of_year:
+                        if month:
+                            monthly_order = sale_lines.filtered(lambda x: x.create_date.year == year and x.create_date.month == months_of_year.index(month))
+                            order_qty = sum(monthly_order.mapped('qty_delivered'))
+                            product_qty = order_qty * line.product_qty
+                            product_cost = product_qty * line.product_id.standard_price
+                            # avg_sale_price = product_cost/len(monthly_order) if monthly_order else 0.0
+                            if year not in product_consume_report_data.get(rec.name).keys():
+                                product_consume_report_data.get(rec.name).update(
                                     {
-                                        month: {
-                                            'sale_price': 0.0,
-                                            'product_qty': product_qty,
-                                            'total': 0.0
+                                        year: {
+                                            month: {
+                                                'product_qty': round(product_qty,2),
+                                                'cost_price': round(product_cost,2) or 0.0,
+                                                # 'total': avg_sale_price * product_qty
+                                            }
                                         }
                                     }
                                 )
+                            else:
+                                if month in product_consume_report_data.get(rec.name).get(year).keys():
+                                    product_consume_report_data.get(rec.name).get(year).get(month).update()
+                                else:
+                                    product_consume_report_data.get(rec.name).get(year).update(
+                                        {
+                                            month: {
+                                                'product_qty': round(product_qty,2),
+                                                'cost_price': round(product_cost,2) or 0.0,
+                                                # 'total': avg_sale_price * product_qty
+                                            }
+                                        }
+                                    )
         return product_consume_report_data
-
+    # Method for get yearly product consume data.
+    def get_yearly_product_consume_table_data(self):
+        product_consume_yearly_report_data = []
+        bom_line = self.env['mrp.bom.line'].search([('product_id','in',self.ids)])
+        bom_product = self.env['product.product'].search([('product_tmpl_id','in',bom_line.bom_id.product_tmpl_id.ids)])
+        order_lines = self.env['sale.order.line'].search([('product_id','in',bom_product.ids)])
+        max_year = max(order_lines.mapped('create_date')).year
+        min_year = min(order_lines.mapped('create_date')).year
+        product_consume_yearly_report_data = [{"min":min_year},{"max":max_year}]
+        for rec in self:
+            product_dict = {}
+            yearly_data = []
+            lines = bom_line.filtered(lambda x:x.product_id == rec)
+            for year in range(min_year,max_year+1):
+                product_cost = 0
+                product_qty = 0
+                for line in lines:
+                    product_tmpl = line.bom_id.product_tmpl_id
+                    product = bom_product.filtered(lambda x:x.product_tmpl_id in product_tmpl)
+                    qty_delivered = sum(order_lines.filtered(lambda x:x.product_id in product and x.create_date.year == year).mapped('qty_delivered'))
+                    product_qty += qty_delivered * line.product_qty
+                    product_cost += product_qty * line.product_id.standard_price
+                yearly_data.append({year : {'product_qty':round(product_qty,2),'product_cost':round(product_cost,2)}})
+            product_dict[rec.id] = {}
+            for year_data in yearly_data:
+                product_dict[rec.id][list(year_data.keys())[0]] = list(year_data.values())[0]
+            product_consume_yearly_report_data.append(product_dict)
+        return product_consume_yearly_report_data
+                    
     # Method for get yearly data.
     def get_yearly_table_data(self):
         query = """CREATE OR REPLACE FUNCTION get_product_data_spt(arr INTEGER[])
@@ -168,7 +186,7 @@ class ProductProduct(models.Model):
 							SELECT DISTINCT product_id,
 								   ROUND(SUM(PRODUCT_UOM_QTY), 2) AS TOTAL_ORDERED
 							FROM sale_order_line
-							WHERE date_part('year', create_date) = 2023
+							WHERE date_part('year', create_date) = (SELECT date_part('year', (SELECT current_timestamp)))
 								  AND product_id = any(arr)
 							GROUP BY product_id
 						) subquery into arr;
@@ -197,86 +215,6 @@ class ProductProduct(models.Model):
                     $$
                     LANGUAGE plpgsql;
                     select get_product_data_spt(ARRAY%s)"""%(self.ids)
-        self._cr.execute(query)
-        data = self._cr.fetchall()
-        if len(data) >= 1 and data and len(data[0][0]) >= 3:
-            return data[0][0]
-        else:
-            return {}
-
-    # Method for get yearly product consume data.
-    def get_yearly_product_consume_table_data(self):
-        query = '''CREATE OR REPLACE FUNCTION GET_PRODUCT_DATA_SPT(ARR INTEGER[]) RETURNS JSON[] AS $$
-                    DECLARE
-                        min_year INTEGER;
-                        max_year INTEGER;
-                        y INTEGER;
-                        product INTEGER;
-                        yearly_data JSON;
-                        product_data_arr JSON[];
-                        product_data json;
-                        product_yr_data json;
-                        found_products INTEGER[];
-                    BEGIN
-                        SELECT ARRAY_AGG(product_id ORDER BY product_uom_qty DESC) INTO found_products
-                        FROM (
-                            SELECT DISTINCT product_id,
-                                ROUND(SUM(PRODUCT_UOM_QTY), 2) AS product_uom_qty
-                            FROM stock_move
-                            WHERE date_part('year', create_date) = (SELECT date_part('year', (SELECT current_timestamp)))
-                                AND product_id = any(arr)
-                                AND state = 'done'
-                                AND RAW_MATERIAL_PRODUCTION_ID IS NOT NULL
-                            GROUP BY product_id
-                        )dt;
-
-                        -- Check if any products were found
-                        IF found_products IS NOT NULL THEN
-                            min_year := (SELECT MIN(EXTRACT(year FROM sm.create_date)) FROM STOCK_MOVE AS sm
-                                                WHERE sm.RAW_MATERIAL_PRODUCTION_ID IS NOT NULL AND sm.product_id = any (arr) AND STATE = 'done');
-
-                            max_year := (SELECT MAX(EXTRACT(year FROM sm.create_date)) FROM STOCK_MOVE AS sm
-                                                WHERE sm.RAW_MATERIAL_PRODUCTION_ID IS NOT NULL AND sm.product_id = any (arr) AND STATE = 'done');
-
-                            product_data_arr := ARRAY[(json_build_object('min',min_year )),(json_build_object('max',max_year ))];
-
-                            FOREACH product IN ARRAY arr
-                            LOOP
-                                yearly_data := '{}';
-                                FOR y IN SELECT generate_series(max_year, min_year, -1)
-                                LOOP
-                                    product_yr_data := json_build_object(y,(SELECT ROW_TO_JSON(X) FROM (SELECT
-                                            COALESCE(ROUND(SUM(PRODUCT_UOM_QTY),2), 0) AS product_uom_qty
-                                        FROM STOCK_MOVE AS SM
-                                        LEFT JOIN PRODUCT_PRODUCT AS PP ON PP.ID = SM.PRODUCT_ID
-                                        WHERE EXTRACT(YEAR FROM SM.CREATE_DATE) = y AND PRODUCT_ID = product and sm.state='done' and sm.RAW_MATERIAL_PRODUCTION_ID IS NOT NULL GROUP BY EXTRACT(YEAR FROM SM.CREATE_DATE))X));
-
-                                    yearly_data := yearly_data ::JSONB || (json_build_object(Y, (product_yr_data->>Y::TEXT)))::JSONB;
-                                END LOOP;
-                                product_data_arr := product_data_arr || json_build_object(product,yearly_data);
-                            END LOOP;
-                        ELSE
-                            -- No products found, set zero values for all data
-                            min_year := EXTRACT(year FROM CURRENT_TIMESTAMP);
-                            max_year := EXTRACT(year FROM CURRENT_TIMESTAMP);
-                            product_data_arr := ARRAY[(json_build_object('min',min_year )),(json_build_object('max',max_year ))];
-
-                            FOR product IN SELECT UNNEST(arr) LOOP
-                                yearly_data := '{}';
-                                FOR y IN SELECT generate_series(max_year, min_year, -1)
-                                LOOP
-                                    product_yr_data := json_build_object(y, '0');
-
-                                    yearly_data := yearly_data ::JSONB || (json_build_object(Y, (product_yr_data->>Y::TEXT)))::JSONB;
-                                END LOOP;
-                                product_data_arr := product_data_arr || json_build_object(product, yearly_data);
-                            END LOOP;
-                        END IF;
-
-                        RETURN product_data_arr::json[];
-                    END;
-                    $$ LANGUAGE PLPGSQL;
-                    select get_product_data_spt(ARRAY%s)'''%(self.ids)
         self._cr.execute(query)
         data = self._cr.fetchall()
         if len(data) >= 1 and data and len(data[0][0]) >= 3:
@@ -344,35 +282,35 @@ class ProductProduct(models.Model):
             
             # Product name.
             # product_id = self.browse(report_data.get(data).get('product_id'))
-            product_id = self.browse(eval(list(data.keys())[0]))
+            product_id = self.browse((list(data.keys())[0]))
             data = product_id.name
 
-            sheet.merge_cells('B%s:B%s'%(table_content_row,table_content_row+7))
+            sheet.merge_cells('B%s:B%s'%(table_content_row,table_content_row+11))
             sheet.cell(row=table_content_row,column=content_col).value = product_id.display_name
             sheet.cell(row=table_content_row,column=content_col).alignment = center_aligment
-            sheet.cell(row=table_content_row+8,column=2).fill = styles.PatternFill("solid",start_color="7f7f7f")
+            sheet.cell(row=table_content_row+12,column=2).fill = styles.PatternFill("solid",start_color="7f7f7f")
             content_col += 1
             
             # Product category.
-            sheet.merge_cells('C%s:C%s'%(table_content_row,table_content_row+3))
+            sheet.merge_cells('C%s:C%s'%(table_content_row,table_content_row+6))
             sheet.cell(row=table_content_row,column=content_col).value = report_data.get(data).get('product_categ')
             sheet.cell(row=table_content_row,column=content_col).alignment = left_aligment
-            sheet.cell(row=table_content_row+8,column=3).fill = styles.PatternFill("solid",start_color="7f7f7f")
+            sheet.cell(row=table_content_row+12,column=3).fill = styles.PatternFill("solid",start_color="7f7f7f")
 
             product_tags = ''
             if product_id.product_tmpl_id.x_studio_many2many_field_bOjgj:
                 product_tags = ', '.join(product_id.product_tmpl_id.x_studio_many2many_field_bOjgj.mapped('display_name')) if product_id.product_tmpl_id.x_studio_many2many_field_bOjgj else ''
 
             # Product tags.
-            sheet.merge_cells('C%s:C%s'%(table_content_row+4,table_content_row+7))
-            sheet.cell(row=table_content_row+4,column=content_col).value = 'Tags : ' + product_tags
-            sheet.cell(row=table_content_row+4,column=content_col).alignment = left_aligment
-            sheet.cell(row=table_content_row+8,column=3).fill = styles.PatternFill("solid",start_color="7f7f7f")
+            sheet.merge_cells('C%s:C%s'%(table_content_row+7,table_content_row+11))
+            sheet.cell(row=table_content_row+7,column=content_col).value = 'Tags : ' + product_tags
+            sheet.cell(row=table_content_row+7,column=content_col).alignment = left_aligment
+            sheet.cell(row=table_content_row+12,column=3).fill = styles.PatternFill("solid",start_color="7f7f7f")
             content_col += 1
             
             # Print monthly data in first table (Jan - Dec)
             month_row = table_content_row + 1
-            for year in (datetime.now().year-1,datetime.now().year):
+            for year in (datetime.now().year-2,datetime.now().year-1,datetime.now().year):
                 col = 6
                 total_sale_price = 0.0
                 total_product_qty = 0.0
@@ -464,17 +402,17 @@ class ProductProduct(models.Model):
             sheet.cell(row=table_content_row+1,column=content_col).value = "Sale Price : "+'$ {:,.2f}'.format(report_data.get(data).get('sale_price')) or 0.0
             sheet.cell(row=table_content_row+1,column=content_col).border = bottom_border
             sheet.cell(row=table_content_row+1,column=content_col).alignment = left_aligment
-            table_content_row += 1
+            table_content_row += 2
 
             sheet.cell(row=table_content_row+1,column=content_col).value = "Qty On Hand : " + str(round(product_id.qty_available,2)) or 0
             sheet.cell(row=table_content_row+1,column=content_col).alignment = left_aligment
             sheet.cell(row=table_content_row+1,column=content_col).border = top_bottom_border
-            table_content_row += 1
+            table_content_row += 2
 
             sheet.cell(row=table_content_row+1,column=content_col).value = "In Stock : " + report_data.get(data).get('stock_or_not')
             sheet.cell(row=table_content_row+1,column=content_col).alignment = left_aligment
             sheet.cell(row=table_content_row+1,column=content_col).border = top_bottom_border
-            table_content_row += 1
+            table_content_row += 2
 
             sheet.cell(row=table_content_row+1,column=content_col).value = "Cost : " + '$ {:,.2f}'.format(report_data.get(data).get('cost')) or 0.0
             sheet.cell(row=table_content_row+1,column=content_col).alignment = left_aligment
@@ -484,7 +422,7 @@ class ProductProduct(models.Model):
             sheet.cell(row=table_content_row+1,column=content_col).value = "Margin : " + '$ {:,.2f}'.format(report_data.get(data).get('sale_price') - report_data.get(data).get('cost')) or 0.0
             sheet.cell(row=table_content_row+1,column=content_col).alignment = left_aligment
             sheet.cell(row=table_content_row+1,column=content_col).border = top_bottom_border
-            table_content_row += 1
+            table_content_row += 2
             
             key_web_accounts = ''
             # If product key/web accounts then merge rows.
@@ -499,12 +437,12 @@ class ProductProduct(models.Model):
             sheet.cell(row=table_content_row+2,column=content_col).value = "Key/Web Accounts : " + key_web_accounts
             sheet.cell(row=table_content_row+2,column=content_col).alignment = styles.Alignment(horizontal="left", vertical="top",wrap_text=True)
             sheet.cell(row=table_content_row+2,column=content_col).border = top_border
-            table_content_row += 2
+            table_content_row += 4
 
             # Row seperator with color.
-            sheet.cell(row=table_content_row+1,column=content_col).fill = styles.PatternFill("solid",start_color="7f7f7f")
-            sheet.row_dimensions[table_content_row+1].height = 10
-            table_content_row += 2
+            sheet.cell(row=table_content_row-1,column=content_col).fill = styles.PatternFill("solid",start_color="7f7f7f")
+            sheet.row_dimensions[table_content_row-1].height = 10
+            # table_content_row += 2
 
             year_table_col = col + 2
             product_data = yearly_table_data[next_product_index] or False
@@ -519,7 +457,7 @@ class ProductProduct(models.Model):
 
             # Add value of yearly data in table.
             for year in list(range(yearly_table_data[1].get('max'), yearly_table_data[0].get('min') - 1, -1)):
-                converted_dict_data = eval(product_data.get(str(product_id.id),{}).get(str(year))) if product_data.get(str(product_id.id),{}).get(str(year)) else {}
+                converted_dict_data = (product_data.get(str(product_id.id),{}).get(str(year))) if product_data.get(str(product_id.id),{}).get(str(year)) else {}
                 if product_data and product_data.get(str(product_id.id),{}).get(str(year)):
 
                     sheet.cell(row=table_header_row+1,column=year_table_col).value = year
@@ -569,11 +507,11 @@ class ProductProduct(models.Model):
                     if converted_dict_data and converted_dict_data.get('total'):
                         year_total_dict.get(year).update({'total':year_total_dict.get(year).get('total') + converted_dict_data.get('total')})
                 
-                sheet.cell(row=table_header_row+9,column=year_table_col).fill = styles.PatternFill("solid",start_color="7f7f7f")
+                sheet.cell(row=table_header_row+13,column=year_table_col).fill = styles.PatternFill("solid",start_color="7f7f7f")
                 year_table_col += 1
             content_col = 2
             next_product_index += 1
-            table_header_row += 9
+            table_header_row += 13
 
         # Heading of monthly total.
         sheet.merge_cells('B%s:R%s'%(table_content_row,table_content_row))
@@ -584,9 +522,9 @@ class ProductProduct(models.Model):
         table_content_row += 1
         content_col += 3
 
-        sheet.merge_cells('B%s:B%s'%(table_content_row,table_content_row+5))
-        sheet.merge_cells('C%s:C%s'%(table_content_row,table_content_row+5))
-        sheet.merge_cells('D%s:D%s'%(table_content_row,table_content_row+5))
+        sheet.merge_cells('B%s:B%s'%(table_content_row,table_content_row+6))
+        sheet.merge_cells('C%s:C%s'%(table_content_row,table_content_row+6))
+        sheet.merge_cells('D%s:D%s'%(table_content_row,table_content_row+6))
 
         sheet.cell(row=table_content_row,column=content_col).fill = styles.PatternFill("solid",start_color="7f7f7f")
 
@@ -602,65 +540,80 @@ class ProductProduct(models.Model):
         # sheet.cell(row=table_content_row+1,column=content_col).value = 'TOTAL'
         # sheet.cell(row=table_content_row+1,column=content_col).font = styles.Font(name='Arial',bold=True)
         sheet.cell(row=table_content_row+1,column=content_col).fill = styles.PatternFill("solid",start_color="7f7f7f")
+        table_content_row += 1
 
-        sheet.cell(row=table_content_row+2,column=content_col).value = 'UNITS SOLD'
-        sheet.cell(row=table_content_row+2,column=content_col).fill = styles.PatternFill("solid",start_color="f2f2f2")
+        sheet.cell(row=table_content_row+1,column=content_col).value = 'UNITS SOLD'
+        sheet.cell(row=table_content_row+1,column=content_col).fill = styles.PatternFill("solid",start_color="f2f2f2")
+        table_content_row += 1
 
-        sheet.cell(row=table_content_row+3,column=content_col).value = 'TOTAL'
-        sheet.cell(row=table_content_row+3,column=content_col).fill = styles.PatternFill("solid",start_color="d8d8d8")
-        sheet.cell(row=table_content_row+3,column=content_col).font = styles.Font(name='Arial',bold=True,color='000000',size=12)
+        sheet.cell(row=table_content_row+1,column=content_col).value = 'TOTAL'
+        sheet.cell(row=table_content_row+1,column=content_col).fill = styles.PatternFill("solid",start_color="d8d8d8")
+        sheet.cell(row=table_content_row+1,column=content_col).font = styles.Font(name='Arial',bold=True,color='000000',size=12)
+
+        #######
+        table_content_row += 1
+        sheet.cell(row=table_content_row+1,column=content_col).fill = styles.PatternFill("solid",start_color="7f7f7f")
+        table_content_row += 1
+
+        sheet.cell(row=table_content_row+1,column=content_col).value = 'UNITS SOLD'
+        sheet.cell(row=table_content_row+1,column=content_col).fill = styles.PatternFill("solid",start_color="f2f2f2")
+        table_content_row += 1
+
+        sheet.cell(row=table_content_row+1,column=content_col).value = 'TOTAL'
+        sheet.cell(row=table_content_row+1,column=content_col).fill = styles.PatternFill("solid",start_color="d8d8d8")
+        sheet.cell(row=table_content_row+1,column=content_col).font = styles.Font(name='Arial',bold=True,color='000000',size=12)
         
         # Add value of monthly total.
         month_data_col = content_col+1
         total_row = table_content_row
-        for y in (datetime.now().year-1,datetime.now().year):
+        for y in (datetime.now().year-2,datetime.now().year-1,datetime.now().year):
             total_qty = 0.0
             main_total = 0.0
             for month_data in month_total_dict.get(y):
-                sheet.cell(row=total_row-2,column=month_data_col).value = month_data[:3] + '-' + str(y)[-2:] or ''
-                sheet.cell(row=total_row-2,column=month_data_col).alignment = center_aligment
-                sheet.cell(row=total_row-2,column=month_data_col).font = styles.Font(name='Arial',bold=True,color='ffffff',size=12)
-                sheet.cell(row=total_row-2,column=month_data_col).fill = styles.PatternFill("solid",start_color="bf9000")
+                sheet.cell(row=total_row-7,column=month_data_col).value = month_data[:3] + '-' + str(y)[-2:] or ''
+                sheet.cell(row=total_row-7,column=month_data_col).alignment = center_aligment
+                sheet.cell(row=total_row-7,column=month_data_col).font = styles.Font(name='Arial',bold=True,color='ffffff',size=12)
+                sheet.cell(row=total_row-7,column=month_data_col).fill = styles.PatternFill("solid",start_color="bf9000")
 
-                sheet.cell(row=total_row-1,column=month_data_col).value = month_total_dict.get(y).get(month_data).get('total_qty') or 0
-                sheet.cell(row=total_row-1,column=month_data_col).alignment = right_aligment
-                sheet.cell(row=total_row-1,column=month_data_col).font = styles.Font(name='Arial',bold=False)
-                sheet.cell(row=total_row-1,column=month_data_col).fill = styles.PatternFill("solid",start_color="ffe598")
+                sheet.cell(row=total_row-6,column=month_data_col).value = month_total_dict.get(y).get(month_data).get('total_qty') or 0
+                sheet.cell(row=total_row-6,column=month_data_col).alignment = right_aligment
+                sheet.cell(row=total_row-6,column=month_data_col).font = styles.Font(name='Arial',bold=False)
+                sheet.cell(row=total_row-6,column=month_data_col).fill = styles.PatternFill("solid",start_color="ffe598")
 
-                sheet.cell(row=total_row,column=month_data_col).value = '$ {:,.2f}'.format(month_total_dict.get(y).get(month_data).get('total')) or 0.0
-                sheet.cell(row=total_row,column=month_data_col).alignment = right_aligment
-                sheet.cell(row=total_row,column=month_data_col).font = styles.Font(name='Arial',bold=True)
-                sheet.cell(row=total_row,column=month_data_col).fill = styles.PatternFill("solid",start_color="fef2cb")
+                sheet.cell(row=total_row-5,column=month_data_col).value = '$ {:,.2f}'.format(month_total_dict.get(y).get(month_data).get('total')) or 0.0
+                sheet.cell(row=total_row-5,column=month_data_col).alignment = right_aligment
+                sheet.cell(row=total_row-5,column=month_data_col).font = styles.Font(name='Arial',bold=True)
+                sheet.cell(row=total_row-5,column=month_data_col).fill = styles.PatternFill("solid",start_color="fef2cb")
 
                 # sheet.cell(row=table_content_row-1,column=month_data_col).value = '$ {:,.2f}'.format(sum([month_total_dict.get(i).get('total') for i in month_total_dict])) or 0.0
-                sheet.cell(row=total_row+1,column=month_data_col).value = '$ {:,.2f}'.format(sum([month_total_dict.get(y).get(i).get('total') for i in month_total_dict.get(y)])) or 0.0
-                sheet.cell(row=total_row+1,column=month_data_col).alignment = right_aligment
-                sheet.cell(row=total_row+1,column=month_data_col).font = styles.Font(name='Arial',bold=True)
-                sheet.cell(row=total_row+1,column=month_data_col).fill = styles.PatternFill("solid",start_color="b4c6e7")
+                # sheet.cell(row=total_row+4,column=month_data_col).value = '$ {:,.2f}'.format(sum([month_total_dict.get(y).get(i).get('total') for i in month_total_dict.get(y)])) or 0.0
+                # sheet.cell(row=total_row+4,column=month_data_col).alignment = right_aligment
+                # sheet.cell(row=total_row+4,column=month_data_col).font = styles.Font(name='Arial',bold=True)
+                # sheet.cell(row=total_row+4,column=month_data_col).fill = styles.PatternFill("solid",start_color="b4c6e7")
 
                 total_qty += month_total_dict.get(y).get(month_data).get('total_qty')
                 main_total += month_total_dict.get(y).get(month_data).get('total')
                 month_data_col += 1
 
-            sheet.cell(row=total_row-2,column=month_data_col).value = 'Total'
-            sheet.cell(row=total_row-2,column=month_data_col).alignment = center_aligment
-            sheet.cell(row=total_row-2,column=month_data_col).fill = styles.PatternFill("solid",start_color="2f5496")
-            sheet.cell(row=total_row-2,column=month_data_col).font = styles.Font(name='Arial',bold=True,color='ffffff',size=12)
+            sheet.cell(row=total_row-7,column=month_data_col).value = 'Total'
+            sheet.cell(row=total_row-7,column=month_data_col).alignment = center_aligment
+            sheet.cell(row=total_row-7,column=month_data_col).fill = styles.PatternFill("solid",start_color="2f5496")
+            sheet.cell(row=total_row-7,column=month_data_col).font = styles.Font(name='Arial',bold=True,color='ffffff',size=12)
 
-            sheet.cell(row=total_row-1,column=month_data_col).value = total_qty
-            sheet.cell(row=total_row-1,column=month_data_col).alignment = right_aligment
-            sheet.cell(row=total_row-1,column=month_data_col).fill = styles.PatternFill("solid",start_color="b4c6e7")
+            sheet.cell(row=total_row-6,column=month_data_col).value = total_qty
+            sheet.cell(row=total_row-6,column=month_data_col).alignment = right_aligment
+            sheet.cell(row=total_row-6,column=month_data_col).fill = styles.PatternFill("solid",start_color="b4c6e7")
 
-            sheet.cell(row=total_row,column=month_data_col).value = '$ {:,.2f}'.format(main_total)
-            sheet.cell(row=total_row,column=month_data_col).alignment = right_aligment
-            sheet.cell(row=total_row,column=month_data_col).fill = styles.PatternFill("solid",start_color="d9e2f3")
+            sheet.cell(row=total_row-5,column=month_data_col).value = '$ {:,.2f}'.format(main_total)
+            sheet.cell(row=total_row-5,column=month_data_col).alignment = right_aligment
+            sheet.cell(row=total_row-5,column=month_data_col).fill = styles.PatternFill("solid",start_color="d9e2f3")
 
             month_data_col = content_col+1
             total_row += 3
 
-        sheet.merge_cells('B%s:R%s'%(table_content_row+4,table_content_row+4))
-        sheet.cell(row=table_content_row+4,column=2).fill = styles.PatternFill("solid",start_color="7f7f7f")
-        sheet.row_dimensions[table_content_row+4].height = 10
+        sheet.merge_cells('B%s:R%s'%(table_content_row+2,table_content_row+2))
+        sheet.cell(row=table_content_row+2,column=2).fill = styles.PatternFill("solid",start_color="7f7f7f")
+        sheet.row_dimensions[table_content_row+2].height = 10
 
         # Header of yearly total.
         merge_col_range = get_column_letter(20+len(year_total_dict)-1)
@@ -674,15 +627,15 @@ class ProductProduct(models.Model):
         end_report_seperator = year_table_col-len(year_range)
         for r in year_range:
             year_total_data = year_total_dict.get(r)
-            sheet.cell(row=table_content_row-2,column=end_report_seperator).value = year_total_data.get('total_qty') or 0.0
-            sheet.cell(row=table_content_row-2,column=end_report_seperator).fill = styles.PatternFill("solid",start_color="d9e2f3")
+            sheet.cell(row=table_content_row-7,column=end_report_seperator).value = year_total_data.get('total_qty') or 0.0
+            sheet.cell(row=table_content_row-7,column=end_report_seperator).fill = styles.PatternFill("solid",start_color="d9e2f3")
 
-            sheet.cell(row=table_content_row-1,column=end_report_seperator).value = '$ {:,.2f}'.format(year_total_data.get('total') or 0.0)
-            sheet.cell(row=table_content_row-1,column=end_report_seperator).font = styles.Font(name='Arial',bold=True)
-            sheet.cell(row=table_content_row-1,column=end_report_seperator).fill = styles.PatternFill("solid",start_color="b4c6e7")
-            sheet.cell(row=table_content_row-1,column=end_report_seperator).alignment = right_aligment
+            sheet.cell(row=table_content_row-6,column=end_report_seperator).value = '$ {:,.2f}'.format(year_total_data.get('total') or 0.0)
+            sheet.cell(row=table_content_row-6,column=end_report_seperator).font = styles.Font(name='Arial',bold=True)
+            sheet.cell(row=table_content_row-6,column=end_report_seperator).fill = styles.PatternFill("solid",start_color="b4c6e7")
+            sheet.cell(row=table_content_row-6,column=end_report_seperator).alignment = right_aligment
 
-            sheet.cell(row=table_content_row+4,column=end_report_seperator).fill = styles.PatternFill("solid",start_color="7f7f7f")
+            sheet.cell(row=table_content_row+2,column=end_report_seperator).fill = styles.PatternFill("solid",start_color="7f7f7f")
             end_report_seperator += 1
 
         # Width of all col.
@@ -735,7 +688,7 @@ class ProductProduct(models.Model):
         if product: 
             report_data = product.get_product_consume_report_data()
             yearly_table_data = product.get_yearly_product_consume_table_data()
-        f_name = 'Sales_Spreadsheet'
+        f_name = 'Product_Consume_Spreadsheet'
         workbook = Workbook()
         sheet = workbook.create_sheet(title="products consume report", index=0)
         center_aligment = styles.Alignment(horizontal="center", vertical="center",wrap_text=True)
@@ -793,17 +746,17 @@ class ProductProduct(models.Model):
             for data in yearly_table_data[2:]:
                 
                 # Product name.
-                product_id = self.browse(eval(list(data.keys())[0]))
+                product_id = self.browse((list(data.keys())[0]))
                 data = product_id.name
 
-                sheet.merge_cells('B%s:B%s'%(table_content_row,table_content_row+5))
+                sheet.merge_cells('B%s:B%s'%(table_content_row,table_content_row+8))
                 sheet.cell(row=table_content_row,column=content_col).value = product_id.display_name
                 sheet.cell(row=table_content_row,column=content_col).alignment = center_aligment
-                sheet.cell(row=table_content_row+6,column=2).fill = styles.PatternFill("solid",start_color="7f7f7f")
+                sheet.cell(row=table_content_row+9,column=2).fill = styles.PatternFill("solid",start_color="7f7f7f")
                 content_col += 1
                 
                 # Product category.
-                sheet.merge_cells('C%s:C%s'%(table_content_row,table_content_row+2))
+                sheet.merge_cells('C%s:C%s'%(table_content_row,table_content_row+4))
                 sheet.cell(row=table_content_row,column=content_col).value = report_data.get(data).get('product_categ')
                 sheet.cell(row=table_content_row,column=content_col).alignment = left_aligment
 
@@ -812,23 +765,24 @@ class ProductProduct(models.Model):
                     product_tags = ', '.join(product_id.product_tmpl_id.x_studio_many2many_field_bOjgj.mapped('display_name')) if product_id.product_tmpl_id.x_studio_many2many_field_bOjgj else ''
 
                 # Product tags.
-                sheet.merge_cells('C%s:C%s'%(table_content_row+3,table_content_row+5))
-                sheet.cell(row=table_content_row+3,column=content_col).value = 'Tags : ' + product_tags
-                sheet.cell(row=table_content_row+3,column=content_col).alignment = left_aligment
-                sheet.cell(row=table_content_row+6,column=3).fill = styles.PatternFill("solid",start_color="7f7f7f")
+                sheet.merge_cells('C%s:C%s'%(table_content_row+5,table_content_row+8))
+                sheet.cell(row=table_content_row+5,column=content_col).value = 'Tags : ' + product_tags
+                sheet.cell(row=table_content_row+5,column=content_col).alignment = left_aligment
+                sheet.cell(row=table_content_row+9,column=3).fill = styles.PatternFill("solid",start_color="7f7f7f")
                 content_col += 1
                 
                 # Print monthly data in first table (Jan - Dec)
                 month_row = table_content_row + 1
-                for year in (datetime.now().year-1,datetime.now().year):
+                for year in (datetime.now().year-2,datetime.now().year-1,datetime.now().year):
                     col = 6
                     total_sale_price = 0.0
                     total_product_qty = 0.0
                     month_total = 0.0
                     sheet.cell(row=month_row-1,column=content_col+1).fill = styles.PatternFill("solid",start_color="7f7f7f")
                     sheet.cell(row=month_row+2-1-1,column=content_col+1).value = "CONSUME UNITS"
-                    sheet.cell(row=month_row+2-1-1,column=content_col+1).fill = styles.PatternFill("solid",start_color="d8d8d8")
-                    sheet.cell(row=month_row+3-1-1,column=content_col+1).fill = styles.PatternFill("solid",start_color="7f7f7f")
+                    sheet.cell(row=month_row+2-1-1,column=content_col+1).fill = styles.PatternFill("solid",start_color="f2f2f2")
+                    sheet.cell(row=month_row+3-1-1,column=content_col+1).value = "PRODUCT COST"
+                    sheet.cell(row=month_row+3-1-1,column=content_col+1).fill = styles.PatternFill("solid",start_color="d8d8d8")
                     sheet.cell(row=month_row+3-1,column=content_col+1).fill = styles.PatternFill("solid",start_color="7f7f7f")
 
                     # Loop of year months.
@@ -843,13 +797,13 @@ class ProductProduct(models.Model):
 
 
                         sheet.cell(row=month_row+2-1-1,column=col).value = (report_data.get(data).get(year).get(month_data).get('product_qty') or 0.00)
-                        sheet.cell(row=month_row+2-1-1,column=col).fill = styles.PatternFill("solid",start_color="EBF1DE")
+                        sheet.cell(row=month_row+2-1-1,column=col).fill = styles.PatternFill("solid",start_color="c3d69b")
                         sheet.cell(row=month_row+2-1-1,column=col).alignment = right_aligment
                         total_product_qty += report_data.get(data).get(year).get(month_data).get('product_qty')
-                        month_total += report_data.get(data).get(year).get(month_data).get('total')
+                        month_total += report_data.get(data).get(year).get(month_data).get('cost_price')
 
 
-                        sheet.cell(row=month_row+3-1-1,column=col).fill = styles.PatternFill("solid",start_color="7f7f7f")
+                        sheet.cell(row=month_row+3-1-1,column=col).value = (report_data.get(data).get(year).get(month_data).get('cost_price') or 0.00)
                         sheet.cell(row=month_row+3-1,column=col).fill = styles.PatternFill("solid",start_color="7f7f7f")
 
                         # Prepared data for month total.
@@ -857,18 +811,18 @@ class ProductProduct(models.Model):
                             if not month_data in month_total_dict.get(year).keys():
                                 month_total_dict.get(year)[month_data] = {
                                     'total_qty':report_data.get(data).get(year).get(month_data).get('product_qty'),
-                                    'total':report_data.get(data).get(year).get(month_data).get('total')
+                                    'total':report_data.get(data).get(year).get(month_data).get('cost_price')
                                 }
                             else:
                                 month_total_dict.get(year).get(month_data).update({
                                     'total_qty':month_total_dict.get(year).get(month_data).get('total_qty') + report_data.get(data).get(year).get(month_data).get('product_qty'),
-                                    'total':month_total_dict.get(year).get(month_data).get('total') + report_data.get(data).get(year).get(month_data).get('total')
+                                    'total':month_total_dict.get(year).get(month_data).get('total') + report_data.get(data).get(year).get(month_data).get('cost_price')
                                 })
                         else:
                             month_total_dict[year] = {
                                 month_data : {
                                     'total_qty': report_data.get(data).get(year).get(month_data).get('product_qty'),
-                                    'total':report_data.get(data).get(year).get(month_data).get('total')
+                                    'total':report_data.get(data).get(year).get(month_data).get('cost_price')
                                 }
                             }
                         col += 1
@@ -884,10 +838,10 @@ class ProductProduct(models.Model):
                     sheet.cell(row=month_row+1-1,column=col).alignment = right_aligment
                     sheet.cell(row=month_row+1-1,column=col).fill = styles.PatternFill("solid",start_color="d9e2f3")
 
-                    sheet.cell(row=month_row+2-1,column=col).fill = styles.PatternFill("solid",start_color="7f7f7f")
+                    sheet.cell(row=month_row+2-1,column=col).value = month_total
 
                     sheet.cell(row=month_row+3-1,column=col).fill = styles.PatternFill("solid",start_color="7f7f7f")
-                    sheet.cell(row=month_row+3,column=col).fill = styles.PatternFill("solid",start_color="7f7f7f")
+                    # sheet.cell(row=month_row+3,column=col).fill = styles.PatternFill("solid",start_color="7f7f7f")
 
                     month_row += 3
                 sheet.cell(row=table_content_row,column=content_col).border = bottom_border
@@ -911,12 +865,12 @@ class ProductProduct(models.Model):
                 sheet.cell(row=table_content_row,column=content_col).value = "Cost : " + '$ {:,.2f}'.format(report_data.get(data).get('cost')or 0.0) 
                 sheet.cell(row=table_content_row,column=content_col).alignment = left_aligment
                 sheet.cell(row=table_content_row,column=content_col).border = top_bottom_border
-                table_content_row += 1
+                table_content_row += 3
 
                 sheet.cell(row=table_content_row,column=content_col).value = "Margin : " + '$ {:,.2f}'.format((report_data.get(data).get('sale_price') or 0.0) - (report_data.get(data).get('cost')or 0.0)) 
                 sheet.cell(row=table_content_row,column=content_col).alignment = left_aligment
                 sheet.cell(row=table_content_row,column=content_col).border = top_bottom_border
-                table_content_row += 1
+                table_content_row += 2
                 
                 key_web_accounts = ''
                 # If product key/web accounts then merge rows.
@@ -947,16 +901,18 @@ class ProductProduct(models.Model):
 
                 # Add value of yearly data in table.
                 for year in list(range(yearly_table_data[1].get('max'), yearly_table_data[0].get('min') - 1, -1)):
-                    converted_dict_data = eval(product_data.get(str(product_id.id),{}).get(str(year))) if product_data.get(str(product_id.id),{}).get(str(year)) else {}
-                    if product_data and product_data.get(str(product_id.id),{}).get(str(year)):
+                    converted_dict_data = (product_data.get((product_id.id),{}).get((year))) if product_data.get((product_id.id),{}).get((year)) else {}
+                    if product_data and product_data.get((product_id.id),{}).get((year)):
 
                         sheet.cell(row=table_header_row+1,column=year_table_col).value = year
                         sheet.cell(row=table_header_row+1,column=year_table_col).fill = styles.PatternFill("solid",start_color="2F5496")
                         sheet.cell(row=table_header_row+1,column=year_table_col).font = styles.Font(name='Arial',bold=True,color='ffffff',size=12)
                         sheet.cell(row=table_header_row+1,column=year_table_col).alignment = center_aligment
 
-                        sheet.cell(row=table_header_row+4-1,column=year_table_col).value = converted_dict_data.get('product_uom_qty',0) if isinstance(converted_dict_data,dict) else 0
-                        sheet.cell(row=table_header_row+4-1,column=year_table_col).fill = styles.PatternFill("solid",start_color="D9E2F3")
+                        sheet.cell(row=table_header_row+4-1,column=year_table_col).value = converted_dict_data.get('product_qty',0) if isinstance(converted_dict_data,dict) else 0
+                        sheet.cell(row=table_header_row+4-1,column=year_table_col).fill = styles.PatternFill("solid",start_color="c3d69b")
+                        sheet.cell(row=table_header_row+4,column=year_table_col).value = converted_dict_data.get('product_cost',0) if isinstance(converted_dict_data,dict) else 0
+                        sheet.cell(row=table_header_row+4,column=year_table_col).fill = styles.PatternFill("solid",start_color="D9E2F3")
 
                         sheet.cell(row=table_header_row+5-1-1,column=year_table_col).fill = styles.PatternFill("solid",start_color="B4C6E7")
                     else:
@@ -974,17 +930,20 @@ class ProductProduct(models.Model):
                     # Prepared yearly table total.
                     if not year in year_total_dict.keys():
                             year_total_dict[year] = {
-                                'total_qty':(converted_dict_data.get('product_uom_qty',0) if isinstance(converted_dict_data,dict) else 0),
+                                'total_qty':(converted_dict_data.get('product_qty',0) if isinstance(converted_dict_data,dict) else 0),
+                                'total':(converted_dict_data.get('product_cost',0) if isinstance(converted_dict_data,dict) else 0)
                             }
                     else:
-                        if converted_dict_data and converted_dict_data.get('product_uom_qty'):
-                            year_total_dict.get(year).update({'total_qty':(year_total_dict.get(year).get('total_qty')or 0.00)+(converted_dict_data.get('product_uom_qty',0) if isinstance(converted_dict_data,dict) else 0)})
+                        if converted_dict_data and converted_dict_data.get('product_qty'):
+                            year_total_dict.get(year).update({'total_qty':(year_total_dict.get(year).get('total_qty')or 0.00)+(converted_dict_data.get('product_qty',0) if isinstance(converted_dict_data,dict) else 0)})
+                        elif converted_dict_data and converted_dict_data.get('product_cost'):
+                            year_total_dict.get(year).update({'total':(year_total_dict.get(year).get('total')or 0.00)+(converted_dict_data.get('product_cost',0) if isinstance(converted_dict_data,dict) else 0)})
                     
-                    sheet.cell(row=table_header_row+7,column=year_table_col).fill = styles.PatternFill("solid",start_color="7f7f7f")
+                    sheet.cell(row=table_header_row+10,column=year_table_col).fill = styles.PatternFill("solid",start_color="7f7f7f")
                     year_table_col += 1
                 content_col = 2
                 next_product_index += 1
-                table_header_row += 7
+                table_header_row += 10
 
             # Heading of monthly total.
             sheet.merge_cells('B%s:R%s'%(table_content_row,table_content_row))
@@ -995,54 +954,82 @@ class ProductProduct(models.Model):
             table_content_row += 1
             content_col += 3
 
-            sheet.merge_cells('B%s:B%s'%(table_content_row,table_content_row+3))
-            sheet.merge_cells('C%s:C%s'%(table_content_row,table_content_row+3))
-            sheet.merge_cells('D%s:D%s'%(table_content_row,table_content_row+3))
+            sheet.merge_cells('B%s:B%s'%(table_content_row,table_content_row+8))
+            sheet.merge_cells('C%s:C%s'%(table_content_row,table_content_row+8))
+            sheet.merge_cells('D%s:D%s'%(table_content_row,table_content_row+8))
 
             sheet.cell(row=table_content_row,column=content_col).fill = styles.PatternFill("solid",start_color="7f7f7f")
 
             sheet.cell(row=table_content_row+1,column=content_col).value = 'CONSUME UNITS'
+            sheet.cell(row=table_content_row+1,column=content_col).fill = styles.PatternFill("solid",start_color="f2f2f2")
+            table_content_row += 1
+            sheet.cell(row=table_content_row+1,column=content_col).value = 'PRODUCT COST'
             sheet.cell(row=table_content_row+1,column=content_col).fill = styles.PatternFill("solid",start_color="d8d8d8")
-            table_content_row += 1
-
-            table_content_row += 1
+            table_content_row += 2
             sheet.cell(row=table_content_row,column=content_col).fill = styles.PatternFill("solid",start_color="7f7f7f")
 
             sheet.cell(row=table_content_row+1,column=content_col).value = 'CONSUME UNITS'
+            sheet.cell(row=table_content_row+1,column=content_col).fill = styles.PatternFill("solid",start_color="f2f2f2")
+            table_content_row += 1
+            sheet.cell(row=table_content_row+1,column=content_col).value = 'PRODUCT COST'
+            sheet.cell(row=table_content_row+1,column=content_col).fill = styles.PatternFill("solid",start_color="d8d8d8")
+
+            table_content_row += 2
+            sheet.cell(row=table_content_row,column=content_col).fill = styles.PatternFill("solid",start_color="7f7f7f")
+            sheet.cell(row=table_content_row+1,column=content_col).value = 'CONSUME UNITS'
+            sheet.cell(row=table_content_row+1,column=content_col).fill = styles.PatternFill("solid",start_color="f2f2f2")
+            table_content_row += 1
+            sheet.cell(row=table_content_row+1,column=content_col).value = 'PRODUCT COST'
             sheet.cell(row=table_content_row+1,column=content_col).fill = styles.PatternFill("solid",start_color="d8d8d8")
 
             # Add value of monthly total.
+            
             month_data_col = content_col+1
             total_row = table_content_row
-            for y in (datetime.now().year-1,datetime.now().year):
+            for y in (datetime.now().year-2,datetime.now().year-1,datetime.now().year):
                 total_qty = 0.0
                 main_total = 0.0
                 for month_data in month_total_dict.get(y):
-                    sheet.cell(row=total_row-2,column=month_data_col).value = month_data[:3] + '-' + str(y)[-2:] or ''
-                    sheet.cell(row=total_row-2,column=month_data_col).alignment = center_aligment
-                    sheet.cell(row=total_row-2,column=month_data_col).font = styles.Font(name='Arial',bold=True,color='ffffff',size=12)
-                    sheet.cell(row=total_row-2,column=month_data_col).fill = styles.PatternFill("solid",start_color="779337")
+                    sheet.cell(row=total_row-7,column=month_data_col).value = month_data[:3] + '-' + str(y)[-2:] or ''
+                    sheet.cell(row=total_row-7,column=month_data_col).alignment = center_aligment
+                    sheet.cell(row=total_row-7,column=month_data_col).font = styles.Font(name='Arial',bold=True,color='ffffff',size=12)
+                    sheet.cell(row=total_row-7,column=month_data_col).fill = styles.PatternFill("solid",start_color="77933C")
 
-                    sheet.cell(row=total_row-1,column=month_data_col).value = month_total_dict.get(y).get(month_data).get('total_qty') or 0
-                    sheet.cell(row=total_row-1,column=month_data_col).alignment = right_aligment
-                    sheet.cell(row=total_row-1,column=month_data_col).font = styles.Font(name='Calibri',bold=False)
-                    sheet.cell(row=total_row-1,column=month_data_col).fill = styles.PatternFill("solid",start_color="EBF1DE")
+                    sheet.cell(row=total_row-6,column=month_data_col).value = month_total_dict.get(y).get(month_data).get('total_qty') or 0
+                    sheet.cell(row=total_row-6,column=month_data_col).alignment = right_aligment
+                    sheet.cell(row=total_row-6,column=month_data_col).font = styles.Font(name='Arial',bold=False,size=12)
+                    sheet.cell(row=total_row-6,column=month_data_col).fill = styles.PatternFill("solid",start_color="c3d69b")
+
+                    sheet.cell(row=total_row-5,column=month_data_col).value = month_total_dict.get(y).get(month_data).get('total') or 0
+                    sheet.cell(row=total_row-5,column=month_data_col).alignment = right_aligment
+                    sheet.cell(row=total_row-5,column=month_data_col).font = styles.Font(name='Arial',bold=False,size=12)
+                    sheet.cell(row=total_row-5,column=month_data_col).fill = styles.PatternFill("solid",start_color="EBF1DE")
+
+                    # sheet.cell(row=table_content_row-1,column=month_data_col).value = '$ {:,.2f}'.format(sum([month_total_dict.get(i).get('total') for i in month_total_dict])) or 0.0
+                    # sheet.cell(row=total_row+4,column=month_data_col).value = '$ {:,.2f}'.format(sum([month_total_dict.get(y).get(i).get('total') for i in month_total_dict.get(y)])) or 0.0
+                    # sheet.cell(row=total_row+4,column=month_data_col).alignment = right_aligment
+                    # sheet.cell(row=total_row+4,column=month_data_col).font = styles.Font(name='Arial',bold=True)
+                    # sheet.cell(row=total_row+4,column=month_data_col).fill = styles.PatternFill("solid",start_color="b4c6e7")
 
                     total_qty += month_total_dict.get(y).get(month_data).get('total_qty')
                     main_total += month_total_dict.get(y).get(month_data).get('total')
                     month_data_col += 1
 
-                sheet.cell(row=total_row-2,column=month_data_col).value = 'Total'
-                sheet.cell(row=total_row-2,column=month_data_col).alignment = center_aligment
-                sheet.cell(row=total_row-2,column=month_data_col).fill = styles.PatternFill("solid",start_color="2f5496")
-                sheet.cell(row=total_row-2,column=month_data_col).font = styles.Font(name='Arial',bold=True,color='ffffff',size=12)
+                sheet.cell(row=total_row-7,column=month_data_col).value = 'Total'
+                sheet.cell(row=total_row-7,column=month_data_col).alignment = center_aligment
+                sheet.cell(row=total_row-7,column=month_data_col).fill = styles.PatternFill("solid",start_color="2f5496")
+                sheet.cell(row=total_row-7,column=month_data_col).font = styles.Font(name='Arial',bold=True,color='ffffff',size=12)
 
-                sheet.cell(row=total_row-1,column=month_data_col).value = total_qty
-                sheet.cell(row=total_row-1,column=month_data_col).alignment = right_aligment
-                sheet.cell(row=total_row-1,column=month_data_col).fill = styles.PatternFill("solid",start_color="b4c6e7")
+                sheet.cell(row=total_row-6,column=month_data_col).value = total_qty
+                sheet.cell(row=total_row-6,column=month_data_col).alignment = right_aligment
+                sheet.cell(row=total_row-6,column=month_data_col).fill = styles.PatternFill("solid",start_color="b4c6e7")
+
+                sheet.cell(row=total_row-5,column=month_data_col).value = main_total
+                sheet.cell(row=total_row-5,column=month_data_col).alignment = right_aligment
+                sheet.cell(row=total_row-5,column=month_data_col).fill = styles.PatternFill("solid",start_color="d9e2f3")
 
                 month_data_col = content_col+1
-                total_row += 2
+                total_row += 3
 
             sheet.merge_cells('B%s:R%s'%(table_content_row+2,table_content_row+2))
             sheet.cell(row=table_content_row+2,column=2).fill = styles.PatternFill("solid",start_color="7f7f7f")
@@ -1060,8 +1047,10 @@ class ProductProduct(models.Model):
             end_report_seperator = year_table_col-len(year_range)
             for r in year_range:
                 year_total_data = year_total_dict.get(r)
-                sheet.cell(row=table_content_row-2,column=end_report_seperator).value =year_total_data.get('total_qty') or 0.0
-                sheet.cell(row=table_content_row-2,column=end_report_seperator).fill = styles.PatternFill("solid",start_color="b4c6e7")
+                sheet.cell(row=table_content_row-7,column=end_report_seperator).value =year_total_data.get('total_qty') or 0.0
+                sheet.cell(row=table_content_row-7,column=end_report_seperator).fill = styles.PatternFill("solid",start_color="b4c6e7")
+                sheet.cell(row=table_content_row-6,column=end_report_seperator).value =year_total_data.get('total') or 0.0
+                sheet.cell(row=table_content_row-6,column=end_report_seperator).fill = styles.PatternFill("solid",start_color="d9e2f3")
 
                 sheet.cell(row=table_content_row+2,column=end_report_seperator).fill = styles.PatternFill("solid",start_color="7f7f7f")
                 end_report_seperator += 1
