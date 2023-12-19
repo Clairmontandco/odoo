@@ -282,7 +282,7 @@ class ProductProduct(models.Model):
             
             # Product name.
             # product_id = self.browse(report_data.get(data).get('product_id'))
-            product_id = self.browse((list(data.keys())[0]))
+            product_id = self.browse(eval(list(data.keys())[0]))
             data = product_id.name
 
             sheet.merge_cells('B%s:B%s'%(table_content_row,table_content_row+11))
@@ -465,14 +465,14 @@ class ProductProduct(models.Model):
                     sheet.cell(row=table_header_row+1,column=year_table_col).font = styles.Font(name='Arial',bold=True,color='ffffff',size=12)
                     sheet.cell(row=table_header_row+1,column=year_table_col).alignment = center_aligment
 
-                    sheet.cell(row=table_header_row+3,column=year_table_col).value = '$ {:,.2f}'.format(converted_dict_data.get('average_price'))
+                    sheet.cell(row=table_header_row+3,column=year_table_col).value = '$ {:,.2f}'.format(eval(converted_dict_data).get('average_price'))
                     sheet.cell(row=table_header_row+3,column=year_table_col).alignment = right_aligment
                     sheet.cell(row=table_header_row+3,column=year_table_col).fill = styles.PatternFill("solid",start_color="ffe598")
 
-                    sheet.cell(row=table_header_row+4,column=year_table_col).value = converted_dict_data.get('total_ordered')
+                    sheet.cell(row=table_header_row+4,column=year_table_col).value = eval(converted_dict_data).get('total_ordered')
                     sheet.cell(row=table_header_row+4,column=year_table_col).fill = styles.PatternFill("solid",start_color="fef2cb")
 
-                    sheet.cell(row=table_header_row+5,column=year_table_col).value = '$ {:,.2f}'.format(converted_dict_data.get('total'))
+                    sheet.cell(row=table_header_row+5,column=year_table_col).value = '$ {:,.2f}'.format(eval(converted_dict_data).get('total'))
                     sheet.cell(row=table_header_row+5,column=year_table_col).alignment = right_aligment
                     sheet.cell(row=table_header_row+5,column=year_table_col).font = styles.Font(name='Arial',bold=True)
                     sheet.cell(row=table_header_row+5,column=year_table_col).fill = styles.PatternFill("solid",start_color="bf9000")
@@ -498,14 +498,14 @@ class ProductProduct(models.Model):
                 # Prepared yearly table total.
                 if not year in year_total_dict.keys():
                         year_total_dict[year] = {
-                            'total_qty':converted_dict_data.get('total_ordered') or 0.0,
-                            'total':converted_dict_data.get('total') or 0.0
+                            'total_qty':eval(converted_dict_data).get('total_ordered') or 0.0,
+                            'total':eval(converted_dict_data).get('total') or 0.0
                         }
                 else:
-                    if converted_dict_data and converted_dict_data.get('total_ordered'):
-                        year_total_dict.get(year).update({'total_qty':year_total_dict.get(year).get('total_qty') + converted_dict_data.get('total_ordered')})
-                    if converted_dict_data and converted_dict_data.get('total'):
-                        year_total_dict.get(year).update({'total':year_total_dict.get(year).get('total') + converted_dict_data.get('total')})
+                    if eval(converted_dict_data) and eval(converted_dict_data).get('total_ordered'):
+                        year_total_dict.get(year).update({'total_qty':year_total_dict.get(year).get('total_qty') + eval(converted_dict_data).get('total_ordered')})
+                    if eval(converted_dict_data) and eval(converted_dict_data).get('total'):
+                        year_total_dict.get(year).update({'total':year_total_dict.get(year).get('total') + eval(converted_dict_data).get('total')})
                 
                 sheet.cell(row=table_header_row+13,column=year_table_col).fill = styles.PatternFill("solid",start_color="7f7f7f")
                 year_table_col += 1
