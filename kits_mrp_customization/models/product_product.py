@@ -497,10 +497,10 @@ class ProductProduct(models.Model):
 
                 # Prepared yearly table total.
                 if not year in year_total_dict.keys():
-                        year_total_dict[year] = {
-                            'total_qty':eval(converted_dict_data).get('total_ordered') or 0.0,
-                            'total':eval(converted_dict_data).get('total') or 0.0
-                        }
+                    year_total_dict[year] = {
+                        'total_qty':(eval(converted_dict_data).get('total_ordered',0) if isinstance(converted_dict_data,str) else 0),
+                        'total':(eval(converted_dict_data).get('total',0) if isinstance(converted_dict_data,str) else 0)
+                    }
                 else:
                     if eval(converted_dict_data) and eval(converted_dict_data).get('total_ordered'):
                         year_total_dict.get(year).update({'total_qty':year_total_dict.get(year).get('total_qty') + eval(converted_dict_data).get('total_ordered')})
