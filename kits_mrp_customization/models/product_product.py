@@ -458,6 +458,10 @@ class ProductProduct(models.Model):
             # Add value of yearly data in table.
             for year in list(range(yearly_table_data[1].get('max'), yearly_table_data[0].get('min') - 1, -1)):
                 converted_dict_data = (product_data.get(str(product_id.id),{}).get(str(year))) if product_data.get(str(product_id.id),{}).get(str(year)) else {}
+                if isinstance(converted_dict_data,str):
+                    converted_dict_data = eval(converted_dict_data)
+                else:
+                    converted_dict_data = {}
                 if product_data and product_data.get(str(product_id.id),{}).get(str(year)):
 
                     sheet.cell(row=table_header_row+1,column=year_table_col).value = year
@@ -465,14 +469,14 @@ class ProductProduct(models.Model):
                     sheet.cell(row=table_header_row+1,column=year_table_col).font = styles.Font(name='Arial',bold=True,color='ffffff',size=12)
                     sheet.cell(row=table_header_row+1,column=year_table_col).alignment = center_aligment
 
-                    sheet.cell(row=table_header_row+3,column=year_table_col).value = '$ {:,.2f}'.format(eval(converted_dict_data).get('average_price'))
+                    sheet.cell(row=table_header_row+3,column=year_table_col).value = '$ {:,.2f}'.format((converted_dict_data).get('average_price',0))
                     sheet.cell(row=table_header_row+3,column=year_table_col).alignment = right_aligment
                     sheet.cell(row=table_header_row+3,column=year_table_col).fill = styles.PatternFill("solid",start_color="ffe598")
 
-                    sheet.cell(row=table_header_row+4,column=year_table_col).value = eval(converted_dict_data).get('total_ordered')
+                    sheet.cell(row=table_header_row+4,column=year_table_col).value = converted_dict_data.get('total_ordered',0) 
                     sheet.cell(row=table_header_row+4,column=year_table_col).fill = styles.PatternFill("solid",start_color="fef2cb")
 
-                    sheet.cell(row=table_header_row+5,column=year_table_col).value = '$ {:,.2f}'.format(eval(converted_dict_data).get('total'))
+                    sheet.cell(row=table_header_row+5,column=year_table_col).value = '$ {:,.2f}'.format((converted_dict_data).get('total',0))
                     sheet.cell(row=table_header_row+5,column=year_table_col).alignment = right_aligment
                     sheet.cell(row=table_header_row+5,column=year_table_col).font = styles.Font(name='Arial',bold=True)
                     sheet.cell(row=table_header_row+5,column=year_table_col).fill = styles.PatternFill("solid",start_color="bf9000")
@@ -498,14 +502,14 @@ class ProductProduct(models.Model):
                 # Prepared yearly table total.
                 if not year in year_total_dict.keys():
                     year_total_dict[year] = {
-                        'total_qty':(eval(converted_dict_data).get('total_ordered',0) if isinstance(converted_dict_data,str) else 0),
-                        'total':(eval(converted_dict_data).get('total',0) if isinstance(converted_dict_data,str) else 0)
+                        'total_qty':(converted_dict_data).get('total_ordered',0),
+                        'total':(converted_dict_data).get('total',0)
                     }
                 else:
-                    if eval(converted_dict_data) and eval(converted_dict_data).get('total_ordered'):
-                        year_total_dict.get(year).update({'total_qty':year_total_dict.get(year).get('total_qty') + eval(converted_dict_data).get('total_ordered')})
-                    if eval(converted_dict_data) and eval(converted_dict_data).get('total'):
-                        year_total_dict.get(year).update({'total':year_total_dict.get(year).get('total') + eval(converted_dict_data).get('total')})
+                    if converted_dict_data and converted_dict_data.get('total_ordered') :
+                        year_total_dict.get(year).update({'total_qty':year_total_dict.get(year).get('total_qty') + converted_dict_data.get('total_ordered',0) })
+                    if converted_dict_data and converted_dict_data.get('total'):
+                        year_total_dict.get(year).update({'total':year_total_dict.get(year).get('total') + converted_dict_data.get('total',0)})
                 
                 sheet.cell(row=table_header_row+13,column=year_table_col).fill = styles.PatternFill("solid",start_color="7f7f7f")
                 year_table_col += 1
