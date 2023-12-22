@@ -73,89 +73,86 @@ class ProductProduct(models.Model):
         return product_report_data
     
     # Method for monthly data of product consume at manufacturing.
-    def get_product_consume_report_data(self):
-        product_consume_report_data = {}
-        range_of_year = (datetime.now().year,datetime.now().year-1,datetime.now().year-2)
-        months_of_year = list(calendar.month_name)
-
-        for year in range_of_year:
-            for rec in self:
-                if not rec.name in product_consume_report_data.keys():
-                    product_consume_report_data[rec.name] = {
-                        'product_categ': rec.categ_id.display_name,
-                        'product_id' : rec.id,
-                        'sale_price': rec.lst_price or 0.0,
-                        'stock_or_not': 'True' if rec.x_studio_stocked else 'False',
-                        'cost': rec.standard_price or 0.0,
-                        'profit_margin': rec.lst_price / rec.standard_price if rec.standard_price else rec.lst_price,
-                        'create_date': rec.create_date.date() or '',
-                    }
-                bom_lines = self.env['mrp.bom.line'].search([('product_id','=',rec.id)])
-                for line in bom_lines:
-                    bom_product_tmpl = line.bom_id.product_tmpl_id
-                    bom_main_product = self.env['product.product'].search([('product_tmpl_id','=',bom_product_tmpl.id)])
-                    sale_lines = self.env['sale.order.line'].search([('product_id','=',bom_main_product.id)])
-                    for month in months_of_year:
-                        if month:
-                            monthly_order = sale_lines.filtered(lambda x: x.create_date.year == year and x.create_date.month == months_of_year.index(month))
-                            order_qty = sum(monthly_order.mapped('qty_delivered'))
-                            product_qty = order_qty * line.product_qty
-                            product_cost = product_qty * line.product_id.standard_price
-                            # avg_sale_price = product_cost/len(monthly_order) if monthly_order else 0.0
-                            if year not in product_consume_report_data.get(rec.name).keys():
-                                product_consume_report_data.get(rec.name).update(
-                                    {
-                                        year: {
-                                            month: {
-                                                'product_qty': round(product_qty,2),
-                                                'cost_price': round(product_cost,2) or 0.0,
-                                                # 'total': avg_sale_price * product_qty
-                                            }
-                                        }
-                                    }
-                                )
-                            else:
-                                if month in product_consume_report_data.get(rec.name).get(year).keys():
-                                    product_consume_report_data.get(rec.name).get(year).get(month).update()
-                                else:
-                                    product_consume_report_data.get(rec.name).get(year).update(
-                                        {
-                                            month: {
-                                                'product_qty': round(product_qty,2),
-                                                'cost_price': round(product_cost,2) or 0.0,
-                                                # 'total': avg_sale_price * product_qty
-                                            }
-                                        }
-                                    )
-        return product_consume_report_data
-    # Method for get yearly product consume data.
     def get_yearly_product_consume_table_data(self):
-        product_consume_yearly_report_data = []
-        bom_line = self.env['mrp.bom.line'].search([('product_id','in',self.ids)])
-        bom_product = self.env['product.product'].search([('product_tmpl_id','in',bom_line.bom_id.product_tmpl_id.ids)])
-        order_lines = self.env['sale.order.line'].search([('product_id','in',bom_product.ids)])
-        max_year = max(order_lines.mapped('create_date')).year
-        min_year = min(order_lines.mapped('create_date')).year
-        product_consume_yearly_report_data = [{"min":min_year},{"max":max_year}]
-        for rec in self:
-            product_dict = {}
-            yearly_data = []
-            lines = bom_line.filtered(lambda x:x.product_id == rec)
-            for year in range(min_year,max_year+1):
-                product_cost = 0
-                product_qty = 0
-                for line in lines:
-                    product_tmpl = line.bom_id.product_tmpl_id
-                    product = bom_product.filtered(lambda x:x.product_tmpl_id in product_tmpl)
-                    qty_delivered = sum(order_lines.filtered(lambda x:x.product_id in product and x.create_date.year == year).mapped('qty_delivered'))
-                    product_qty += qty_delivered * line.product_qty
-                    product_cost += product_qty * line.product_id.standard_price
-                yearly_data.append({year : {'product_qty':round(product_qty,2),'product_cost':round(product_cost,2)}})
-            product_dict[rec.id] = {}
-            for year_data in yearly_data:
-                product_dict[rec.id][list(year_data.keys())[0]] = list(year_data.values())[0]
-            product_consume_yearly_report_data.append(product_dict)
-        return product_consume_yearly_report_data
+        query = """CREATE OR REPLACE FUNCTION GET_CONSUME_PRODUCT_DATA_SPT(ARR INTEGER[], COMPANYID INTEGER) 
+                    RETURNS JSON[] AS $$
+                    DECLARE
+                            min_year INTEGER;
+                            max_year INTEGER;
+                            year_diff INTEGER;
+                            y INTEGER;
+                            mon INTEGER;
+                            product INTEGER;
+                            productQty REAL;
+                            productCost REAL;
+                            product_data_arr JSON[];
+                            product_data JSON[];
+                            product_year_data JSON[];
+                            resourse_name TEXT;
+                            standard_price REAL;
+                            consume_cost REAL;
+                    BEGIN
+                        IF arr IS NOT null THEN
+                            DROP TABLE IF EXISTS ConsumeTempTable;
+                            CREATE TEMPORARY TABLE ConsumeTempTable AS
+                            (SELECT sol.id,
+                                    sol.create_date,
+                                    sol.qty_delivered AS LineDelivered,
+                                    mbl.product_qty AS Qty,
+                                    pp.id AS ProductId,
+                                    mb.product_tmpl_id AS ProductTmplId,
+                                    mb.id AS BomId,
+                                    mbl.product_id AS SelectedProduct
+                                    FROM mrp_bom_line mbl
+                            LEFT JOIN mrp_bom mb ON mbl.bom_id = mb.id
+                            LEFT JOIN product_product pp ON mb.product_tmpl_id = pp.product_tmpl_id
+                            LEFT JOIN sale_order_line sol ON pp.id = sol.product_id
+                            WHERE mbl.product_id = ANY (arr)
+                                AND sol.qty_delivered > 0);
+                            END IF;
+                            min_year := (SELECT min(EXTRACT(year FROM ctt.create_date)) FROM ConsumeTempTable ctt);
+                            max_year := (SELECT max(EXTRACT(year FROM ctt.create_date)) FROM ConsumeTempTable ctt);
+                            year_diff := max_year - min_year;
+                            IF year_diff < 2 THEN
+                                IF year_diff = 0 THEN
+                                    min_year := min_year - 2 ;
+                                END IF;
+                                IF year_diff = 1 THEN
+                                    min_year := min_year - 1 ;
+                                END IF;
+                            END IF;
+                            product_data_arr := json_build_object('min_year',min_year,'max_year',max_year)||product_data_arr;
+                            FOREACH product IN ARRAY arr LOOP
+                                resourse_name := (SELECT 'product.product,' || product);
+                                standard_price := (SELECT COALESCE(value_float,0.00) FROM ir_property WHERE NAME = 'standard_price' AND res_id = resourse_name AND company_id = CompanyId);
+                                product_year_data := json_build_object();
+                                FOR y IN SELECT generate_series(max_year, min_year, -1) LOOP
+                                product_data := json_build_object();
+                                    FOR mon IN SELECT generate_series(12, 1, -1) LOOP
+                                        SELECT COALESCE(SUM(ConsumeQty), 0) AS TotalConsumeQty
+                                        INTO productQty
+                                        FROM (
+                                            SELECT COALESCE((ctt.LineDelivered * ctt.Qty),0) AS ConsumeQty
+                                            FROM ConsumeTempTable ctt
+                                            WHERE EXTRACT(year FROM ctt.create_date) = y AND EXTRACT(month FROM ctt.create_date) = mon AND ctt.SelectedProduct = product
+                                        ) AS FinalTotal;
+                                        consume_cost := productQty * standard_price;
+                                    product_data = json_build_object(mon::TEXT, json_build_object('Conqty', productQty,'Conprice',consume_cost)) || product_data;
+                                    END LOOP;
+                                    product_year_data = json_build_object(y::TEXT,product_data) || product_year_data;
+                                END LOOP;
+                                product_data_arr := product_data_arr || json_build_object(product::TEXT, product_year_data);
+                            END LOOP;
+                        RETURN product_data_arr::json[];
+                    END;
+                    $$ LANGUAGE PLPGSQL;
+                    SELECT GET_CONSUME_PRODUCT_DATA_SPT(ARRAY%s,%s)"""%(self.ids,self.env.company.id)
+        self._cr.execute(query)
+        data = self._cr.fetchall()
+        if len(data) >= 1 and data and len(data[0][0]) >= 2:
+            return data[0][0]
+        else:
+            return {}
                     
     # Method for get yearly data.
     def get_yearly_table_data(self):
@@ -588,13 +585,7 @@ class ProductProduct(models.Model):
                 sheet.cell(row=total_row-5,column=month_data_col).alignment = right_aligment
                 sheet.cell(row=total_row-5,column=month_data_col).font = styles.Font(name='Arial',bold=True)
                 sheet.cell(row=total_row-5,column=month_data_col).fill = styles.PatternFill("solid",start_color="fef2cb")
-
-                # sheet.cell(row=table_content_row-1,column=month_data_col).value = '$ {:,.2f}'.format(sum([month_total_dict.get(i).get('total') for i in month_total_dict])) or 0.0
-                # sheet.cell(row=total_row+4,column=month_data_col).value = '$ {:,.2f}'.format(sum([month_total_dict.get(y).get(i).get('total') for i in month_total_dict.get(y)])) or 0.0
-                # sheet.cell(row=total_row+4,column=month_data_col).alignment = right_aligment
-                # sheet.cell(row=total_row+4,column=month_data_col).font = styles.Font(name='Arial',bold=True)
-                # sheet.cell(row=total_row+4,column=month_data_col).fill = styles.PatternFill("solid",start_color="b4c6e7")
-
+               
                 total_qty += month_total_dict.get(y).get(month_data).get('total_qty')
                 main_total += month_total_dict.get(y).get(month_data).get('total')
                 month_data_col += 1
@@ -683,14 +674,13 @@ class ProductProduct(models.Model):
             'target': 'self',
         }
 
-   
-
     def action_create_product_consume_report(self):
+        months_of_year = list(calendar.month_name)
         product = self.env['product.product']
         for rec in self:
             product |= rec.filtered(lambda p:p.product_tmpl_id.bom_line_ids.ids != [])
         if product: 
-            report_data = product.get_product_consume_report_data()
+            # report_data = product.get_product_consume_report_data()
             yearly_table_data = product.get_yearly_product_consume_table_data()
         f_name = 'Product_Consume_Spreadsheet'
         workbook = Workbook()
@@ -730,28 +720,30 @@ class ProductProduct(models.Model):
 
         # Set row bg color.
         if product:
+            max_yearr = yearly_table_data[0].get('max_year')
             for row in range(table_header_row,table_header_row+1):
                 for col in range(2,19):
                     sheet.cell(row=row, column=col).fill = styles.PatternFill("solid",start_color="7f7f7f")
             
             # For yearly table header.
             year_table_header_row = table_header_row
-            for y in (yearly_table_data[1].get('max'),yearly_table_data[0].get('min')):
+            for y in (yearly_table_data[0].get('max_year'),yearly_table_data[0].get('min_year')):
                 for row in range(year_table_header_row,year_table_header_row+1):
-                    for col in range(20,20+len(list(range(yearly_table_data[1].get('max'), yearly_table_data[0].get('min') - 1, -1)))):
+                    for col in range(20,20+len(list(range(yearly_table_data[0].get('max_year'), yearly_table_data[0].get('min_year') - 1, -1)))):
                         sheet.cell(row=row,column=col).fill = styles.PatternFill("solid",start_color="7f7f7f")
             
             # Table content.
             table_content_row = table_header_row + 1
             content_col = 2
-            next_product_index = 2
+            next_product_index = 1
             month_total_dict = {}
             year_total_dict = {}
-            for data in yearly_table_data[2:]:
+            product_year_dict = {}
+            for data in yearly_table_data[1:]:
                 
                 # Product name.
-                product_id = self.browse((list(data.keys())[0]))
-                data = product_id.name
+                product_id = self.browse(eval(list(data.keys())[0]))
+                key_product = str(product_id.id)
 
                 sheet.merge_cells('B%s:B%s'%(table_content_row,table_content_row+8))
                 sheet.cell(row=table_content_row,column=content_col).value = product_id.display_name
@@ -761,7 +753,7 @@ class ProductProduct(models.Model):
                 
                 # Product category.
                 sheet.merge_cells('C%s:C%s'%(table_content_row,table_content_row+4))
-                sheet.cell(row=table_content_row,column=content_col).value = report_data.get(data).get('product_categ')
+                sheet.cell(row=table_content_row,column=content_col).value = product_id.categ_id.display_name
                 sheet.cell(row=table_content_row,column=content_col).alignment = left_aligment
 
                 product_tags = ''
@@ -777,11 +769,12 @@ class ProductProduct(models.Model):
                 
                 # Print monthly data in first table (Jan - Dec)
                 month_row = table_content_row + 1
-                for year in (datetime.now().year-2,datetime.now().year-1,datetime.now().year):
+                data_list = data.get(key_product)
+                for year in (max_yearr-2,max_yearr-1,max_yearr):
                     col = 6
-                    total_sale_price = 0.0
+                    # total_sale_price = 0.0
                     total_product_qty = 0.0
-                    month_total = 0.0
+                    total_product_cost = 0.0
                     sheet.cell(row=month_row-1,column=content_col+1).fill = styles.PatternFill("solid",start_color="7f7f7f")
                     sheet.cell(row=month_row+2-1-1,column=content_col+1).value = "CONSUME UNITS"
                     sheet.cell(row=month_row+2-1-1,column=content_col+1).fill = styles.PatternFill("solid",start_color="f2f2f2")
@@ -790,9 +783,15 @@ class ProductProduct(models.Model):
                     sheet.cell(row=month_row+3-1,column=content_col+1).fill = styles.PatternFill("solid",start_color="7f7f7f")
 
                     # Loop of year months.
-                    for month_data in report_data.get(data).get(year):
+                    try:
+                        yearly_list = list(list(filter(lambda x : list(x.keys())[0]==str(year),data_list))[0].values())[0]
+                    except Exception as ex:
+                        yearly_list = []
+                        raise UserError('There are no yearly data found')
 
-                        month_short_name = month_data[:3] + '-' + str(year)[-2:]
+                    for month_data in yearly_list:
+                        month_name = months_of_year[int(list(month_data.keys())[0])]
+                        month_short_name = month_name[:3] + '-' + str(year)[-2:]
 
                         sheet.cell(row=month_row-1,column=col).value = month_short_name
                         sheet.cell(row=month_row-1,column=col).alignment = center_aligment
@@ -800,37 +799,51 @@ class ProductProduct(models.Model):
                         sheet.cell(row=month_row-1,column=col).font = styles.Font(name='Arial',bold=True,color='ffffff',size=12)
 
 
-                        sheet.cell(row=month_row+2-1-1,column=col).value = (report_data.get(data).get(year).get(month_data).get('product_qty') or 0.00)
+                        sheet.cell(row=month_row+2-1-1,column=col).value = round((month_data.get(list(month_data.keys())[0]).get('Conqty') or 0.00),2)
                         sheet.cell(row=month_row+2-1-1,column=col).fill = styles.PatternFill("solid",start_color="c3d69b")
                         sheet.cell(row=month_row+2-1-1,column=col).alignment = right_aligment
-                        total_product_qty += report_data.get(data).get(year).get(month_data).get('product_qty')
-                        month_total += report_data.get(data).get(year).get(month_data).get('cost_price')
 
-
-                        sheet.cell(row=month_row+3-1-1,column=col).value = (report_data.get(data).get(year).get(month_data).get('cost_price') or 0.00)
+                        sheet.cell(row=month_row+3-1-1,column=col).value = round((month_data.get(list(month_data.keys())[0]).get('Conprice') or 0.00),2)
+                        sheet.cell(row=month_row+3-1-1,column=col).fill = styles.PatternFill("solid",start_color="EBF1DE")
                         sheet.cell(row=month_row+3-1,column=col).fill = styles.PatternFill("solid",start_color="7f7f7f")
+                        total_product_qty += (month_data.get(list(month_data.keys())[0]).get('Conqty') or 0)
+                        total_product_cost += (month_data.get(list(month_data.keys())[0]).get('Conprice') or 0)
 
                         # Prepared data for month total.
                         if year in month_total_dict.keys():
-                            if not month_data in month_total_dict.get(year).keys():
-                                month_total_dict.get(year)[month_data] = {
-                                    'total_qty':report_data.get(data).get(year).get(month_data).get('product_qty'),
-                                    'total':report_data.get(data).get(year).get(month_data).get('cost_price')
+                            if not month_name in month_total_dict.get(year).keys():
+                                month_total_dict.get(year)[month_name] = {
+                                    'total_qty':(month_data.get(list(month_data.keys())[0]).get('Conqty') or 0),
+                                    'total':(month_data.get(list(month_data.keys())[0]).get('Conprice') or 0)
                                 }
                             else:
-                                month_total_dict.get(year).get(month_data).update({
-                                    'total_qty':month_total_dict.get(year).get(month_data).get('total_qty') + report_data.get(data).get(year).get(month_data).get('product_qty'),
-                                    'total':month_total_dict.get(year).get(month_data).get('total') + report_data.get(data).get(year).get(month_data).get('cost_price')
+                                month_total_dict.get(year).get(month_name).update({
+                                    'total_qty':month_total_dict.get(year).get(month_name).get('total_qty') + (month_data.get(list(month_data.keys())[0]).get('Conqty') or 0),
+                                    'total':month_total_dict.get(year).get(month_name).get('total') + (month_data.get(list(month_data.keys())[0]).get('Conprice') or 0)
                                 })
                         else:
                             month_total_dict[year] = {
-                                month_data : {
-                                    'total_qty': report_data.get(data).get(year).get(month_data).get('product_qty'),
-                                    'total':report_data.get(data).get(year).get(month_data).get('cost_price')
+                                month_name : {
+                                    'total_qty': (month_data.get(list(month_data.keys())[0]).get('Conqty') or 0),
+                                    'total':(month_data.get(list(month_data.keys())[0]).get('Conprice') or 0)
                                 }
                             }
+                       
                         col += 1
 
+                    # Prepared data for year total.
+                    if product_id.id in product_year_dict.keys():
+                        product_year_dict[product_id.id][year] = {
+                            'year_total_qty':total_product_qty,
+                            'year_total':total_product_cost
+                        }
+                    else:
+                        product_year_dict[product_id.id] = {
+                            year : {
+                                'year_total_qty':total_product_qty,
+                                'year_total':total_product_cost
+                            }
+                        }
                     # Month total section.
                     sheet.cell(row=month_row-1,column=col).value = 'Total'
                     sheet.cell(row=month_row-1,column=col).alignment = center_aligment
@@ -838,11 +851,11 @@ class ProductProduct(models.Model):
                     sheet.cell(row=month_row-1,column=col).font = styles.Font(name='Arial',bold=True,color='ffffff',size=12)
 
 
-                    sheet.cell(row=month_row+1-1,column=col).value = total_product_qty
+                    sheet.cell(row=month_row+1-1,column=col).value = round(total_product_qty,2)
                     sheet.cell(row=month_row+1-1,column=col).alignment = right_aligment
                     sheet.cell(row=month_row+1-1,column=col).fill = styles.PatternFill("solid",start_color="d9e2f3")
 
-                    sheet.cell(row=month_row+2-1,column=col).value = month_total
+                    sheet.cell(row=month_row+2-1,column=col).value = round(total_product_cost,2)
 
                     sheet.cell(row=month_row+3-1,column=col).fill = styles.PatternFill("solid",start_color="7f7f7f")
                     # sheet.cell(row=month_row+3,column=col).fill = styles.PatternFill("solid",start_color="7f7f7f")
@@ -851,7 +864,7 @@ class ProductProduct(models.Model):
                 sheet.cell(row=table_content_row,column=content_col).border = bottom_border
 
                 # Product information section.
-                sheet.cell(row=table_content_row,column=content_col).value = "Sale Price : "+'$ {:,.2f}'.format(report_data.get(data).get('sale_price')or 0.0) 
+                sheet.cell(row=table_content_row,column=content_col).value = "Sale Price : "+'$ {:,.2f}'.format((product_id.lst_price or 0.0))
                 sheet.cell(row=table_content_row,column=content_col).border = bottom_border
                 sheet.cell(row=table_content_row,column=content_col).alignment = left_aligment
                 table_content_row += 1
@@ -861,17 +874,17 @@ class ProductProduct(models.Model):
                 sheet.cell(row=table_content_row,column=content_col).border = top_bottom_border
                 table_content_row += 1
 
-                sheet.cell(row=table_content_row,column=content_col).value = "In Stock : " + report_data.get(data).get('stock_or_not')
+                sheet.cell(row=table_content_row,column=content_col).value = "In Stock : " + ('True' if product_id.x_studio_stocked else 'False')
                 sheet.cell(row=table_content_row,column=content_col).alignment = left_aligment
                 sheet.cell(row=table_content_row,column=content_col).border = top_bottom_border
                 table_content_row += 1
 
-                sheet.cell(row=table_content_row,column=content_col).value = "Cost : " + '$ {:,.2f}'.format(report_data.get(data).get('cost')or 0.0) 
+                sheet.cell(row=table_content_row,column=content_col).value = "Cost : " + '$ {:,.2f}'.format((product_id.standard_price or 0.0))
                 sheet.cell(row=table_content_row,column=content_col).alignment = left_aligment
                 sheet.cell(row=table_content_row,column=content_col).border = top_bottom_border
                 table_content_row += 3
 
-                sheet.cell(row=table_content_row,column=content_col).value = "Margin : " + '$ {:,.2f}'.format((report_data.get(data).get('sale_price') or 0.0) - (report_data.get(data).get('cost')or 0.0)) 
+                sheet.cell(row=table_content_row,column=content_col).value = "Margin : " + '$ {:,.2f}'.format((product_id.lst_price or 0.0) - (product_id.standard_price or 0.0)) 
                 sheet.cell(row=table_content_row,column=content_col).alignment = left_aligment
                 sheet.cell(row=table_content_row,column=content_col).border = top_bottom_border
                 table_content_row += 2
@@ -882,7 +895,7 @@ class ProductProduct(models.Model):
                     key_web_accounts = ', '.join(product_id.product_tmpl_id.x_studio_many2many_field_T5tHX.mapped('display_name')) if product_id.product_tmpl_id.x_studio_many2many_field_T5tHX else ''
                 
 
-                sheet.cell(row=table_content_row,column=content_col).value = "Create Date : " + str(report_data.get(data).get('create_date'))
+                sheet.cell(row=table_content_row,column=content_col).value = "Create Date : " + str(product_id.create_date)
                 sheet.cell(row=table_content_row,column=content_col).alignment = styles.Alignment(horizontal="left", vertical="top",wrap_text=True)
                 sheet.cell(row=table_content_row,column=content_col).border = top_border
 
@@ -895,27 +908,27 @@ class ProductProduct(models.Model):
                 year_table_col = col + 2
                 product_data = yearly_table_data[next_product_index] or False
                 product_name_row = table_header_row+2
-                year_range = list(range(yearly_table_data[1].get('max'), yearly_table_data[0].get('min') - 1, -1))
+                year_range = list(range(yearly_table_data[0].get('max_year'), yearly_table_data[0].get('min_year') - 1, -1))
 
                 # Merge yearly data table header.
-                merge_col_range = get_column_letter(20+len(list(range(yearly_table_data[1].get('max'), yearly_table_data[0].get('min'), -1))))
+                merge_col_range = get_column_letter(20+len(list(range(yearly_table_data[0].get('max_year'), yearly_table_data[0].get('min_year'), -1))))
                 sheet.merge_cells('T%s:%s%s'%(table_header_row+2,merge_col_range,table_header_row+2))
                 sheet.cell(row=product_name_row,column=year_table_col).value = product_id.display_name
                 sheet.cell(row=product_name_row,column=year_table_col).alignment = styles.Alignment(horizontal="center", vertical="center",wrap_text=False)
 
                 # Add value of yearly data in table.
-                for year in list(range(yearly_table_data[1].get('max'), yearly_table_data[0].get('min') - 1, -1)):
-                    converted_dict_data = (product_data.get((product_id.id),{}).get((year))) if product_data.get((product_id.id),{}).get((year)) else {}
-                    if product_data and product_data.get((product_id.id),{}).get((year)):
+                for year in list(range(yearly_table_data[0].get('max_year'), yearly_table_data[0].get('min_year') - 1, -1)):
+                    converted_dict_data = product_year_dict[(product_id.id)].get(year) if product_year_dict[(product_id.id)] else {}
+                    if converted_dict_data:
 
                         sheet.cell(row=table_header_row+1,column=year_table_col).value = year
                         sheet.cell(row=table_header_row+1,column=year_table_col).fill = styles.PatternFill("solid",start_color="2F5496")
                         sheet.cell(row=table_header_row+1,column=year_table_col).font = styles.Font(name='Arial',bold=True,color='ffffff',size=12)
                         sheet.cell(row=table_header_row+1,column=year_table_col).alignment = center_aligment
 
-                        sheet.cell(row=table_header_row+4-1,column=year_table_col).value = converted_dict_data.get('product_qty',0) if isinstance(converted_dict_data,dict) else 0
+                        sheet.cell(row=table_header_row+4-1,column=year_table_col).value = round((converted_dict_data.get('year_total_qty',0) if isinstance(converted_dict_data,dict) else 0),2)
                         sheet.cell(row=table_header_row+4-1,column=year_table_col).fill = styles.PatternFill("solid",start_color="c3d69b")
-                        sheet.cell(row=table_header_row+4,column=year_table_col).value = converted_dict_data.get('product_cost',0) if isinstance(converted_dict_data,dict) else 0
+                        sheet.cell(row=table_header_row+4,column=year_table_col).value = round((converted_dict_data.get('year_total',0) if isinstance(converted_dict_data,dict) else 0),2)
                         sheet.cell(row=table_header_row+4,column=year_table_col).fill = styles.PatternFill("solid",start_color="D9E2F3")
 
                         sheet.cell(row=table_header_row+5-1-1,column=year_table_col).fill = styles.PatternFill("solid",start_color="B4C6E7")
@@ -933,15 +946,15 @@ class ProductProduct(models.Model):
 
                     # Prepared yearly table total.
                     if not year in year_total_dict.keys():
-                            year_total_dict[year] = {
-                                'total_qty':(converted_dict_data.get('product_qty',0) if isinstance(converted_dict_data,dict) else 0),
-                                'total':(converted_dict_data.get('product_cost',0) if isinstance(converted_dict_data,dict) else 0)
-                            }
+                        year_total_dict[year] = {
+                            'total_qty':(converted_dict_data.get('year_total_qty',0) if isinstance(converted_dict_data,dict) else 0),
+                            'total':(converted_dict_data.get('year_total',0) if isinstance(converted_dict_data,dict) else 0)
+                        }
                     else:
-                        if converted_dict_data and converted_dict_data.get('product_qty'):
-                            year_total_dict.get(year).update({'total_qty':(year_total_dict.get(year).get('total_qty')or 0.00)+(converted_dict_data.get('product_qty',0) if isinstance(converted_dict_data,dict) else 0)})
-                        elif converted_dict_data and converted_dict_data.get('product_cost'):
-                            year_total_dict.get(year).update({'total':(year_total_dict.get(year).get('total')or 0.00)+(converted_dict_data.get('product_cost',0) if isinstance(converted_dict_data,dict) else 0)})
+                        if converted_dict_data and converted_dict_data.get('year_total_qty'):
+                            year_total_dict.get(year).update({'total_qty':(year_total_dict.get(year).get('total_qty')or 0.00)+(converted_dict_data.get('year_total_qty',0) if isinstance(converted_dict_data,dict) else 0)})
+                        if converted_dict_data and converted_dict_data.get('year_total'):
+                            year_total_dict.get(year).update({'total':(year_total_dict.get(year).get('total')or 0.00)+(converted_dict_data.get('year_total',0) if isinstance(converted_dict_data,dict) else 0)})
                     
                     sheet.cell(row=table_header_row+10,column=year_table_col).fill = styles.PatternFill("solid",start_color="7f7f7f")
                     year_table_col += 1
@@ -990,33 +1003,28 @@ class ProductProduct(models.Model):
             
             month_data_col = content_col+1
             total_row = table_content_row
-            for y in (datetime.now().year-2,datetime.now().year-1,datetime.now().year):
+            for y in (max_yearr-2,max_yearr-1,max_yearr):
                 total_qty = 0.0
                 main_total = 0.0
+                # if month_total_dict.get(y):
                 for month_data in month_total_dict.get(y):
                     sheet.cell(row=total_row-7,column=month_data_col).value = month_data[:3] + '-' + str(y)[-2:] or ''
                     sheet.cell(row=total_row-7,column=month_data_col).alignment = center_aligment
                     sheet.cell(row=total_row-7,column=month_data_col).font = styles.Font(name='Arial',bold=True,color='ffffff',size=12)
                     sheet.cell(row=total_row-7,column=month_data_col).fill = styles.PatternFill("solid",start_color="77933C")
 
-                    sheet.cell(row=total_row-6,column=month_data_col).value = month_total_dict.get(y).get(month_data).get('total_qty') or 0
+                    sheet.cell(row=total_row-6,column=month_data_col).value = round((month_total_dict.get(y).get(month_data).get('total_qty') or 0),2)
                     sheet.cell(row=total_row-6,column=month_data_col).alignment = right_aligment
                     sheet.cell(row=total_row-6,column=month_data_col).font = styles.Font(name='Arial',bold=False,size=12)
                     sheet.cell(row=total_row-6,column=month_data_col).fill = styles.PatternFill("solid",start_color="c3d69b")
 
-                    sheet.cell(row=total_row-5,column=month_data_col).value = month_total_dict.get(y).get(month_data).get('total') or 0
+                    sheet.cell(row=total_row-5,column=month_data_col).value = round((month_total_dict.get(y).get(month_data).get('total') or 0),2)
                     sheet.cell(row=total_row-5,column=month_data_col).alignment = right_aligment
                     sheet.cell(row=total_row-5,column=month_data_col).font = styles.Font(name='Arial',bold=False,size=12)
                     sheet.cell(row=total_row-5,column=month_data_col).fill = styles.PatternFill("solid",start_color="EBF1DE")
 
-                    # sheet.cell(row=table_content_row-1,column=month_data_col).value = '$ {:,.2f}'.format(sum([month_total_dict.get(i).get('total') for i in month_total_dict])) or 0.0
-                    # sheet.cell(row=total_row+4,column=month_data_col).value = '$ {:,.2f}'.format(sum([month_total_dict.get(y).get(i).get('total') for i in month_total_dict.get(y)])) or 0.0
-                    # sheet.cell(row=total_row+4,column=month_data_col).alignment = right_aligment
-                    # sheet.cell(row=total_row+4,column=month_data_col).font = styles.Font(name='Arial',bold=True)
-                    # sheet.cell(row=total_row+4,column=month_data_col).fill = styles.PatternFill("solid",start_color="b4c6e7")
-
-                    total_qty += month_total_dict.get(y).get(month_data).get('total_qty')
-                    main_total += month_total_dict.get(y).get(month_data).get('total')
+                    total_qty += (month_total_dict.get(y).get(month_data).get('total_qty') or 0)
+                    main_total += (month_total_dict.get(y).get(month_data).get('total') or 0)
                     month_data_col += 1
 
                 sheet.cell(row=total_row-7,column=month_data_col).value = 'Total'
@@ -1024,11 +1032,11 @@ class ProductProduct(models.Model):
                 sheet.cell(row=total_row-7,column=month_data_col).fill = styles.PatternFill("solid",start_color="2f5496")
                 sheet.cell(row=total_row-7,column=month_data_col).font = styles.Font(name='Arial',bold=True,color='ffffff',size=12)
 
-                sheet.cell(row=total_row-6,column=month_data_col).value = total_qty
+                sheet.cell(row=total_row-6,column=month_data_col).value = round(total_qty,2)
                 sheet.cell(row=total_row-6,column=month_data_col).alignment = right_aligment
                 sheet.cell(row=total_row-6,column=month_data_col).fill = styles.PatternFill("solid",start_color="b4c6e7")
 
-                sheet.cell(row=total_row-5,column=month_data_col).value = main_total
+                sheet.cell(row=total_row-5,column=month_data_col).value = round(main_total,2)
                 sheet.cell(row=total_row-5,column=month_data_col).alignment = right_aligment
                 sheet.cell(row=total_row-5,column=month_data_col).fill = styles.PatternFill("solid",start_color="d9e2f3")
 
@@ -1051,9 +1059,9 @@ class ProductProduct(models.Model):
             end_report_seperator = year_table_col-len(year_range)
             for r in year_range:
                 year_total_data = year_total_dict.get(r)
-                sheet.cell(row=table_content_row-7,column=end_report_seperator).value =year_total_data.get('total_qty') or 0.0
+                sheet.cell(row=table_content_row-7,column=end_report_seperator).value =round((year_total_data.get('total_qty') or 0.0),2)
                 sheet.cell(row=table_content_row-7,column=end_report_seperator).fill = styles.PatternFill("solid",start_color="b4c6e7")
-                sheet.cell(row=table_content_row-6,column=end_report_seperator).value =year_total_data.get('total') or 0.0
+                sheet.cell(row=table_content_row-6,column=end_report_seperator).value =round((year_total_data.get('total') or 0.0),2)
                 sheet.cell(row=table_content_row-6,column=end_report_seperator).fill = styles.PatternFill("solid",start_color="d9e2f3")
 
                 sheet.cell(row=table_content_row+2,column=end_report_seperator).fill = styles.PatternFill("solid",start_color="7f7f7f")
