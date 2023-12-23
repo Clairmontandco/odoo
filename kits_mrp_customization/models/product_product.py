@@ -803,7 +803,8 @@ class ProductProduct(models.Model):
                         sheet.cell(row=month_row+2-1-1,column=col).fill = styles.PatternFill("solid",start_color="c3d69b")
                         sheet.cell(row=month_row+2-1-1,column=col).alignment = right_aligment
 
-                        sheet.cell(row=month_row+3-1-1,column=col).value = round((month_data.get(list(month_data.keys())[0]).get('Conprice') or 0.00),2)
+                        sheet.cell(row=month_row+3-1-1,column=col).value = '$ {:,.2f}'.format(round((month_data.get(list(month_data.keys())[0]).get('Conprice') or 0.00),2))
+                        sheet.cell(row=month_row+3-1-1,column=col).alignment = right_aligment
                         sheet.cell(row=month_row+3-1-1,column=col).fill = styles.PatternFill("solid",start_color="EBF1DE")
                         sheet.cell(row=month_row+3-1,column=col).fill = styles.PatternFill("solid",start_color="7f7f7f")
                         total_product_qty += (month_data.get(list(month_data.keys())[0]).get('Conqty') or 0)
@@ -855,8 +856,8 @@ class ProductProduct(models.Model):
                     sheet.cell(row=month_row+1-1,column=col).alignment = right_aligment
                     sheet.cell(row=month_row+1-1,column=col).fill = styles.PatternFill("solid",start_color="d9e2f3")
 
-                    sheet.cell(row=month_row+2-1,column=col).value = round(total_product_cost,2)
-
+                    sheet.cell(row=month_row+2-1,column=col).value = '$ {:,.2f}'.format(round(total_product_cost,2))
+                    sheet.cell(row=month_row+2-1,column=col).alignment = right_aligment
                     sheet.cell(row=month_row+3-1,column=col).fill = styles.PatternFill("solid",start_color="7f7f7f")
                     # sheet.cell(row=month_row+3,column=col).fill = styles.PatternFill("solid",start_color="7f7f7f")
 
@@ -895,7 +896,7 @@ class ProductProduct(models.Model):
                     key_web_accounts = ', '.join(product_id.product_tmpl_id.x_studio_many2many_field_T5tHX.mapped('display_name')) if product_id.product_tmpl_id.x_studio_many2many_field_T5tHX else ''
                 
 
-                sheet.cell(row=table_content_row,column=content_col).value = "Create Date : " + str(product_id.create_date)
+                sheet.cell(row=table_content_row,column=content_col).value = "Create Date : " + str(product_id.create_date.date())
                 sheet.cell(row=table_content_row,column=content_col).alignment = styles.Alignment(horizontal="left", vertical="top",wrap_text=True)
                 sheet.cell(row=table_content_row,column=content_col).border = top_border
 
@@ -1018,7 +1019,7 @@ class ProductProduct(models.Model):
                     sheet.cell(row=total_row-6,column=month_data_col).font = styles.Font(name='Arial',bold=False,size=12)
                     sheet.cell(row=total_row-6,column=month_data_col).fill = styles.PatternFill("solid",start_color="c3d69b")
 
-                    sheet.cell(row=total_row-5,column=month_data_col).value = round((month_total_dict.get(y).get(month_data).get('total') or 0),2)
+                    sheet.cell(row=total_row-5,column=month_data_col).value = '$ {:,.2f}'.format(round((month_total_dict.get(y).get(month_data).get('total') or 0),2))
                     sheet.cell(row=total_row-5,column=month_data_col).alignment = right_aligment
                     sheet.cell(row=total_row-5,column=month_data_col).font = styles.Font(name='Arial',bold=False,size=12)
                     sheet.cell(row=total_row-5,column=month_data_col).fill = styles.PatternFill("solid",start_color="EBF1DE")
@@ -1036,7 +1037,7 @@ class ProductProduct(models.Model):
                 sheet.cell(row=total_row-6,column=month_data_col).alignment = right_aligment
                 sheet.cell(row=total_row-6,column=month_data_col).fill = styles.PatternFill("solid",start_color="b4c6e7")
 
-                sheet.cell(row=total_row-5,column=month_data_col).value = round(main_total,2)
+                sheet.cell(row=total_row-5,column=month_data_col).value = '$ {:,.2f}'.format(round(main_total,2))
                 sheet.cell(row=total_row-5,column=month_data_col).alignment = right_aligment
                 sheet.cell(row=total_row-5,column=month_data_col).fill = styles.PatternFill("solid",start_color="d9e2f3")
 
@@ -1061,9 +1062,9 @@ class ProductProduct(models.Model):
                 year_total_data = year_total_dict.get(r)
                 sheet.cell(row=table_content_row-7,column=end_report_seperator).value =round((year_total_data.get('total_qty') or 0.0),2)
                 sheet.cell(row=table_content_row-7,column=end_report_seperator).fill = styles.PatternFill("solid",start_color="b4c6e7")
-                sheet.cell(row=table_content_row-6,column=end_report_seperator).value =round((year_total_data.get('total') or 0.0),2)
+                sheet.cell(row=table_content_row-6,column=end_report_seperator).value ='$ {:,.2f}'.format(round((year_total_data.get('total') or 0.0),2))
+                sheet.cell(row=table_content_row-6,column=end_report_seperator).alignment = right_aligment
                 sheet.cell(row=table_content_row-6,column=end_report_seperator).fill = styles.PatternFill("solid",start_color="d9e2f3")
-
                 sheet.cell(row=table_content_row+2,column=end_report_seperator).fill = styles.PatternFill("solid",start_color="7f7f7f")
                 end_report_seperator += 1
 
