@@ -2,6 +2,7 @@ from odoo import api,models,_,fields
 
 class kcash_bonus(models.Model):
     _name = 'kcash.bonus'
+    _description = "Kcash Bonus"
     _rec_name = "sale_id"
 
     partner_id = fields.Many2one('res.partner','Partner ID')

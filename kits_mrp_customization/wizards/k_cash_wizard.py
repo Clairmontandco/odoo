@@ -3,6 +3,7 @@ from odoo.exceptions import UserError, ValidationError
 
 class KCashWizard(models.TransientModel):
     _name = 'k.cash.wizard'
+    _description = "Kcash wizard"
 
     sale_id = fields.Many2one('sale.order')
     kcash_id = fields.Many2one('kcash.bonus')
