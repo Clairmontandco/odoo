@@ -1,6 +1,6 @@
 {
     'name': 'Shopify Extended',
-    'version': '1.0',
+    'version': '1.1',
     'category': 'Sales',
     'summary': 'Shopify Customization for Clairmont and Co. v15',
 

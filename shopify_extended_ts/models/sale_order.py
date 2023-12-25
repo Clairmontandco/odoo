@@ -27,6 +27,14 @@ class SaleOrder(models.Model):
 
         order_line_data = sale_order_line_obj.prepare_sale_order_line_ts(line_vals)
 
+        property_list = []
+        for property in shopify_order_line_dict.get('properties'):
+            property_list.append("{}: {}".format(property.get('name', 'No Title'), property.get('value', 'No Value')))
+
+        if property_list and not is_delivery and not is_discount:
+            property_list = ", ".join(property_list)
+            order_line_data.update({'name': property_list})
+
         order_line_data.update({
             'is_delivery': is_delivery,
             'is_discount': is_discount,
