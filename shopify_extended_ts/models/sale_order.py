@@ -33,7 +33,7 @@ class SaleOrder(models.Model):
 
         if property_list and not is_delivery and not is_discount:
             property_list = ", ".join(property_list)
-            order_line_data.update({'name': property_list})
+            order_line_data.update({'name': '[{}] {}'.format(odoo_product_id.default_code, property_list)})
 
         order_line_data.update({
             'is_delivery': is_delivery,
