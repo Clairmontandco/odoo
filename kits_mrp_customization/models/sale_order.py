@@ -17,9 +17,8 @@ class sale_order(models.Model):
     kcash_id = fields.Many2one('kcash.bonus')
     kcash_history_ids = fields.One2many('kcash.history', 'order_id')
 
-
     #OverRide for set tax_totals when order have "Hide From Order" products.
-    @api.depends('order_line.tax_id', 'order_line.Hprice_unit', 'amount_total', 'amount_untaxed')
+    @api.depends('order_line.tax_id', 'order_line.price_unit', 'amount_total', 'amount_untaxed')
     def _compute_tax_totals_json(self):
         def compute_taxes(order_line):
             price = order_line.price_unit * (1 - (order_line.discount or 0.0) / 100.0)
