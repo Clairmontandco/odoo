@@ -1115,3 +1115,4 @@ class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
     is_kcash_rewards = fields.Boolean('K-Cash Product')
+    hide_from_order = fields.Boolean('Hide From Order')

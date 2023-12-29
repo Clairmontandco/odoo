@@ -1,5 +1,7 @@
 from odoo import models,fields,api,_
 from odoo.tools import is_html_empty
+import json
+from odoo.tools.misc import formatLang, format_date, get_lang, groupby
 
 INVOICE_PAYMENT = [('to_invoice','To Invoice'),('not_paid','Not Paid'),('partially_paid','Partially paid'),('in_payment','In Payment'),('paid','Paid')]
 
@@ -14,6 +16,24 @@ class sale_order(models.Model):
     kcash = fields.Integer('K-cash')
     kcash_id = fields.Many2one('kcash.bonus')
     kcash_history_ids = fields.One2many('kcash.history', 'order_id')
+
+
+    #OverRide for set tax_totals when order have "Hide From Order" products.
+    @api.depends('order_line.tax_id', 'order_line.Hprice_unit', 'amount_total', 'amount_untaxed')
+    def _compute_tax_totals_json(self):
+        def compute_taxes(order_line):
+            price = order_line.price_unit * (1 - (order_line.discount or 0.0) / 100.0)
+            order = order_line.order_id
+            return order_line.tax_id._origin.compute_all(price, order.currency_id, order_line.product_uom_qty, product=order_line.product_id, partner=order.partner_shipping_id)
+        account_move = self.env['account.move']
+        for order in self:
+            tax_lines_data = account_move._prepare_tax_lines_data_for_totals_from_object(order.order_line, compute_taxes)
+            tax_totals = account_move._get_tax_totals(order.partner_id, tax_lines_data, order.amount_total, order.amount_untaxed, order.currency_id)
+            if self._context.get('report') == True:
+                order_line = order.order_line.filtered(lambda x:x.product_id.product_tmpl_id.hide_from_order == False)
+                tax_totals['formatted_amount_total'] = formatLang(self.env, sum(order_line.mapped('price_subtotal')) + sum(order_line.mapped('price_tax')), currency_obj=self.currency_id)
+                tax_totals['formatted_amount_untaxed'] = formatLang(self.env, sum(order_line.mapped('price_subtotal')), currency_obj=self.currency_id)
+            order.tax_totals_json = json.dumps(tax_totals)
 
     @api.depends('invoice_status','invoice_ids','invoice_ids.payment_state')
     def _compute_invoice_payment_status(self):

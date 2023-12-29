@@ -6,6 +6,16 @@
             <xpath expr="//table[@name='stock_move_table']/tbody/tr[1]/td[1]/span" position="replace">
                 <span t-field="move.sale_line_id.name" />
             </xpath>
+            <xpath expr="//table[@name='stock_move_line_table']/tbody/t[@t-if='o.has_packages']/t[@t-foreach='packages']/t[2]" position="attributes">
+                <attribute name="t-value">o.move_line_ids.filtered(lambda l: l.result_package_id == package and l.product_id.product_tmpl_id.hide_from_order == False)</attribute>
+            </xpath>
+            <xpath expr="//table[@name='stock_move_line_table']/tbody/t[@t-else='']/t[@t-if='has_serial_number']/tr" position="attributes">
+                <attribute name="t-foreach">o.move_line_ids.filtered(lambda l: l.product_id.product_tmpl_id.hide_from_order == False)</attribute>
+            </xpath>
+            <xpath expr="//table[@name='stock_move_line_table']/tbody/t[@t-else='']/t[@t-else='']/t[1]" position="attributes">
+                <attribute name="t-value">o.move_line_ids.filtered(lambda l: l.product_id.product_tmpl_id.hide_from_order == False)._get_aggregated_product_quantities()</attribute>
+            </xpath>
+
         </template>
 
         <template id="mrp_customization_inherit_report_saleorder_document" inherit_id="sale.report_saleorder_document">
@@ -14,6 +24,12 @@
                     <strong>Delivery Date:</strong>
                     <p class="m-0" t-field="doc.validity_date"/>
                 </div>
+            </xpath>
+        </template>
+
+        <template id="kits_mrp_customization_inherit_report_picking" inherit_id="stock.report_picking" >
+            <xpath expr="//tbody//tr" position="attributes">
+                <attribute name="t-if">not ml.product_id.product_tmpl_id.hide_from_order</attribute>
             </xpath>
         </template>
     </data>

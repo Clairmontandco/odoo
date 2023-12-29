@@ -10,6 +10,8 @@
                     <span class="d-inline-block">
                         <field name="is_kcash_rewards" />
                         <label for="is_kcash_rewards"/>
+                        <field name="hide_from_order" />
+                        <label for="hide_from_order"/>
                     </span>
                 </xpath>
             </field>
