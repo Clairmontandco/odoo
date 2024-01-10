@@ -33,7 +33,7 @@
             </xpath>
             <xpath expr="//div[hasclass('page')]/table[hasclass('table','table-sm','o_main_table')]/tbody/t[@t-foreach='doc.order_line']/tr/t[@t-if='not line.display_type']/td[@name='td_name']" position="replace">
                 <td name="td_product"><span t-field="line.product_id.name"/></td>
-                <td name="td_sku"><span t-field="line.name"/></td>
+                <td name="td_sku"><span t-field="line.product_id.default_code"/></td>
             </xpath>
         </template>
     </data>
