@@ -22,6 +22,9 @@
                         </field>
                     </page>
                 </xpath>
+                <xpath expr="//form/sheet/group/group[2]/field[@name='category_id']" position="after">
+                    <field name="is_duplicate"/>
+                </xpath>
             </field>
         </record>
 
@@ -35,6 +38,7 @@
                         <field string="KCash Balance" name="kcash_balance" widget="statinfo"/>
                     </button>
                 </xpath>
+              
             </field>
         </record>
         <record id="kits_res_partner_inherit_view_search" model="ir.ui.view">
@@ -48,6 +52,19 @@
                 </xpath>
             </field>
         </record>
+
+        <record id="action_duplicate_contact" model="ir.actions.act_window">
+            <field name="name">Duplicate Contacts</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">tree,kanban,form</field>
+            <field name="domain">[('is_duplicate', '=', True)]</field>
+        </record>
+
+        <menuitem id="res_partner_menu_is_duplicate_contacts"
+        name="Duplicate Contacts"
+        action="kits_mrp_customization.action_duplicate_contact"
+        parent="contacts.menu_contacts"
+        />
     </data>
     
 

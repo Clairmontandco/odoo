@@ -17,6 +17,24 @@
             <xpath expr="//div['so_total_summary']/div/div/table/t[1]" position="attributes">
                 <attribute name="t-value">json.loads(doc.with_context(report=True).tax_totals_json)</attribute>
             </xpath>
+            <xpath expr="//div[hasclass('page')]/table[hasclass('table','table-sm','o_main_table')]/thead/tr/th[@name='th_stocked']" position="replace">
+                <th name="th_stocked" class="text-left"></th>
+            </xpath>
+            <xpath expr="//div[hasclass('page')]/table[hasclass('table','table-sm','o_main_table')]/thead/tr/th[@name='th_description']" position="replace">
+                <th name="th_product" class="text-left">Product</th>
+                <th name="th_sku" class="text-left">Sku</th>
+            </xpath>
+            <xpath expr="//div[hasclass('page')]/table[hasclass('table','table-sm','o_main_table')]/tbody/t[@t-foreach='doc.order_line']/tr/t[@t-if='not line.display_type']/td[@name='td_stocked']" position="replace">
+                <td name="td_stocked" class="text-center">
+                    <t t-if="line.x_studio_stock_item">
+                        <div></div>
+                    </t>                            
+                </td>
+            </xpath>
+            <xpath expr="//div[hasclass('page')]/table[hasclass('table','table-sm','o_main_table')]/tbody/t[@t-foreach='doc.order_line']/tr/t[@t-if='not line.display_type']/td[@name='td_name']" position="replace">
+                <td name="td_product"><span t-field="line.product_id.name"/></td>
+                <td name="td_sku"><span t-field="line.name"/></td>
+            </xpath>
         </template>
     </data>
 </odoo>
