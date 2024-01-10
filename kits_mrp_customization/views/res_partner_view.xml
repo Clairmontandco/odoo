@@ -65,6 +65,8 @@
         action="kits_mrp_customization.action_duplicate_contact"
         parent="contacts.menu_contacts"
         />
+
+        
     </data>
     
 

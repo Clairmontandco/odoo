@@ -25,6 +25,17 @@
             </field>
         </record>
 
+        <record id="partner_marks_as_not_duplicate" model="ir.actions.server">
+            <field name="name">Marks As Not Duplicate</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="binding_model_id" ref="base.model_res_partner" />
+            <field name="state">code</field>
+            <field name="code">
+            if record:
+                action = records.action_partner_marks_as_not_duplicate()
+            </field>
+        </record>
+
     </data>
 
 

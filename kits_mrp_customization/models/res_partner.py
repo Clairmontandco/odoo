@@ -6,6 +6,7 @@ class res_partner(models.Model):
     kcash_bonus_ids = fields.One2many('kcash.bonus','partner_id','KCash Bonus')
     kcash_balance = fields.Float('KCash Balance',compute="_compute_kcash_balance",store=True)
     is_duplicate = fields.Boolean('Is Duplicate')
+    checked_duplicate = fields.Boolean('Checked Duplicate')
 
     @api.depends('kcash_bonus_ids')
     def _compute_kcash_balance(self):
@@ -17,6 +18,10 @@ class res_partner(models.Model):
         
     def action_kcash_balance(self):
         pass
+
+    def action_partner_marks_as_not_duplicate(self):
+        for rec in self:
+            rec.is_duplicate = False
 
     
       
