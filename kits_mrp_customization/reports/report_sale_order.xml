@@ -21,6 +21,7 @@
                 <th name="th_stocked" class="text-left"></th>
             </xpath>
             <xpath expr="//div[hasclass('page')]/table[hasclass('table','table-sm','o_main_table')]/thead/tr/th[@name='th_description']" position="replace">
+                <th name="th_image" class="text-left"></th>
                 <th name="th_product" class="text-left">Product</th>
                 <th name="th_sku" class="text-left">Sku</th>
             </xpath>
@@ -32,6 +33,16 @@
                 </td>
             </xpath>
             <xpath expr="//div[hasclass('page')]/table[hasclass('table','table-sm','o_main_table')]/tbody/t[@t-foreach='doc.order_line']/tr/t[@t-if='not line.display_type']/td[@name='td_name']" position="replace">
+                <td name="td_image" style="width: 20%;">
+                    <t t-if="line.image_1920">
+                        <img t-att-src="'data:image/png;base64,' + str(line.image_1920, 'utf-8')" style="width: 100%;"/>
+                    </t>
+                    <t t-else="">
+                        <!-- <img t-att-src="'/web/static/src/img/placeholder.png'" style="width: 100%;"/> -->
+                        <span style="width: 100%;margin-left: 85px;">-</span>
+                    </t>
+
+                </td>
                 <td name="td_product"><span t-field="line.product_id.name"/></td>
                 <td name="td_sku"><span t-field="line.product_id.default_code"/></td>
             </xpath>

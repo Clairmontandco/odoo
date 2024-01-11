@@ -7,6 +7,8 @@
     'depends': ['shopify'],
 
     'data': [
+        #Views
+        'views/product_template.xml',
     ],
 
     'images': ['static/description/icon.png'],

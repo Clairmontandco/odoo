@@ -1,4 +1,4 @@
-from odoo import _,models,fields
+from odoo import _,models,fields,api
 from datetime import datetime
 from io import BytesIO
 from openpyxl import Workbook, styles
@@ -1116,3 +1116,5 @@ class ProductTemplate(models.Model):
 
     is_kcash_rewards = fields.Boolean('K-Cash Product')
     hide_from_order = fields.Boolean('Hide From Order')
+
+    
