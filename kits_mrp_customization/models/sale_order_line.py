@@ -29,6 +29,7 @@ class sale_order_line(models.Model):
 
     def _get_name_description(self):
         for rec in self:
+            sku = ""
             if rec.product_id.default_code:
                 sku = '[' + rec.product_id.default_code + ']'
             product = rec.product_id.name.split(' ')
