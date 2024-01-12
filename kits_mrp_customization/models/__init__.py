@@ -6,3 +6,4 @@ from . import account_move_line
 from . import kcash_bonus
 from . import res_partner
 from . import kcash_history
+from . import stock_move
