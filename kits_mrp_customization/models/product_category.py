@@ -18,7 +18,7 @@ class ProductCategory(models.Model):
 
     def kits_action_update_route(self):
         for rec in self:
-            related_products = self.env['product.product'].search([('categ_id','=',rec.id)])
+            related_products = self.env['product.product'].search([('categ_id','child_of',rec.id)])
             for product in related_products:
                 product.route_ids = rec.kits_route_ids
 
@@ -26,7 +26,7 @@ class ProductCategory(models.Model):
         for rec in self:
             if not rec.replenish_location_id:
                 raise UserError('Enter Location First !')
-            related_products = self.env['product.product'].search([('categ_id','=',rec.id)])
+            related_products = self.env['product.product'].search([('categ_id','child_of',rec.id)])
             for product in related_products:
                 existing_replanish = self.env['stock.warehouse.orderpoint'].search([('product_id','=',product.id),('location_id','=',rec.replenish_location_id.id)])
                 if existing_replanish:
@@ -54,7 +54,7 @@ class ProductCategory(models.Model):
                 raise UserError('Enter - When Product arrives in - First !')
             if not rec.putaway_location_out_id:
                 raise UserError('Enter - Store to sublocation - First !')
-            related_products = self.env['product.product'].search([('categ_id','=',rec.id)])
+            related_products = self.env['product.product'].search([('categ_id','child_of',rec.id)])
             for product in related_products:
                 putaway_replanish = self.env['stock.putaway.rule'].search([('product_id','=',product.id),('location_in_id','=',rec.putaway_location_in_id.id),('location_out_id','=',rec.putaway_location_out_id.id)])
                 if not putaway_replanish:
