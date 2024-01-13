@@ -22,6 +22,7 @@
         'views/account_move_views.xml',
         'views/res_partner_view.xml',
         'views/product_product.xml',
+        'views/product_category.xml',
         
         # Data
         'data/ir_server_actions.xml',

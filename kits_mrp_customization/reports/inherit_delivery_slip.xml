@@ -18,6 +18,37 @@
             <xpath expr="//table[@name='stock_move_line_table']/thead/tr/th[@name='th_sml_product']" position="before">
                 <th name="th_sml_image"><strong></strong></th>
             </xpath>
+            <xpath expr="/t[1]/t[1]/t[1]/div[1]/table[1]/thead[1]/tr[1]/th[3]" position="replace"/>
+
+            <xpath expr="/t[1]/t[1]/t[1]/div[1]/table[1]/tbody[1]/tr[1]/td[3]" position="replace"/>
+
+            <xpath expr="//table[@name='stock_move_table']/thead/tr/th[@name='th_sm_product']" position="before">
+                <th name="th_sm_image"><strong>Image</strong></th>
+            </xpath>
+            <xpath expr="//table[@name='stock_move_table']/tbody/tr[@t-foreach='lines']/td[1]" position="before">
+                <td style="width: 20%;">
+                    <t t-if="move.product_id.image_256">
+                        <img t-att-src="'data:image/png;base64,' + str(move.product_id.image_256, 'utf-8')" style="width: 100%;"/>
+                    </t>
+                    <t t-else="">
+                        <span style="width: 100%;margin-left: 75px;">-</span>
+                    </t>
+                </td>
+            </xpath>
+
+            <xpath expr="//table[@name='stock_move_table']/thead/tr/th[@name='th_sm_product']" position="after">
+                <th name="th_sm_ordered"><strong>Ordered</strong></th>
+            </xpath>
+            
+            <xpath expr="//table[@name='stock_move_table']/tbody/tr[@t-foreach='lines']/td[1]" position="after">
+                <td style="text-align: left !important;">
+                    <span t-field="move.product_id"/>
+                    <p t-if="move.description_picking != move.product_id.name and move.description_picking != move.product_id.display_name">
+                        <span t-field="move.description_picking"/>
+                    </p>
+                </td>
+            </xpath>
+            
         </template>
 
         <template id="inherit_stock_report_delivery_aggregated_move_lines" inherit_id="stock.stock_report_delivery_aggregated_move_lines" >
@@ -47,7 +78,6 @@
             </td>
             </xpath>
         </template>
-
 
         <template id="mrp_customization_inherit_report_saleorder_document" inherit_id="sale.report_saleorder_document">
             <xpath expr="//div[@name]" position="replace">

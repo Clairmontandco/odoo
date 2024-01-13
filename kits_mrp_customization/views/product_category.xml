@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data>
+    
+        <record id="inherit_product_category_form_view" model="ir.ui.view">
+            <field name="name">inherit.product.category.form.view</field>
+            <field name="model">product.category</field>
+            <field name="inherit_id" ref="product.product_category_form_view" />
+            <field name="arch" type="xml">
+                <xpath expr="//form/sheet" position="inside">
+                    <notebook>
+                        <page name="manufacturing_setting" string="Manufacturing Setting">
+                            <group name='update_route' string='For Update Routes'>
+                                <group>
+                                    <field name="kits_route_ids" class="mb-0" widget="many2many_checkboxes"/>
+                                    <button name="kits_action_update_route" type="object" string="Update Routes"/>
+                                </group>
+                            </group>
+                            <group name='replenish_manufacturing' string='For Replanish Manufacturing'>
+                                <group>
+                                    <field name="replenish_location_id"/>
+                                    <field name="replenish_route_id" create='0'/>
+                                    <field name="replenish_trigger"/>
+                                    <button name="kits_action_create_update_replanish" type="object" string="Create/Update Replanish"/>
+                                </group>
+                                <group>
+                                    <field name="replenish_product_min_qty"/>
+                                    <field name="replenish_product_max_qty"/>
+                                    <field name="replenish_qty_multiple"/>
+                                </group>
+                            </group>
+                            <group name='putaway_rules' string='For Putaway Rules'>
+                                <group>
+                                    <field name="putaway_location_in_id"/>
+                                    <field name="putaway_location_out_id"/>
+                                    <button name="kits_action_create_update_putaway_rules" type="object" string="Create Putaway Rules"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </xpath>
+            </field>
+        </record>
+    
+    </data>
+    
+</odoo>
