@@ -28,7 +28,8 @@ class SaleOrder(models.Model):
         order_line_data = sale_order_line_obj.prepare_sale_order_line_ts(line_vals)
 
         property_list = []
-        for property in shopify_order_line_dict.get('properties'):
+        order_line_properties = shopify_order_line_dict.get('properties', []) or []
+        for property in order_line_properties:
             property_list.append("{}: {}".format(property.get('name', 'No Title'), property.get('value', 'No Value')))
 
         if property_list and not is_delivery and not is_discount:
