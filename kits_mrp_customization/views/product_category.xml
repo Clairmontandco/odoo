@@ -10,6 +10,9 @@
                 <xpath expr="//form/sheet" position="inside">
                     <notebook>
                         <page name="manufacturing_setting" string="Manufacturing Setting">
+                            <group>
+                                <field name="include_subcategory"/>
+                            </group>
                             <group name='update_route' string='For Update Routes'>
                                 <group>
                                     <field name="kits_route_ids" class="mb-0" widget="many2many_checkboxes"/>
@@ -37,6 +40,29 @@
                                 </group>
                             </group>
                         </page>
+
+                        <page name="bills_of_materials" string="Bills Of Materials">
+                            <group>
+                                <field name="include_subcategory"/>
+                            </group>
+                            <group name="bom" string="Create BOM">
+                                <group>
+                                    <field name="product_qty"/>
+                                </group>
+                                <group>
+                                    <field name="bom_type" widget='radio'/>
+                                </group>
+                            <field name="bom_category_line_ids" widget="one2many">
+                                <tree string="Components" editable="bottom">
+                                    <field name="product_id" context="{'default_detailed_type': 'product'}"/>
+                                    <field name="product_qty"/>
+                                    <field name="product_uom_id"/>
+                                </tree>
+                            </field>
+                            </group>
+                            <button name="action_create_bom" type="object" string="Create BOM"/>
+                        </page>
+
                     </notebook>
                 </xpath>
             </field>
