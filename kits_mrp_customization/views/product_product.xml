@@ -49,7 +49,7 @@
                     <filter name="kits_bom_component" string="BOM Component" domain="[('product_tmpl_id.bom_line_ids','!=',False)]"/>
                 </xpath>
                 <xpath expr="//search" position="inside">
-                    <field name="manufacturing_default_code" string="Manufacturing Default Code"/>
+                    <field name="manufacturing_default_code" string="Manufacturing Reference"/>
                 </xpath>
             </field>
         </record>
@@ -60,7 +60,7 @@
             <field name="inherit_id" ref="product.product_template_search_view"/>
             <field name="arch" type="xml">
                 <xpath expr="//search" position="inside">
-                    <field name="manufacturing_default_code" string="Manufacturing Default Code"/>
+                    <field name="manufacturing_default_code" string="Manufacturing Reference"/>
                 </xpath>
             </field>
         </record>
