@@ -39,30 +39,13 @@
                                     <button name="kits_action_create_update_putaway_rules" type="object" string="Create Putaway Rules"/>
                                 </group>
                             </group>
-                        </page>
-
-                        <page name="bills_of_materials" string="Bills Of Materials">
-                            <group>
-                                <field name="include_subcategory"/>
-                            </group>
-                            <group name="bom" string="Create BOM">
+                            <group name='create_bom' string='Create BOM'>
                                 <group>
-                                    <field name="product_qty"/>
+                                    <field name="bom_id" domain="[('x_studio_product_category','=',id)]"/>
+                                    <button name="action_create_bom" type="object" string="Create BOM"/>
                                 </group>
-                                <group>
-                                    <field name="bom_type" widget='radio'/>
-                                </group>
-                            <field name="bom_category_line_ids" widget="one2many">
-                                <tree string="Components" editable="bottom">
-                                    <field name="product_id" context="{'default_detailed_type': 'product'}"/>
-                                    <field name="product_qty"/>
-                                    <field name="product_uom_id"/>
-                                </tree>
-                            </field>
                             </group>
-                            <button name="action_create_bom" type="object" string="Create BOM"/>
                         </page>
-
                     </notebook>
                 </xpath>
             </field>

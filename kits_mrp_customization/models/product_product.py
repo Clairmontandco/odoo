@@ -1142,3 +1142,5 @@ class ProductTemplate(models.Model):
         for template in self:
             if len(template.product_variant_ids) == 1:
                 template.product_variant_ids.manufacturing_default_code = template.manufacturing_default_code
+
+    
