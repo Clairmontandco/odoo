@@ -191,3 +191,14 @@ class sale_order(models.Model):
                                'default_remain_kcash':line_kcash},
                     'type': 'ir.actions.act_window',
                 }
+
+    def action_add_kcash_wizard(self):
+        return {
+                    'name': 'Add K-Cash Reward',
+                    'view_mode': 'form',
+                    'target': 'new',
+                    'res_model': 'add.kcash.reward.wizard',
+                    'context':{'default_sale_id': self.id,
+                               'default_partner_id': self.partner_id.id},
+                    'type': 'ir.actions.act_window',
+                }

@@ -81,8 +81,24 @@ class ProductCategory(models.Model):
             domain = [('categ_id','child_of',rec.id),('detailed_type','=','product')] if rec.include_subcategory else [('categ_id','=',rec.id),('detailed_type','=','product')]
             related_product_tmpl = self.env['product.template'].search(domain)
             for product_tmpl in related_product_tmpl:
-                mrp_bom = self.env['mrp.bom'].search([('product_tmpl_id','=',product_tmpl.id)])
+                mrp_bom = self.env['mrp.bom'].search([('product_tmpl_id','=',product_tmpl.id),('id','!=',rec.bom_id.id)])
                 if not mrp_bom:
                     bom = rec.bom_id.copy()
                     bom.write({'product_tmpl_id':product_tmpl.id})
                     bom.onchange_product_tmpl_id()
+                else:
+                    for bom in mrp_bom:
+                        bom_details = rec.bom_id.read()
+                        product_tmpl_id = bom.product_tmpl_id.id
+                        bom.bom_line_ids.unlink()
+                        bom.operation_ids.unlink()
+                        for bom_line in rec.bom_id.bom_line_ids:
+                            bom_line.copy({'bom_id':bom.id}).id
+                        for op_line in rec.bom_id.operation_ids:
+                            op_line.copy({'bom_id':bom.id}).id
+                        bom_details[0].pop('message_follower_ids')
+                        bom_details[0].pop('bom_line_ids')
+                        bom_details[0].pop('operation_ids')
+                        bom.write(bom_details[0])
+                        bom.write({'product_tmpl_id':product_tmpl_id})
+                        bom.onchange_product_tmpl_id()
