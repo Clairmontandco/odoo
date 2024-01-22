@@ -76,6 +76,8 @@ class ProductCategory(models.Model):
 
     def action_create_bom(self):
         for rec in self:
+            if not rec.bom_id:
+                raise UserError('Enter BOM First !')
             domain = [('categ_id','child_of',rec.id),('detailed_type','=','product')] if rec.include_subcategory else [('categ_id','=',rec.id),('detailed_type','=','product')]
             related_product_tmpl = self.env['product.template'].search(domain)
             for product_tmpl in related_product_tmpl:
