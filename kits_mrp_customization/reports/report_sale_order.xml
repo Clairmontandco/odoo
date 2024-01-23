@@ -3,12 +3,9 @@
     <data>
         <template id="kits_mrp_report_saleorder_document_inherit" inherit_id="sale.report_saleorder_document">
             <xpath expr="//div[@id='informations']" position="inside">
-                <t t-set="kcash_value" t-value="abs(sum(doc.order_line.search([('order_id','=',doc.id),('product_id.name','=','K-Cash Reward')]).mapped('price_unit')))"/>
-                <div t-if="kcash_value" class="col-auto col-3 mw-100 mb-2">
-                    <strong>Applied K-Cash:</strong>
-                    <p class="m-0">
-                        <t t-esc="kcash_value"/>
-                    </p>
+                <div t-if="doc.kcash" class="col-auto col-3 mw-100 mb-2">
+                    <strong>Available K-Cash:</strong>
+                    <p class="m-0" t-field="doc.kcash" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
                 </div>
             </xpath>
             <xpath expr="//tbody//tr" position="attributes">
@@ -51,6 +48,22 @@
                 </td>
                 <td name="td_sku"><span t-field="line.product_id.default_code"/></td>
             </xpath>
+            <xpath expr="//div[@name='so_total_summary']/div/div/table/t[1]" position="before">
+                <tr class="border-black o_subtotal">
+                <t t-set="kcash_value" t-value="abs(sum(doc.order_line.filtered(lambda x:x.product_template_id.is_kcash_rewards).mapped('price_unit')))"/>
+                <div t-if="kcash_value" >
+                    <td><strong>Applied KCash</strong></td>
+
+                    <td class="text-right">
+                        <span
+                            t-esc="kcash_value"
+                            t-options='{"widget": "monetary", "display_currency": doc.currency_id}'
+                        />
+                    </td>
+                </div>
+                </tr>
+            </xpath>
         </template>
+
     </data>
 </odoo>

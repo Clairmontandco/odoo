@@ -21,7 +21,6 @@ class kcash_bonus(models.Model):
             if rec.credit == rec.debit:
                 rec.reward_fullfill = True
 
-
     @api.model
     def default_get(self,fields):
         fields.append('partner_id')

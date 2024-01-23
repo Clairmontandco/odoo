@@ -16,7 +16,8 @@
                     </button>
                 </xpath>
                 <xpath expr="//button[@name='action_cancel']" position="after">
-                    <button name="action_add_kcash_wizard" type="object" string="Add KCash Reward" class="btn btn-primary"/>
+                    <field name="is_available_kcash" invisible='1'/>
+                    <button name="action_add_kcash_wizard" type="object" string="Add KCash" class="btn btn-primary" attrs="{'invisible': [('is_available_kcash', '=', True)]}"/>
                 </xpath>
                 <xpath expr="//group[@name='sale_info']/field[@name='invoice_status']" position="after">
                     <field name="invoice_payment_status" readonly="1" force_save="1" />
