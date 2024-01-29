@@ -34,6 +34,11 @@ class sale_order_line(models.Model):
                 sku = '[' + rec.product_id.default_code + ']'
             product = rec.product_id.name.split(' ')
             product.append(sku) if sku else None
-            product_sku = rec.name.split(' ')
-            description = [element for element in product_sku if element not in product]
+            new_line_description = rec.name.split('\n')
+            new_line_description.pop(0)
+            if new_line_description:
+                description = new_line_description
+            else:
+                product_sku = rec.name.split(' ')
+                description = [element for element in product_sku if element not in product]
             return ' '.join(description)

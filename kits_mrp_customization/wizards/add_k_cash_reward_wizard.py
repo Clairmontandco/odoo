@@ -10,4 +10,4 @@ class AddKCashRewardWizard(models.TransientModel):
 
     def action_process(self):
         for rec in self:
-            self.env['kcash.bonus'].create({'sale_id':rec.sale_id.id,'partner_id':rec.partner_id.id,'credit':rec.amount})
+            self.env['kcash.bonus'].create({'sale_id':rec.sale_id.id,'partner_id':rec.partner_id.id,'credit':rec.amount,'expiry_date':rec.expiry_date})

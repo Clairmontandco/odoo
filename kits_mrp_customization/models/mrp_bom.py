@@ -3,6 +3,8 @@ from odoo import _, api, fields, models, tools
 class MrpBom(models.Model):
     _inherit = 'mrp.bom'
 
+    do_not_override = fields.Boolean('Do not override')
+
     @api.onchange('product_tmpl_id')
     def onchange_product_tmpl_id(self):
         if self.product_tmpl_id:

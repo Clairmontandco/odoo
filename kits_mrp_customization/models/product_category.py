@@ -87,7 +87,7 @@ class ProductCategory(models.Model):
                     bom.write({'product_tmpl_id':product_tmpl.id})
                     bom.onchange_product_tmpl_id()
                 else:
-                    for bom in mrp_bom:
+                    for bom in mrp_bom.filtered(lambda x:x.do_not_override == False):
                         bom_details = rec.bom_id.read()
                         product_tmpl_id = bom.product_tmpl_id.id
                         bom.bom_line_ids.unlink()
