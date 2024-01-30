@@ -7,6 +7,10 @@
                     <strong>Available K-Cash:</strong>
                     <p class="m-0" t-field="doc.kcash" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
                 </div>
+                <div class="col-auto col-3 mw-100 mb-2">
+                    <strong>Payment Terms:</strong>
+                    <p class="m-0" t-field="doc.payment_term_id"/>
+                </div>
             </xpath>
             <xpath expr="//tbody//tr" position="attributes">
                 <attribute name="t-if">not line.product_id.is_kcash_rewards and not line.product_id.product_tmpl_id.hide_from_order</attribute>
