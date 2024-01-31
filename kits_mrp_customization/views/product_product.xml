@@ -65,5 +65,15 @@
             </field>
         </record>
 
+        <record id="kits_product_variant_easy_edit_view" model="ir.ui.view">
+            <field name="name">kits.product.variant.easy.edit.view</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_variant_easy_edit_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group[@name='codes']" position="inside">
+                    <field name="manufacturing_default_code" string="Manufacturing Default Code"/>
+                </xpath>
+            </field>
+        </record>
     </data>
 </odoo>
