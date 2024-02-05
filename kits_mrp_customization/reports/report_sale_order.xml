@@ -2,6 +2,20 @@
 <odoo>
     <data>
         <template id="kits_mrp_report_saleorder_document_inherit" inherit_id="sale.report_saleorder_document">
+            <xpath expr="//div[@id='informations']/div[@t-if='doc.user_id.name']" position="replace">
+            </xpath>
+            <xpath expr="//div[@id='informations']" position="after">
+                <div class="row mt32 mb32" id="sale_info">
+                    <div t-if="doc.user_id.name" class="col-auto col-3 mw-100 mb-2">
+                        <strong>Salesperson:</strong>
+                        <p class="m-0" t-field="doc.user_id.name"/>
+                    </div>
+                    <div t-if="doc.team_id.name" class="col-auto col-3 mw-100 mb-2">
+                        <strong>Sale Channel:</strong>
+                        <p class="m-0" t-field="doc.team_id.name"/>
+                    </div>
+                </div>    
+            </xpath>
             <xpath expr="//div[@id='informations']" position="inside">
                 <div t-if="doc.kcash" class="col-auto col-3 mw-100 mb-2">
                     <strong>Available K-Cash:</strong>

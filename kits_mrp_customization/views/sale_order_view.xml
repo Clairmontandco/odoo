@@ -17,6 +17,7 @@
                 </xpath>
                 <xpath expr="//button[@name='action_cancel']" position="after">
                     <field name="is_available_kcash" invisible='1'/>
+                    <field name="delivery_status" invisible='1'/>
                     <button name="action_add_kcash_wizard" type="object" string="Add KCash" class="btn btn-primary" attrs="{'invisible': [('is_available_kcash', '=', True)]}"/>
                 </xpath>
                 <xpath expr="//group[@name='sale_info']/field[@name='invoice_status']" position="after">
@@ -78,7 +79,11 @@
             <field name="inherit_id" ref="sale.view_order_tree" />
             <field name="arch" type="xml">
                 <field name="invoice_status" position="after">
+                    <field name="delivery_status" widget='badge' decoration-success="state == 'done'" decoration-info="state not in ('done', 'cancel', 'draft')" decoration-muted="state == 'draft'"/>
                     <field name="invoice_payment_status" />
+                </field>
+                <field name="user_id" position="after">
+                    <field name="team_id"/>
                 </field>
             </field>
         </record>
@@ -89,7 +94,11 @@
             <field name="inherit_id" ref="sale.view_quotation_tree" />
             <field name="arch" type="xml">
                 <field name="state" position="after">
+                    <field name="delivery_status" widget='badge' decoration-success="state == 'done'" decoration-info="state not in ('done', 'cancel', 'draft')" decoration-muted="state == 'draft'"/>
                     <field name="invoice_payment_status" />
+                </field>
+                <field name="user_id" position="after">
+                    <field name="team_id"/>
                 </field>
             </field>
         </record>

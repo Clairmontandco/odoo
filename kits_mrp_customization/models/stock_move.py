@@ -15,12 +15,12 @@ class StockMove(models.Model):
                 sku = '[' + rec.product_id.default_code + ']'
             product = rec.product_id.name.split(' ')
             product.append(sku) if sku else None
-            new_line_description = rec.description_picking.split('\n')
-            new_line_description.pop(0)
+            new_line_description = rec.description_picking.split('\n') if rec.description_picking else []
+            new_line_description.pop(0) if new_line_description else []
             if new_line_description:
                 description = new_line_description
             else:
-                product_description = rec.description_picking.split(' ')
+                product_description = rec.description_picking.split(' ') if rec.description_picking else []
                 description = [element for element in product_description if element not in product]
             return ' '.join(description)
 

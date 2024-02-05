@@ -12,12 +12,20 @@ class sale_order(models.Model):
     kits_mo_count = fields.Integer('#Manufacturings',compute="_compute_mo_count",copy=False)
 
     invoice_payment_status = fields.Selection(selection=INVOICE_PAYMENT,compute="_compute_invoice_payment_status",store=True,compute_sudo=True)
+    delivery_status = fields.Selection([('draft', 'Draft'),('waiting', 'Waiting Another Operation'),('confirmed', 'Waiting'),('assigned', 'Ready'),('done', 'Done'),('cancel', 'Cancelled')],compute='_compute_delivery_status',default=None)
 
     kcash = fields.Integer('K-cash')
     kcash_id = fields.Many2one('kcash.bonus')
     kcash_history_ids = fields.One2many('kcash.history', 'order_id')
 
     is_available_kcash = fields.Boolean('Is Available KCash',compute='_compute_is_available_kcash')
+
+    def _compute_delivery_status(self):
+        for rec in self:
+            rec.delivery_status = None
+            picking_ids = rec.picking_ids.filtered(lambda x:x.state != 'cancel') if rec.picking_ids else None
+            if picking_ids:
+                rec.delivery_status = max(picking_ids, key=lambda x: x.create_date).state if picking_ids else None
 
     def _compute_is_available_kcash(self):
         for rec in self:

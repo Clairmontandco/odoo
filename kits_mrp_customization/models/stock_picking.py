@@ -7,6 +7,10 @@ from openpyxl.styles import Border, Side, Alignment, Font
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
+    invoice_payment_status = fields.Selection(related = 'sale_id.invoice_payment_status')
+    sale_user_id = fields.Many2one('res.users',related = 'sale_id.user_id')
+    sale_team_id = fields.Many2one('crm.team',related = 'sale_id.team_id')
+
     def action_kits_batch_order_excel(self):
         wb = Workbook()
         wrksheet = wb.active
@@ -82,3 +86,14 @@ class StockPicking(models.Model):
             'url': 'web/content/?model=report.wizard&download=true&field=file&id=%s&filename=%s.xlsx' % (wizard_id.id,'Batch_Order_Excel'),
             'target': 'self',
         }
+
+    def preview_sale_order(self):
+        for rec in self:
+            return {
+                'type': 'ir.actions.act_window',
+                'res_model': 'sale.order',
+                'view_type': 'form',
+                'view_mode': 'form',
+                'res_id': rec.sale_id.id,
+                'target': 'current'
+            }

@@ -2,6 +2,27 @@
 <odoo>
 
     <data>
+
+        <!-- For Quotaion / Order Download From Sale Order -->
+        <record id="kits_picking_action_report_saleorder" model="ir.actions.report">
+            <field name="name">Quotation / Order</field>
+            <field name="model">stock.picking</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">kits_mrp_customization.kits_picking_report_saleorder</field>
+            <field name="report_file">kits_mrp_customization.kits_picking_report_saleorder</field>
+            <field name="print_report_name">(object.state in ('draft', 'sent') and 'Quotation - %s' % (object.name)) or 'Order - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <template id="kits_picking_report_saleorder">
+            <t t-call="web.html_container">
+                <t t-foreach="docs.sale_id" t-as="doc">
+                    <t t-call="sale.report_saleorder_document" t-lang="doc.partner_id.lang"/>
+                </t>
+            </t>
+        </template>
+
         <template id="inherit_report_delivery_document" inherit_id="stock.report_delivery_document" >
             <xpath expr="//table[@name='stock_move_table']/tbody/tr[1]/td[1]/span" position="replace">
                 <span t-field="move.sale_line_id.name" />
@@ -69,6 +90,18 @@
                             t-options='{"widget": "monetary", "display_currency": o.sale_id.currency_id}'
                         />
                     </p>
+                </div>
+            </xpath>
+            <xpath expr="//div[hasclass('page')]/div[1]" position="after">
+                <div class="row mt32 mb32">
+                    <div t-if="o.sale_user_id" class="col-auto" name="div_sale_user">
+                        <strong>Sales Person:</strong>
+                        <p t-field="o.sale_user_id.name"/>
+                    </div>
+                    <div t-if="o.sale_team_id" class="col-auto" name="div_sale_team">
+                        <strong>Sale Channel:</strong>
+                        <p t-field="o.sale_team_id.name"/>
+                    </div>
                 </div>
             </xpath>
         </template>
@@ -154,6 +187,19 @@
                    
                 </div>
             </xpath>
+            <xpath expr="//div[hasclass('page')]/div[3]" position="after">
+                <div class="row mt48 mb32">
+                    <div t-if="o.sale_user_id" class="col-auto" name="div_sale_user">
+                        <strong>Sales Person:</strong>
+                        <p t-field="o.sale_user_id.name"/>
+                    </div>
+                    <div t-if="o.sale_team_id" class="col-auto" name="div_sale_team">
+                        <strong>Sale Channel:</strong>
+                        <p t-field="o.sale_team_id.name"/>
+                    </div>
+                </div>
+            </xpath>
+            
             <xpath expr="//tbody/t/tr/td[1]" position="replace">
                 <td>
                     <span t-field="ml.product_id.display_name"/><br/>
