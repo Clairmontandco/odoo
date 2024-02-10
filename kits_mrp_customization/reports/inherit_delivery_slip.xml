@@ -22,7 +22,14 @@
                 </t>
             </t>
         </template>
-
+        <template id="inherit_report_delivery_document_inherit_sale_stock" inherit_id="sale_stock.report_delivery_document_inherit_sale_stock" >
+            <xpath expr="//div[hasclass('justify-content-end')]" position="replace">
+                <div class="col-auto justify-content-end">
+                    <strong>Customer Reference:</strong>
+                    <p t-field="o.sudo().sale_id.client_order_ref"/>
+                </div>
+            </xpath>
+        </template>
         <template id="inherit_report_delivery_document" inherit_id="stock.report_delivery_document" >
             <xpath expr="//table[@name='stock_move_table']/tbody/tr[1]/td[1]/span" position="replace">
                 <span t-field="move.sale_line_id.name" />
@@ -73,34 +80,42 @@
             </xpath>
             
             <xpath expr="//div[hasclass('page')]/div[1]/div[2]" position="after">
-                <div t-if="o.sale_id.kcash" class="col-auto" name="div_available_kcash">
+                <!-- <div t-if="o.sale_id.kcash" class="col-auto" name="div_available_kcash"> -->
+                <div class="col-auto" name="div_available_kcash">
                     <strong>Available K-Cash:</strong>
                     <p class="m-0" t-field="o.sale_id.kcash" t-options='{"widget": "monetary", "display_currency": o.sale_id.currency_id}'/>
                 </div>
-                <div class="col-auto col-3 mw-100 mb-2">
-                    <strong>Payment Terms:</strong>
-                    <p><span t-esc="o.sale_id.payment_term_id.name"/></p>
-                </div>
                 <t t-set="kcash_value" t-value="abs(sum(o.sale_id.order_line.filtered(lambda x:x.product_template_id.is_kcash_rewards).mapped('price_unit')))"/>
-                <div t-if="kcash_value" class="col-auto" name="div_available_kcash">
+                <!-- <div t-if="kcash_value" class="col-auto" name="div_available_kcash"> -->
+                <div class="col-auto" name="div_available_kcash">
                     <strong>Applied K-Cash:</strong>
                     <p class="m-0" >
-                    <span
-                            t-esc="kcash_value"
-                            t-options='{"widget": "monetary", "display_currency": o.sale_id.currency_id}'
-                        />
+                    <span t-esc="kcash_value" t-options='{"widget": "monetary", "display_currency": o.sale_id.currency_id}'/>
                     </p>
                 </div>
             </xpath>
             <xpath expr="//div[hasclass('page')]/div[1]" position="after">
                 <div class="row mt32 mb32">
-                    <div t-if="o.sale_user_id" class="col-auto" name="div_sale_user">
-                        <strong>Sales Person:</strong>
-                        <p t-field="o.sale_user_id.name"/>
+                    <div class="col-auto mw-100 mb-2">
+                        <strong>Payment Terms:</strong>
+                        <p><span t-esc="o.sale_id.payment_term_id.name"/></p>
                     </div>
-                    <div t-if="o.sale_team_id" class="col-auto" name="div_sale_team">
-                        <strong>Sale Channel:</strong>
-                        <p t-field="o.sale_team_id.name"/>
+                    <!-- <div t-if="o.sale_user_id" class="col-auto" name="div_sale_user"> -->
+                    <div class="col-auto" name="div_sale_user">
+                        <strong>Sales Person:</strong>
+                        <p t-field="o.sale_user_id"/>
+                    </div>
+                    <!-- <div t-if="o.sale_team_id" class="col-auto" name="div_sale_team"> -->
+                    <div class="col-auto" name="div_sale_team">
+                        <strong>Shipping Date:</strong>
+                        <p t-field="o.sale_team_id"/>
+                    </div>
+                    <!-- <div t-if="o.invoice_payment_status" class="col-auto" name="div_payment_status"> -->
+                    <div class="col-auto" name="div_payment_status">
+                        <strong>Payment Status:</strong>
+                        <p t-field="o.invoice_payment_status"/>
+                    </div>
+                    <div class="col-auto" name="div_payment_status">
                     </div>
                 </div>
             </xpath>
@@ -169,7 +184,7 @@
                     <strong>Available K-Cash:</strong>
                     <p class="m-0" t-field="o.sale_id.kcash" t-options='{"widget": "monetary", "display_currency": o.sale_id.currency_id}'/>
                 </div>
-                <div class="col-auto col-3 mw-100 mb-2">
+                <div class="col-auto mw-100 mb-2">
                     <strong>Payment Terms:</strong>
                     <p>
                         <span t-esc="o.sale_id.payment_term_id.name" />
@@ -191,11 +206,11 @@
                 <div class="row mt48 mb32">
                     <div t-if="o.sale_user_id" class="col-auto" name="div_sale_user">
                         <strong>Sales Person:</strong>
-                        <p t-field="o.sale_user_id.name"/>
+                        <p t-field="o.sale_user_id"/>
                     </div>
                     <div t-if="o.sale_team_id" class="col-auto" name="div_sale_team">
-                        <strong>Sale Channel:</strong>
-                        <p t-field="o.sale_team_id.name"/>
+                        <strong>Sales Team:</strong>
+                        <p t-field="o.sale_team_id"/>
                     </div>
                 </div>
             </xpath>

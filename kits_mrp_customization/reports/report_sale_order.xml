@@ -6,18 +6,21 @@
             </xpath>
             <xpath expr="//div[@id='informations']" position="after">
                 <div class="row mt32 mb32" id="sale_info">
-                    <div t-if="doc.user_id.name" class="col-auto col-3 mw-100 mb-2">
+                    <!-- <div t-if="doc.user_id.name" class="col-auto col-3 mw-100 mb-2"> -->
+                    <div class="col-3">
                         <strong>Salesperson:</strong>
                         <p class="m-0" t-field="doc.user_id.name"/>
                     </div>
-                    <div t-if="doc.team_id.name" class="col-auto col-3 mw-100 mb-2">
+                    <!-- <div t-if="doc.team_id.name" class="col-auto col-3"> -->
+                    <div class="col-3">
                         <strong>Sale Channel:</strong>
                         <p class="m-0" t-field="doc.team_id.name"/>
                     </div>
                 </div>    
             </xpath>
             <xpath expr="//div[@id='informations']" position="inside">
-                <div t-if="doc.kcash" class="col-auto col-3 mw-100 mb-2">
+                <!-- <div t-if="doc.kcash" class="col-auto col-3 mw-100 mb-2"> -->
+                <div class="col-auto col-3 mw-100 mb-2">
                     <strong>Available K-Cash:</strong>
                     <p class="m-0" t-field="doc.kcash" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
                 </div>
@@ -32,6 +35,8 @@
             <xpath expr="//div['so_total_summary']/div/div/table/t[1]" position="attributes">
                 <attribute name="t-value">json.loads(doc.with_context(report=True).tax_totals_json)</attribute>
             </xpath>
+            <xpath expr="//div[hasclass('page')]/table[hasclass('table','table-sm','o_main_table')]/thead/tr/th[@name='th_quantity']" position="replace"></xpath>
+            <xpath expr="//td[@name='td_quantity']" position="replace"></xpath>
             <xpath expr="//div[hasclass('page')]/table[hasclass('table','table-sm','o_main_table')]/thead/tr/th[@name='th_stocked']" position="replace">
                 <th name="th_stocked" class="text-left"></th>
             </xpath>
@@ -39,6 +44,7 @@
                 <th name="th_image" class="text-left"></th>
                 <th name="th_product" class="text-left">Product</th>
                 <th name="th_sku" class="text-left">Sku</th>
+                <th name="kits_th_quantity" class="text-right">Quantity</th>
             </xpath>
             <xpath expr="//div[hasclass('page')]/table[hasclass('table','table-sm','o_main_table')]/tbody/t[@t-foreach='doc.order_line']/tr/t[@t-if='not line.display_type']/td[@name='td_stocked']" position="replace">
                 <td name="td_stocked" class="text-center">
@@ -65,20 +71,20 @@
                     <span t-esc="description"/>
                 </td>
                 <td name="td_sku"><span t-field="line.product_id.default_code"/></td>
+                <td name="td_quantity" class="text-right">
+                    <span t-esc="'{:.2f}'.format(line.product_uom_qty)"/>
+                    <span t-field="line.product_uom"/>
+                </td>
             </xpath>
             <xpath expr="//div[@name='so_total_summary']/div/div/table/t[1]" position="before">
                 <tr class="border-black o_subtotal">
-                <t t-set="kcash_value" t-value="abs(sum(doc.order_line.filtered(lambda x:x.product_template_id.is_kcash_rewards).mapped('price_unit')))"/>
-                <div t-if="kcash_value" >
-                    <td><strong>Applied KCash</strong></td>
-
-                    <td class="text-right">
-                        <span
-                            t-esc="kcash_value"
-                            t-options='{"widget": "monetary", "display_currency": doc.currency_id}'
-                        />
-                    </td>
-                </div>
+                    <t t-set="kcash_value" t-value="abs(sum(doc.order_line.filtered(lambda x:x.product_template_id.is_kcash_rewards).mapped('price_unit')))"/>
+                    <div t-if="kcash_value" >
+                        <td><strong>Applied KCash</strong></td>
+                        <td class="text-right">
+                            <span t-esc="kcash_value" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                        </td>
+                    </div>
                 </tr>
             </xpath>
         </template>
