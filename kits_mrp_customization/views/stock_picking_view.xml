@@ -31,6 +31,7 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='company_id']" position="after">
                     <field name="invoice_payment_status" string='Payment Status' widget='badge'/>
+                    <field name="paid_date" string='Paid Date' />
                 </xpath>
                 <xpath expr="//field[@name='state']" position="after">
                     <field name="sale_user_id" />
