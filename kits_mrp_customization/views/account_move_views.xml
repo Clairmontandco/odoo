@@ -9,9 +9,6 @@
                 <xpath expr="//field[@name='payment_id']" position="after">
                     <field name="delivery_status" invisible="1"/>
                 </xpath>
-                <xpath expr="//field[@name='invoice_date']" position="after">
-                    <field name="date_done"/>
-                </xpath>
                 <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='product_id']" position="before">
                     <field name="kcash_product" invisible="1"/>
                 </xpath>
@@ -61,27 +58,8 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='amount_total_in_currency_signed']" position="after">
                     <field name="delivery_status" widget='badge' decoration-success="state == 'done'" decoration-info="state not in ('done', 'cancel', 'draft')" decoration-muted="state == 'draft'"/>
-                    <field name="date_done" readonly='1'/>
-                    <field name="paid_date" readonly='1'/>
                 </xpath>
             </field>
         </record>
-
-        <record id="kits_mrp_customization_inherit_view_account_invoice_filter" model="ir.ui.view">
-            <field name="name">kits.mrp.customization.inherit.view.account.invoice.filter</field>
-            <field name="model">account.move</field>
-            <field name="inherit_id" ref="account.view_account_invoice_filter" />
-            <field name="arch" type="xml">
-                <xpath expr="//group[1]/filter[@name='duedate']" position="after">
-                    <filter name="paid_date" string="Paid Date" context="{'group_by':'paid_date'}" />
-                    <filter name="date_done" string="Ship Date" context="{'group_by':'date_done'}" />
-                </xpath>
-                <xpath expr="//filter[@name='duedate']" position="after">
-                    <filter string="Paid Date" name="paid_date" date="paid_date"/>
-                    <filter string="Ship Date" name="date_done" date="date_done"/>
-                </xpath>
-            </field>
-        </record>
-
     </data>
 </odoo>
