@@ -20,6 +20,15 @@ class sale_order(models.Model):
 
     is_available_kcash = fields.Boolean('Is Available KCash',compute='_compute_is_available_kcash')
 
+    paid_date = fields.Date('Paid Date',compute='_compute_paid_date',store=True)
+
+    def _compute_paid_date(self):
+        for rec in self:
+            invoice_id = rec.invoice_ids.filtered(lambda x:x.state != 'cancel')
+            payments = invoice_id._get_reconciled_payments() if invoice_id else None
+            latest_paid_date = max(payments, key=lambda x: x.create_date).create_date.date() if payments else None
+            rec.paid_date = latest_paid_date
+
     def _compute_delivery_status(self):
         for rec in self:
             rec.delivery_status = None

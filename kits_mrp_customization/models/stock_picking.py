@@ -8,16 +8,9 @@ class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
     invoice_payment_status = fields.Selection(related = 'sale_id.invoice_payment_status')
-    paid_date = fields.Date('Paid Date',compute='_compute_paid_date')
+    paid_date = fields.Date('Paid Date',related='sale_id.paid_date',store=True)
     sale_user_id = fields.Many2one('res.users',related = 'sale_id.user_id')
     sale_team_id = fields.Many2one('crm.team',related = 'sale_id.team_id')
-
-    def _compute_paid_date(self):
-        for rec in self:
-            invoice_id = rec.sale_id.invoice_ids.filtered(lambda x:x.state != 'cancel')
-            payments = invoice_id._get_reconciled_payments() if invoice_id else None
-            latest_paid_date = max(payments, key=lambda x: x.create_date).create_date.date() if payments else None
-            rec.paid_date = latest_paid_date
 
     def action_kits_batch_order_excel(self):
         wb = Workbook()
