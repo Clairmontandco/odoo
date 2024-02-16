@@ -12,6 +12,16 @@ class StockPicking(models.Model):
     sale_user_id = fields.Many2one('res.users',related = 'sale_id.user_id')
     sale_team_id = fields.Many2one('crm.team',related = 'sale_id.team_id')
 
+    def write(self, values):
+        for rec in self:
+            res = super(StockPicking,self).write(values)
+            invoice = rec.sale_id.invoice_ids.filtered(lambda x:x.state != 'cancel')
+            if values.get('state'):
+                invoice.delivery_status = rec.state
+            if values.get('date_done'):
+                invoice.date_done = rec.date_done
+            return res  
+
     def action_kits_batch_order_excel(self):
         wb = Workbook()
         wrksheet = wb.active
