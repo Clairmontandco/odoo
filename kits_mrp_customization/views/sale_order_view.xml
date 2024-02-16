@@ -81,6 +81,7 @@
                 <field name="invoice_status" position="after">
                     <field name="delivery_status" widget='badge' decoration-success="state == 'done'" decoration-info="state not in ('done', 'cancel', 'draft')" decoration-muted="state == 'draft'"/>
                     <field name="invoice_payment_status" />
+                    <field name="paid_date" readonly="1" />
                 </field>
                 <field name="user_id" position="after">
                     <field name="team_id"/>
@@ -96,6 +97,7 @@
                 <field name="state" position="after">
                     <field name="delivery_status" widget='badge' decoration-success="state == 'done'" decoration-info="state not in ('done', 'cancel', 'draft')" decoration-muted="state == 'draft'"/>
                     <field name="invoice_payment_status" />
+                    <field name="paid_date" readonly="1" />
                 </field>
                 <field name="user_id" position="after">
                     <field name="team_id"/>
@@ -109,10 +111,34 @@
             <field name="inherit_id" ref="sale.view_sales_order_filter" />
             <field name="arch" type="xml">
                 <xpath expr="//group[1]/filter[@name='order_month']" position="after">
+                    <filter name="paid_date" string="Paid Date" context="{'group_by':'paid_date'}" />
                     <filter name="groupby_invoice_payment_status" string="Invoice Payment Status" domain="[]" context="{'group_by':'invoice_payment_status'}" />
                 </xpath>
             </field>
         </record>
+
+        <record id="kits_mrp_customization_inherit_sale_order_view_search_inherit_sale" model="ir.ui.view">
+            <field name="name">kits.mrp.customization.inherit.sale.order.view.search.inherit.sale</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.sale_order_view_search_inherit_sale" />
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='order_date']" position="after">
+                    <filter string="Paid Date" name="paid_date" date="paid_date"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="kits_mrp_customization_inherit_sale_order_view_search_inherit_quotation" model="ir.ui.view">
+            <field name="name">kits.mrp.customization.inherit.sale.order.view.search.inherit.quotation</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.sale_order_view_search_inherit_quotation" />
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='filter_create_date']" position="after">
+                    <filter string="Paid Date" name="paid_date" date="paid_date"/>
+                </xpath>
+            </field>
+        </record>
+
     </data>
 
 </odoo>

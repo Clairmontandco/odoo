@@ -5,6 +5,7 @@
         <record id="kits_mrp_customization_inherit_stock_picking_form_view" model="ir.ui.view">
             <field name="name">kits.mrp.customization.inherit.stock.picking.form.view</field>
             <field name="model">stock.picking</field>
+            <field eval="13" name="priority"/>
             <field name="inherit_id" ref="stock.view_picking_form" />
             <field name="arch" type="xml">
                 <field name="date_deadline" position="attributes">
@@ -21,6 +22,10 @@
                         </div>
                     </button>
                 </xpath>
+                
+                <xpath expr="//field[@name='date_done']" position="attributes">
+                    <attribute name="string">Ship Date</attribute>
+                </xpath>
             </field>
         </record>
 
@@ -31,12 +36,32 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='company_id']" position="after">
                     <field name="invoice_payment_status" string='Payment Status' widget='badge'/>
-                    <field name="paid_date" string='Paid Date' />
+                    <field name="paid_date" string='Paid Date' readonly='1'/>
                 </xpath>
                 <xpath expr="//field[@name='state']" position="after">
                     <field name="sale_user_id" />
                     <field name="sale_team_id" />
                 </xpath>
+                <xpath expr="//field[@name='scheduled_date']" position="after">
+                    <field name="date_done" string='Ship Date'/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="kits_mrp_customization_inherit_view_picking_internal_search" model="ir.ui.view">
+            <field name="name">kits.mrp.customization.inherit.view.picking.internal.search</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_internal_search" />
+            <field name="arch" type="xml" >
+                <xpath expr="//filter[@name='backorder']" position="after">
+                    <separator/>
+                    <filter string="Paid Date" name="paid_date" date="paid_date"/>
+                    <filter string="Ship Date" name="date_done" date="date_done"/>
+                </xpath>
+                <filter name="expected_date" position="after">
+                    <filter name="paid_date" string="Paid Date" context="{'group_by':'paid_date'}" />
+                    <filter name="date_done" string="Ship Date" context="{'group_by':'date_done'}" />
+                </filter>
             </field>
         </record>
 
@@ -51,5 +76,6 @@
             </field>
         </record>
     </data>
+
 
 </odoo>
