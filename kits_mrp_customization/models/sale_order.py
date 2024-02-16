@@ -29,6 +29,7 @@ class sale_order(models.Model):
             latest_paid_date = max(payments, key=lambda x: x.create_date).create_date.date() if payments else None
             rec.paid_date = latest_paid_date
 
+    @api.depends('picking_ids.state')
     def _compute_delivery_status(self):
         for rec in self:
             rec.delivery_status = None
