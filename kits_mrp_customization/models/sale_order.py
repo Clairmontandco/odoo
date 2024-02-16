@@ -22,6 +22,29 @@ class sale_order(models.Model):
 
     paid_date = fields.Date('Paid Date',compute='_compute_paid_date',store=True)
 
+    parent_order_id = fields.Many2one('sale.order','Parent Order')
+    sale_backorder_ids = fields.One2many('sale.order','parent_order_id','Back Orders')
+
+    def action_create_backorder(self):
+        sale_order_lines = []
+        for line in self.order_line:
+            onhand_qty = line.product_id.qty_available
+            if onhand_qty < line.product_uom_qty:
+                reorder_qty = line.product_uom_qty - onhand_qty
+                line.product_uom_qty = onhand_qty
+                sale_order_line_vals = {
+                    'product_id': line.product_id.id,
+                    'product_uom_qty': reorder_qty}
+                sale_order_lines.append((0, 0, sale_order_line_vals))
+        if sale_order_lines:
+            sale_order_vals = {
+                    'partner_id': line.order_id.partner_id.id,
+                    'parent_order_id' : self.id,
+                    'order_line': sale_order_lines,
+                    }
+            sale_order = self.env['sale.order'].create(sale_order_vals)
+
+    @api.depends('invoice_ids','invoice_ids.amount_residual')
     def _compute_paid_date(self):
         for rec in self:
             invoice_id = rec.invoice_ids.filtered(lambda x:x.state != 'cancel')
@@ -101,6 +124,26 @@ class sale_order(models.Model):
 
     def action_kcash(self):
         pass 
+
+    def action_view_sale_backorder(self):
+        self.ensure_one()
+        action =  {
+            'name':_('Back Orders'),
+            'type':'ir.actions.act_window',
+            'res_model':"sale.order",
+            'target':'current',
+        }
+        if len(self.sale_backorder_ids) == 1:
+            action.update({
+                'res_id':self.sale_backorder_ids.ids[0],
+                'view_mode':'form',
+            })
+        else:
+            action.update({
+                'view_mode':'tree,form',
+                'domain':[('id','in',self.sale_backorder_ids.ids)],
+                })
+        return action
 
     def action_view_manufacturings(self):
         self.ensure_one()
