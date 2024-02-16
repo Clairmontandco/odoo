@@ -28,7 +28,7 @@ class AccountMove(models.Model):
 
     delivery_status = fields.Selection([('draft', 'Draft'),('waiting', 'Waiting Another Operation'),('confirmed', 'Waiting'),('assigned', 'Ready'),('done', 'Done'),('cancel', 'Cancelled')],compute='_compute_delivery_status',default=None)
     
-    #paid_date = fields.Date('Paid Date',compute='_compute_paid_date',store=True)
+    paid_date = fields.Date('Paid Date',compute='_compute_paid_date',store=True)
 
     date_done = fields.Date('Ship Date',compute='_compute_delivery_status',store=True)
 
