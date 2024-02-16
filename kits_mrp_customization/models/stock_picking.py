@@ -8,6 +8,7 @@ class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
     invoice_payment_status = fields.Selection(related = 'sale_id.invoice_payment_status')
+    paid_date = fields.Date('Paid Date',related='sale_id.paid_date',store=True)
     sale_user_id = fields.Many2one('res.users',related = 'sale_id.user_id')
     sale_team_id = fields.Many2one('crm.team',related = 'sale_id.team_id')
 
