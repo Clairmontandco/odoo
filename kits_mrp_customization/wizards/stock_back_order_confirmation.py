@@ -29,6 +29,7 @@ class StockBackorderConfirmation(models.TransientModel):
                     'validity_date':sale_id.validity_date
                     }
                     sale_order = self.env['sale.order'].create(sale_order_vals)
+                    sale_order.name = sale_order.name.replace('SO','BO')
                     sale_order.action_confirm()
                     sale_order.picking_ids[0].backorder_id = line.picking_id
         return True

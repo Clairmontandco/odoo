@@ -27,13 +27,14 @@ class sale_order_line(models.Model):
                 picking.state = picking_state
                 
     def unlink(self):
-        if self.kcash_product :
-            if self.price_unit == 0:
-                return super(sale_order_line, self).unlink()
+        for rec in self:
+            if rec.kcash_product :
+                if rec.price_unit == 0:
+                    return super(sale_order_line, self).unlink()
+                else:
+                    raise UserError(_('Sorry you can not remove line with kcash reward.'))
             else:
-                raise UserError(_('Sorry you can not remove line with kcash reward.'))
-        else:
-            return super(sale_order_line, self).unlink()
+                return super(sale_order_line, self).unlink()
 
     @api.depends('product_id')
     def _compute_product_updatable(self):
