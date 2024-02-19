@@ -15,14 +15,15 @@
                         <field name="kcash" widget="statinfo" string="K-Cash"/>
                     </button>
                     <field name="sale_backorder_ids" invisible='1'/>
-                    <button name="action_view_sale_backorder" string="Back Order" type="object" class="oe_stat_button" icon="fa-shopping-bag" attrs="{'invisible':[('sale_backorder_ids','=',[])]}" >
+                    <button name="action_view_sale_backorder"  type="object" class="oe_stat_button" icon="fa-shopping-bag" attrs="{'invisible':[('sale_backorder_ids','=',[])]}" >
+                        <field name="backorder_count"  widget="statinfo" string="Back Order"/>
                     </button>
                 </xpath>
                 <xpath expr="//button[@name='action_cancel']" position="after">
                     <field name="is_available_kcash" invisible='1'/>
                     <field name="delivery_status" invisible='1'/>
                     <button name="action_add_kcash_wizard" type="object" string="Add KCash" class="btn btn-primary" attrs="{'invisible': [('is_available_kcash', '=', True)]}"/>
-                    <button name="action_create_backorder" type="object" string="Create Backorder" class="btn btn-primary" attrs="{'invisible':[('state','!=','draft')]}"/>
+                    <button name="action_create_backorder" type="object" string="Create Backorder" class="btn btn-primary" />
                 </xpath>
                 <xpath expr="//group[@name='sale_info']/field[@name='invoice_status']" position="after">
                     <field name="invoice_payment_status" readonly="1" force_save="1" />
@@ -35,6 +36,10 @@
                     <attribute name="attrs"></attribute>
                     <attribute name="string">Delivery Date</attribute>
                 </field>
+                <xpath expr="//field[@name='payment_term_id']" position="after">
+                    <!-- <field name="parent_order_id" readonly="1" String='Original Order'/> -->
+                    <field name="parent_order_id" readonly="1" String='Original Order' attrs="{'invisible':[('parent_order_id','=',False)]}"/>
+                </xpath>
                 <xpath expr="//field[@name='order_line']//tree/field[@name='product_id']" position="before">
                     <field name="image_256" widget="image" string='Image' />
                 </xpath>
@@ -73,6 +78,9 @@
                 </xpath>
                 <xpath expr="//field[@name='order_line']//tree/field[@name='discount']" position="attributes">
                     <attribute name="attrs">{'readonly': [('kcash_product','=',True)]}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']//tree/field[@name='product_uom_qty']" position="after">
+                    <field name="backorder_qty" readonly='1'/>
                 </xpath>
             </field>
         </record>
@@ -128,6 +136,7 @@
             <field name="arch" type="xml">
                 <xpath expr="//filter[@name='order_date']" position="after">
                     <filter string="Paid Date" name="paid_date" date="paid_date"/>
+                    <filter string="Back Orders" name="back_order" domain="[('parent_order_id','!=',False)]"/>
                 </xpath>
             </field>
         </record>
@@ -139,6 +148,7 @@
             <field name="arch" type="xml">
                 <xpath expr="//filter[@name='filter_create_date']" position="after">
                     <filter string="Paid Date" name="paid_date" date="paid_date"/>
+                    <filter string="Back Orders" name="back_order" domain="[('parent_order_id','!=',False)]"/>
                 </xpath>
             </field>
         </record>

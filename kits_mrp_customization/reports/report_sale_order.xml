@@ -29,6 +29,14 @@
                     <p class="m-0" t-field="doc.payment_term_id"/>
                 </div>
             </xpath>
+            <xpath expr="//div[hasclass('page')]/table[hasclass('table','table-sm','o_main_table')]/thead/tr/th[@name='th_description']" position="replace">
+                <th name="th_image" class="text-left"></th>
+                <th name="th_product" class="text-left">Product</th>
+                <th name="th_sku" class="text-left">Sku</th>
+                <th name="kits_th_quantity" class="text-right">Quantity</th>
+                <th name="kits_th_replace" class="text-right"></th>
+                <th name="kits_th_backorder_qty" class="text-right">Backorder Qty</th>
+            </xpath>
             <xpath expr="//tbody//tr" position="attributes">
                 <attribute name="t-if">not line.product_id.is_kcash_rewards and not line.product_id.product_tmpl_id.hide_from_order</attribute>
             </xpath>
@@ -39,12 +47,6 @@
             <xpath expr="//td[@name='td_quantity']" position="replace"></xpath>
             <xpath expr="//div[hasclass('page')]/table[hasclass('table','table-sm','o_main_table')]/thead/tr/th[@name='th_stocked']" position="replace">
                 <th name="th_stocked" class="text-left"></th>
-            </xpath>
-            <xpath expr="//div[hasclass('page')]/table[hasclass('table','table-sm','o_main_table')]/thead/tr/th[@name='th_description']" position="replace">
-                <th name="th_image" class="text-left"></th>
-                <th name="th_product" class="text-left">Product</th>
-                <th name="th_sku" class="text-left">Sku</th>
-                <th name="kits_th_quantity" class="text-right">Quantity</th>
             </xpath>
             <xpath expr="//div[hasclass('page')]/table[hasclass('table','table-sm','o_main_table')]/tbody/t[@t-foreach='doc.order_line']/tr/t[@t-if='not line.display_type']/td[@name='td_stocked']" position="replace">
                 <td name="td_stocked" class="text-center">
@@ -73,6 +75,12 @@
                 <td name="td_sku"><span t-field="line.product_id.default_code"/></td>
                 <td name="td_quantity" class="text-right">
                     <span t-esc="'{:.2f}'.format(line.product_uom_qty)"/>
+                    <span t-field="line.product_uom"/>
+                </td>
+                <td name="td_replace" class="text-right">
+                </td>
+                <td name="td_backorder_qty" class="text-right">
+                    <span t-esc="'{:.2f}'.format(line.backorder_qty)"/>
                     <span t-field="line.product_uom"/>
                 </td>
             </xpath>

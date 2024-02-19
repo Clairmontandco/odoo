@@ -1,5 +1,6 @@
 from odoo import models,api,fields,_
 from odoo.exceptions import UserError, ValidationError
+
 class sale_order_line(models.Model):
     _inherit='sale.order.line'
 
@@ -8,7 +9,23 @@ class sale_order_line(models.Model):
     product_tags_ids = fields.Many2many('x_product_tags','orderline_producttags_rel','order_line_id','x_product_tag_id','Product Tag',related='product_id.x_studio_many2many_field_bOjgj')
     kcash_product = fields.Boolean(string='K-Cash Product')   
     image_256 = fields.Binary(related='product_id.image_256')
+    backorder_qty = fields.Float('Backorder Qty')
 
+    @api.ondelete(at_uninstall=False)
+    def _unlink_except_confirmed(self):
+        if self._check_line_unlink():
+            picking_ids = self.order_id.picking_ids.filtered(lambda x:x.state != 'cancel')
+            for picking in picking_ids:
+                move_line = picking.move_ids_without_package.filtered(lambda x:x.sale_line_id == self)
+                update_move_line = {'product_uom_qty':0,
+                                    'quantity_done':0,
+                                    'state':'cancel'}
+                move_line.write(update_move_line)
+                picking_state = picking.state
+                picking.state = 'draft'
+                move_line.unlink()
+                picking.state = picking_state
+                
     def unlink(self):
         if self.kcash_product :
             if self.price_unit == 0:

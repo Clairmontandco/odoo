@@ -11,6 +11,7 @@ class StockPicking(models.Model):
     paid_date = fields.Date('Paid Date',related='sale_id.paid_date',store=True)
     sale_user_id = fields.Many2one('res.users',related = 'sale_id.user_id')
     sale_team_id = fields.Many2one('crm.team',related = 'sale_id.team_id')
+    payment_term_id = fields.Many2one('account.payment.term',related = 'sale_id.payment_term_id',store=True)
 
     def write(self, values):
         for rec in self:

@@ -35,6 +35,7 @@
             <field name="inherit_id" ref="stock.vpicktree" />
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='company_id']" position="after">
+                    <field name="payment_term_id" />
                     <field name="invoice_payment_status" string='Payment Status' widget='badge'/>
                     <field name="paid_date" string='Paid Date' readonly='1'/>
                 </xpath>
@@ -42,8 +43,8 @@
                     <field name="sale_user_id" />
                     <field name="sale_team_id" />
                 </xpath>
-                <xpath expr="//field[@name='scheduled_date']" position="after">
-                    <field name="date_done" string='Ship Date'/>
+                <xpath expr="//field[@name='date_done']" position="attributes">
+                    <attribute name="string">Ship Date</attribute>
                 </xpath>
             </field>
         </record>
