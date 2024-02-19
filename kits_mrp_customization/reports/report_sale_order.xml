@@ -35,7 +35,7 @@
                 <th name="th_sku" class="text-left">Sku</th>
                 <th name="kits_th_quantity" class="text-right">Quantity</th>
                 <th name="kits_th_replace" class="text-right"></th>
-                <th name="kits_th_backorder_qty" class="text-right">Backorder Qty</th>
+                <th name="kits_th_backorder_qty" class="text-right">BO Qty</th>
             </xpath>
             <xpath expr="//tbody//tr" position="attributes">
                 <attribute name="t-if">not line.product_id.is_kcash_rewards and not line.product_id.product_tmpl_id.hide_from_order</attribute>
@@ -44,7 +44,9 @@
                 <attribute name="t-value">json.loads(doc.with_context(report=True).tax_totals_json)</attribute>
             </xpath>
             <xpath expr="//div[hasclass('page')]/table[hasclass('table','table-sm','o_main_table')]/thead/tr/th[@name='th_quantity']" position="replace"></xpath>
+            <xpath expr="//div[hasclass('page')]/table[hasclass('table','table-sm','o_main_table')]/thead/tr/th[@name='th_taxes']" position="replace"></xpath>
             <xpath expr="//td[@name='td_quantity']" position="replace"></xpath>
+            <xpath expr="//td[@name='td_taxes']" position="replace"></xpath>
             <xpath expr="//div[hasclass('page')]/table[hasclass('table','table-sm','o_main_table')]/thead/tr/th[@name='th_stocked']" position="replace">
                 <th name="th_stocked" class="text-left"></th>
             </xpath>
@@ -93,15 +95,7 @@
                             <span t-esc="kcash_value" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
                         </td>
                     </div>
-                </tr>
-            </xpath>
-        </template>
-
-        <template id="kits_mrp_report_external_layout_bold" inherit_id="web.external_layout_bold">
-            <xpath expr="///div[1]/div[1]/div[1]/div[1]/img[@t-if='company.logo']" position="attributes">
-                <attribute name="style" >width: 300px ;height:90px !important;</attribute>
-            </xpath>
-        </template>
+          
 
     </data>
 </odoo>
