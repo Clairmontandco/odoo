@@ -95,7 +95,11 @@
                             <span t-esc="kcash_value" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
                         </td>
                     </div>
-          
+                </tr>
+            </xpath>
+        </template>
+
+
 
     </data>
 </odoo>
