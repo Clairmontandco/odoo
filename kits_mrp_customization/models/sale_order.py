@@ -30,7 +30,7 @@ class sale_order(models.Model):
     def action_create_backorder(self):
         sale_order_lines = []
         if self.picking_ids.filtered(lambda x:x.state in ('assigned','done')):
-            raise UserError('You can create a backorder only from delivery !')
+            raise UserError('You can not create backorder after order have invoice and delivery is in done.')
         for line in self.order_line:
             onhand_qty = line.product_id.qty_available
             if onhand_qty < line.product_uom_qty:
@@ -51,6 +51,7 @@ class sale_order(models.Model):
                     'validity_date':self.validity_date
                     }
             sale_order = self.env['sale.order'].create(sale_order_vals)
+            sale_order.name = sale_order.name.replace('SO','BO')
         if self.state in ('sale','done'):
             sale_order.action_confirm()
             delivery = sale_order.picking_ids.filtered(lambda x:x.state not in ('cancel'))
