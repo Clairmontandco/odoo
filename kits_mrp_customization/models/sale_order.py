@@ -2,6 +2,7 @@ from odoo import models,fields,api,_
 from odoo.tools import is_html_empty
 import json
 from odoo.tools.misc import formatLang, format_date, get_lang, groupby
+from odoo.exceptions import UserError, ValidationError
 
 INVOICE_PAYMENT = [('to_invoice','To Invoice'),('not_paid','Not Paid'),('partially_paid','Partially paid'),('in_payment','In Payment'),('paid','Paid')]
 
@@ -22,27 +23,44 @@ class sale_order(models.Model):
 
     paid_date = fields.Date('Paid Date',compute='_compute_paid_date',store=True)
 
-    parent_order_id = fields.Many2one('sale.order','Parent Order')
+    parent_order_id = fields.Many2one('sale.order','Original Order')
     sale_backorder_ids = fields.One2many('sale.order','parent_order_id','Back Orders')
+    backorder_count = fields.Integer('Back Orders Count',compute='_compute_backorder_count')
 
     def action_create_backorder(self):
         sale_order_lines = []
+        if self.picking_ids.filtered(lambda x:x.state in ('assigned','done')):
+            raise UserError('You can create a backorder only from delivery !')
         for line in self.order_line:
             onhand_qty = line.product_id.qty_available
             if onhand_qty < line.product_uom_qty:
                 reorder_qty = line.product_uom_qty - onhand_qty
                 line.product_uom_qty = onhand_qty
+                line.backorder_qty = reorder_qty
                 sale_order_line_vals = {
                     'product_id': line.product_id.id,
-                    'product_uom_qty': reorder_qty}
+                    'product_uom_qty': reorder_qty,
+                    'price_unit': line.price_unit}
                 sale_order_lines.append((0, 0, sale_order_line_vals))
         if sale_order_lines:
             sale_order_vals = {
                     'partner_id': line.order_id.partner_id.id,
                     'parent_order_id' : self.id,
                     'order_line': sale_order_lines,
+                    'payment_term_id':self.payment_term_id.id,
+                    'validity_date':self.validity_date
                     }
             sale_order = self.env['sale.order'].create(sale_order_vals)
+        if self.state in ('sale','done'):
+            sale_order.action_confirm()
+            delivery = sale_order.picking_ids.filtered(lambda x:x.state not in ('cancel'))
+            parent_delivery = self.picking_ids.filtered(lambda x:x.state not in ('cancel') and not x.backorder_id )
+            delivery.backorder_id = parent_delivery[0] if parent_delivery else None
+
+    @api.depends('sale_backorder_ids')
+    def _compute_backorder_count(self):
+        for rec in self:
+            rec.backorder_count = len(rec.sale_backorder_ids)
 
     @api.depends('invoice_ids','invoice_ids.amount_residual')
     def _compute_paid_date(self):
