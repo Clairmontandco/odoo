@@ -97,5 +97,11 @@
             </xpath>
         </template>
 
+        <template id="kits_mrp_report_external_layout_bold" inherit_id="web.external_layout_bold">
+            <xpath expr="///div[1]/div[1]/div[1]/div[1]/img[@t-if='company.logo']" position="attributes">
+                <attribute name="style" >width: 300px ;height:90px !important;</attribute>
+            </xpath>
+        </template>
+
     </data>
 </odoo>
