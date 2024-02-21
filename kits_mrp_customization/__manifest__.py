@@ -36,6 +36,8 @@
         # Wizards 
         'wizards/k_cash_wizard_view.xml',
         'wizards/add_k_cash_reward_wizard_view.xml',
+        'wizards/create_backorder_wizard_view.xml',
+        'wizards/cancel_order_wizard_view.xml'
     ],
     "auto_install": False,
     "installable": True,

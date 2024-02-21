@@ -9,7 +9,17 @@ class sale_order_line(models.Model):
     product_tags_ids = fields.Many2many('x_product_tags','orderline_producttags_rel','order_line_id','x_product_tag_id','Product Tag',related='product_id.x_studio_many2many_field_bOjgj')
     kcash_product = fields.Boolean(string='K-Cash Product')   
     image_256 = fields.Binary(related='product_id.image_256')
-    backorder_qty = fields.Float('Backorder Qty')
+    backorder_qty = fields.Float('BO Qty')
+    order_line_id = fields.Many2one('sale.order.line','Original Line')
+
+    def write(self, values):
+        res = super(sale_order_line,self).write(values)
+        for rec in self:
+            if values.get('backorder_qty'):
+                related_order_line = rec.order_id.sale_backorder_ids.order_line.filtered(lambda x:x.order_line_id == rec)    
+                if related_order_line:
+                    related_order_line.product_uom_qty = rec.backorder_qty         
+        return res
 
     @api.ondelete(at_uninstall=False)
     def _unlink_except_confirmed(self):

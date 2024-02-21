@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="cancel_order_wizard_view" model="ir.ui.view">
+            <field name="name">Cancel Order</field>
+            <field name="model">cancel.order.wizard</field>
+            <field name="arch" type="xml">
+                <form>
+                    <h2>What would you like to cancel ?</h2>
+                    <footer>
+                        <button string="Only Original Order" class="btn btn-primary" type="object" name="action_cancel_order" />
+                        <button string="Order with Backorders" class="btn btn-primary" type="object" name="action_cancel_backorder"/>
+                    </footer>
+                </form>
+
+            </field>
+        </record>
+    </data>
+</odoo>
