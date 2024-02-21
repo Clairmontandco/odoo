@@ -28,35 +28,39 @@ class sale_order(models.Model):
     backorder_count = fields.Integer('Back Orders Count',compute='_compute_backorder_count')
 
     def action_create_backorder(self):
-        sale_order_lines = []
-        if self.picking_ids.filtered(lambda x:x.state in ('assigned','done')):
-            raise UserError('You can not create backorder after order have invoice and delivery is in done.')
-        for line in self.order_line:
-            onhand_qty = line.product_id.qty_available
-            if onhand_qty < line.product_uom_qty:
-                reorder_qty = line.product_uom_qty - onhand_qty
-                line.product_uom_qty = onhand_qty
-                line.backorder_qty = reorder_qty
-                sale_order_line_vals = {
-                    'product_id': line.product_id.id,
-                    'product_uom_qty': reorder_qty,
-                    'price_unit': line.price_unit}
-                sale_order_lines.append((0, 0, sale_order_line_vals))
-        if sale_order_lines:
-            sale_order_vals = {
-                    'partner_id': line.order_id.partner_id.id,
-                    'parent_order_id' : self.id,
-                    'order_line': sale_order_lines,
-                    'payment_term_id':self.payment_term_id.id,
-                    'validity_date':self.validity_date
+        for rec in self:
+            wizard = self.env['create.backorder.wizard'].create({'order_id':rec.id})
+            for line in rec.order_line:
+                onhand_qty = line.product_id.qty_available
+                if onhand_qty < line.product_uom_qty:
+                    reorder_qty = line.product_uom_qty - onhand_qty
+                    backorder_line = self.env['create.backorder.line'].create({
+                        'wiz_id':wizard.id,
+                        'order_line_id':line.id,
+                        'product_id':line.product_id.id,
+                        'product_uom_qty':reorder_qty
+                    })
+        return {
+                'name': 'Create Backorder',
+                'view_mode': 'form',
+                'target': 'new',
+                'res_model': 'create.backorder.wizard',
+                'type': 'ir.actions.act_window',
+                'res_id':wizard.id
+                }
+    
+    def action_cancel_order(self):
+        if not self.sale_backorder_ids:
+            self.action_cancel()
+        else:
+            return {
+                    'name': 'Cancel Order',
+                    'view_mode': 'form',
+                    'target': 'new',
+                    'res_model': 'cancel.order.wizard',
+                    'context':{'default_sale_id': self.id},
+                    'type': 'ir.actions.act_window',
                     }
-            sale_order = self.env['sale.order'].create(sale_order_vals)
-            sale_order.name = sale_order.name.replace('SO','BO')
-        if self.state in ('sale','done'):
-            sale_order.action_confirm()
-            delivery = sale_order.picking_ids.filtered(lambda x:x.state not in ('cancel'))
-            parent_delivery = self.picking_ids.filtered(lambda x:x.state not in ('cancel') and not x.backorder_id )
-            delivery.backorder_id = parent_delivery[0] if parent_delivery else None
 
     @api.depends('sale_backorder_ids')
     def _compute_backorder_count(self):
@@ -282,11 +286,11 @@ class sale_order(models.Model):
 
     def action_add_kcash_wizard(self):
         return {
-                    'name': 'Add K-Cash Reward',
-                    'view_mode': 'form',
-                    'target': 'new',
-                    'res_model': 'add.kcash.reward.wizard',
-                    'context':{'default_sale_id': self.id,
-                               'default_partner_id': self.partner_id.id},
-                    'type': 'ir.actions.act_window',
+                'name': 'Add K-Cash Reward',
+                'view_mode': 'form',
+                'target': 'new',
+                'res_model': 'add.kcash.reward.wizard',
+                'context':{'default_sale_id': self.id,
+                            'default_partner_id': self.partner_id.id},
+                'type': 'ir.actions.act_window',
                 }

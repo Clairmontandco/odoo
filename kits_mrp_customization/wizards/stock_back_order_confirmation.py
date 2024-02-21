@@ -16,7 +16,8 @@ class StockBackorderConfirmation(models.TransientModel):
                         sale_order_line_vals = {
                             'product_id': sale_line_id.product_id.id,
                             'product_uom_qty': qty_diff,
-                            'price_unit': sale_line_id.price_unit
+                            'price_unit': sale_line_id.price_unit,
+                            'order_line_id':sale_line_id.id
                         }
                         sale_order_lines.append((0, 0, sale_order_line_vals))
                 if sale_order_lines:

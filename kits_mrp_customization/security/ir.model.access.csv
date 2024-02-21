@@ -4,3 +4,6 @@ access_kcash_bonus,access.kcash.bonus,model_kcash_bonus,,1,1,1,1
 access_kcash_history,access.kcash.history,model_kcash_history,,1,1,1,1
 access_k_cash_wizard,access.k.cash.wizard,model_k_cash_wizard,,1,1,1,1
 access_add_kcash_reward_wizard,access.add.kcash.reward.wizard,model_add_kcash_reward_wizard,,1,1,1,1
+access_create_backorder_wizard,access.create.backorder.wizard,model_create_backorder_wizard,,1,1,1,1
+access_create_backorder_line,access.create.backorder.line,model_create_backorder_line,,1,1,1,1
+access_cancel_order_wizard,access.cancel.order.wizard,model_cancel_order_wizard,,1,1,1,1

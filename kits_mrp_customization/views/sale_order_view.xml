@@ -22,8 +22,12 @@
                 <xpath expr="//button[@name='action_cancel']" position="after">
                     <field name="is_available_kcash" invisible='1'/>
                     <field name="delivery_status" invisible='1'/>
+                    <button name="action_cancel_order" type="object" string="Cancel" attrs="{'invisible':[('state','in',('done','cancel'))]}"/>
                     <button name="action_add_kcash_wizard" type="object" string="Add KCash" class="btn btn-primary" attrs="{'invisible': [('is_available_kcash', '=', True)]}"/>
                     <button name="action_create_backorder" type="object" string="Create Backorder" class="btn btn-primary" />
+                </xpath>
+                <xpath expr="//button[@name='action_cancel']" position="attributes">
+                    <attribute name="invisible">1</attribute>
                 </xpath>
                 <xpath expr="//group[@name='sale_info']/field[@name='invoice_status']" position="after">
                     <field name="invoice_payment_status" readonly="1" force_save="1" />
@@ -80,7 +84,7 @@
                     <attribute name="attrs">{'readonly': [('kcash_product','=',True)]}</attribute>
                 </xpath>
                 <xpath expr="//field[@name='order_line']//tree/field[@name='product_uom_qty']" position="after">
-                    <field name="backorder_qty" readonly='1'/>
+                    <field name="backorder_qty"/>
                 </xpath>
             </field>
         </record>
