@@ -21,6 +21,10 @@
                             <span class="o_stat_text">Sale Order</span>
                         </div>
                     </button>
+                    <field name="backorder_ids" invisible='1'/>
+                    <button name="action_view_stock_picking"  type="object" class="oe_stat_button" icon="fa-truck" attrs="{'invisible':[('backorder_ids','=',[])]}">
+                        <field name="backorder_count"  widget="statinfo" string="BO Delivery"/>
+                    </button>
                 </xpath>
                 
                 <xpath expr="//field[@name='date_done']" position="attributes">

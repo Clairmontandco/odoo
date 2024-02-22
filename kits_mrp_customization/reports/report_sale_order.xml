@@ -21,7 +21,7 @@
             <xpath expr="//div[@id='informations']" position="inside">
                 <!-- <div t-if="doc.kcash" class="col-auto col-3 mw-100 mb-2"> -->
                 <div class="col-auto col-3 mw-100 mb-2">
-                    <strong>Available K-Cash:</strong>
+                    <strong>Available Clairmont Cash:</strong>
                     <p class="m-0" t-field="doc.kcash" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
                 </div>
                 <div class="col-auto col-3 mw-100 mb-2">
@@ -90,7 +90,7 @@
                 <tr class="border-black o_subtotal">
                     <t t-set="kcash_value" t-value="abs(sum(doc.order_line.filtered(lambda x:x.product_template_id.is_kcash_rewards).mapped('price_unit')))"/>
                     <div t-if="kcash_value" >
-                        <td><strong>Applied KCash</strong></td>
+                        <td><strong>Applied Clairmont Cash</strong></td>
                         <td class="text-right">
                             <span t-esc="kcash_value" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
                         </td>
@@ -99,7 +99,11 @@
             </xpath>
         </template>
 
-
+        <!-- <template id="kits_mrp_report_external_layout_bold" inherit_id="web.external_layout_bold">
+            <xpath expr="//div[1]/div[1]/div[1]/div[1]/img[@t-if='company.logo']" position="attributes">
+                <attribute name="style" >width: 300px ;height:90px !important;</attribute>
+            </xpath>
+        </template> -->
 
     </data>
 </odoo>

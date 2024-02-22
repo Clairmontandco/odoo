@@ -5,6 +5,6 @@ class kcash_history(models.Model):
     _description = "Kcash History"
 
 
-    kcash_id = fields.Many2one('kcash.bonus',string="K-Cash")
+    kcash_id = fields.Many2one('kcash.bonus',string="Clairmont Cash")
     order_id = fields.Many2one('sale.order',string="Order")
     amount = fields.Float(string="Amount")

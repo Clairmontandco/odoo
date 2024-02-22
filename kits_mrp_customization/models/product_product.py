@@ -1114,7 +1114,7 @@ class ProductProduct(models.Model):
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
-    is_kcash_rewards = fields.Boolean('K-Cash Product')
+    is_kcash_rewards = fields.Boolean('Clairmont Cash Product')
     hide_from_order = fields.Boolean('Hide From Order')
 
     manufacturing_default_code = fields.Char('Manufacturing Internal Reference',compute='_compute_manufacturing_default_code',inverse='_set_manufacturing_default_code',store=True)
