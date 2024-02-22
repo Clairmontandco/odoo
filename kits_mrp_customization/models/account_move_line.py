@@ -3,7 +3,7 @@ from odoo.exceptions import UserError, ValidationError
 class AccountMoveLine(models.Model):
     _inherit='account.move.line'
 
-    kcash_product = fields.Boolean(string='K-Cash Product',compute="_compute_kcash_product")   
+    kcash_product = fields.Boolean(string='Clairmont Cash Product',compute="_compute_kcash_product")   
 
     @api.onchange('product_id')
     def _compute_kcash_product(self):

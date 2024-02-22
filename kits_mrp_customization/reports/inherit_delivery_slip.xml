@@ -82,13 +82,13 @@
             <xpath expr="//div[hasclass('page')]/div[1]/div[2]" position="after">
                 <!-- <div t-if="o.sale_id.kcash" class="col-auto" name="div_available_kcash"> -->
                 <div class="col-auto" name="div_available_kcash">
-                    <strong>Available K-Cash:</strong>
+                    <strong>Available Clairmont Cash:</strong>
                     <p class="m-0" t-field="o.sale_id.kcash" t-options='{"widget": "monetary", "display_currency": o.sale_id.currency_id}'/>
                 </div>
                 <t t-set="kcash_value" t-value="abs(sum(o.sale_id.order_line.filtered(lambda x:x.product_template_id.is_kcash_rewards).mapped('price_unit')))"/>
                 <!-- <div t-if="kcash_value" class="col-auto" name="div_available_kcash"> -->
                 <div class="col-auto" name="div_available_kcash">
-                    <strong>Applied K-Cash:</strong>
+                    <strong>Applied Clairmont Cash:</strong>
                     <p class="m-0" >
                     <span t-esc="kcash_value" t-options='{"widget": "monetary", "display_currency": o.sale_id.currency_id}'/>
                     </p>
@@ -181,7 +181,7 @@
             </xpath>
             <xpath expr="//div[hasclass('page')]/div[3]/div[3]" position="after">
                 <div t-if="o.sale_id.kcash" class="col-auto" name="div_available_kcash">
-                    <strong>Available K-Cash:</strong>
+                    <strong>Available Clairmont Cash:</strong>
                     <p class="m-0" t-field="o.sale_id.kcash" t-options='{"widget": "monetary", "display_currency": o.sale_id.currency_id}'/>
                 </div>
                 <div class="col-auto mw-100 mb-2">
@@ -192,7 +192,7 @@
                 </div>
                 <t t-set="kcash_value" t-value="abs(sum(o.sale_id.order_line.filtered(lambda x:x.product_template_id.is_kcash_rewards).mapped('price_unit')))"/>
                 <div t-if="kcash_value" class="col-auto" name="div_available_kcash">
-                    <strong>Applied K-Cash:</strong>
+                    <strong>Applied Clairmont Cash:</strong>
                     <p class="m-0" >
                     <span
                             t-esc="kcash_value"

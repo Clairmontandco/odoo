@@ -7,9 +7,9 @@ class KCashWizard(models.TransientModel):
 
     sale_id = fields.Many2one('sale.order')
     kcash_id = fields.Many2one('kcash.bonus')
-    amount = fields.Float(string="K-Cash")
-    available_kcash = fields.Float(string='Available K-Cash')
-    remain_kcash = fields.Float(string='Remaining K-Cash')
+    amount = fields.Float(string="Clairmont Cash")
+    available_kcash = fields.Float(string='Available Clairmont Cash')
+    remain_kcash = fields.Float(string='Remaining Clairmont Cash')
 
 
     @api.onchange('amount')
@@ -62,7 +62,7 @@ class KCashWizard(models.TransientModel):
                                 else:
                                     if not pro_id:
                                         pro_id  = product_obj.create({
-                                            'name':'K-Cash Reward',
+                                            'name':'Clairmont Cash Reward',
                                             'type':'service',
                                             'is_kcash_rewards':True
                                         })

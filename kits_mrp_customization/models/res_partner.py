@@ -3,8 +3,8 @@ from odoo import api,_,fields,models
 class res_partner(models.Model):
     _inherit='res.partner'
 
-    kcash_bonus_ids = fields.One2many('kcash.bonus','partner_id','KCash Bonus')
-    kcash_balance = fields.Float('KCash Balance',compute="_compute_kcash_balance",store=True)
+    kcash_bonus_ids = fields.One2many('kcash.bonus','partner_id','Clairmont Cash Bonus')
+    kcash_balance = fields.Float('Clairmont Cash Balance',compute="_compute_kcash_balance",store=True)
     is_duplicate = fields.Boolean('Is Duplicate')
     checked_duplicate = fields.Boolean('Checked Duplicate')
 

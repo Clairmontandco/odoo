@@ -12,6 +12,7 @@ class StockPicking(models.Model):
     sale_user_id = fields.Many2one('res.users',related = 'sale_id.user_id')
     sale_team_id = fields.Many2one('crm.team',related = 'sale_id.team_id')
     payment_term_id = fields.Many2one('account.payment.term',related = 'sale_id.payment_term_id',store=True)
+    backorder_count = fields.Integer('Back Order Picking',compute = '_compute_backorder_count')
 
     def write(self, values):
         for rec in self:
@@ -99,6 +100,11 @@ class StockPicking(models.Model):
             'target': 'self',
         }
 
+    @api.depends('backorder_ids')
+    def _compute_backorder_count(self):
+        for rec in self:
+            rec.backorder_count = len(rec.backorder_ids)
+
     def preview_sale_order(self):
         for rec in self:
             return {
@@ -109,3 +115,23 @@ class StockPicking(models.Model):
                 'res_id': rec.sale_id.id,
                 'target': 'current'
             }
+
+    def action_view_stock_picking(self):
+        self.ensure_one()
+        action =  {
+            'name':_('Back Order Delivery'),
+            'type':'ir.actions.act_window',
+            'res_model':"stock.picking",
+            'target':'current',
+        }
+        if len(self.backorder_ids) == 1:
+            action.update({
+                'res_id':self.backorder_ids.id,
+                'view_mode':'form',
+            })
+        else:
+            action.update({
+                'view_mode':'tree,form',
+                'domain':[('id','in',self.backorder_ids.ids)],
+                })
+        return action

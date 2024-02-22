@@ -9,12 +9,13 @@
             <field name="inherit_id" ref="base.view_partner_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//notebook" position="inside">
-                    <page name="kcash_bonus" string="KCash Reward">
+                    <page name="kcash_bonus" string="Clairmont Cash Reward">
                         <field name="kcash_bonus_ids" context="{'default_partner_id': id}">
                             <tree editable='bottom'>
                                 <field name="partner_id" invisible="1"/>
                                 <field name="domain_order_ids" widget="many2many_tags" invisible="1" />
                                 <field name="sale_id" domain="[('partner_id','=',partner_id),('id','not in',domain_order_ids),('state','in',['sale','done'])]" options="{'no_create': True}" required="1"/>
+                                <field name="kcash_type"/>
                                 <field name="expiry_date"/>
                                 <field name="credit"/>
                                 <!-- <field name="debit"/> -->
@@ -35,7 +36,7 @@
             <field name="arch" type="xml">
                 <xpath expr="//button[@name='schedule_meeting']" position="after">
                     <button class="oe_stat_button" type="object" name="action_kcash_balance" icon="fa-money">
-                        <field string="KCash Balance" name="kcash_balance" widget="statinfo"/>
+                        <field string="Clairmont Cash Balance" name="kcash_balance" widget="statinfo"/>
                     </button>
                 </xpath>
               
@@ -48,7 +49,7 @@
             <field name="arch" type="xml">
                 <xpath expr="//search" position="inside">
                     <field name="kcash_balance"/>
-                    <filter string="Has K-Cash" name="has_kcash" domain="[('kcash_balance','>',0)]"/>
+                    <filter string="Has Clairmont Cash" name="has_kcash" domain="[('kcash_balance','>',0)]"/>
                 </xpath>
             </field>
         </record>

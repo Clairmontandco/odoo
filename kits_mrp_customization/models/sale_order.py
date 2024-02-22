@@ -19,7 +19,7 @@ class sale_order(models.Model):
     kcash_id = fields.Many2one('kcash.bonus')
     kcash_history_ids = fields.One2many('kcash.history', 'order_id')
 
-    is_available_kcash = fields.Boolean('Is Available KCash',compute='_compute_is_available_kcash')
+    is_available_kcash = fields.Boolean('Is Available Clairmont Cash',compute='_compute_is_available_kcash')
 
     paid_date = fields.Date('Paid Date',compute='_compute_paid_date',store=True)
 
@@ -51,7 +51,7 @@ class sale_order(models.Model):
     
     def action_cancel_order(self):
         if not self.sale_backorder_ids:
-            self.action_cancel()
+            return self.action_cancel()
         else:
             return {
                     'name': 'Cancel Order',
@@ -259,7 +259,7 @@ class sale_order(models.Model):
             rec.kcash_id.debit -= rec.amount
             rec.kcash_id.reward_fullfill = False
             rec.unlink()
-        k_cash_line = self.order_line.filtered(lambda ol: ol.product_id.name == 'K-Cash Reward')
+        k_cash_line = self.order_line.filtered(lambda ol: ol.product_id.is_kcash_rewards)
         k_cash_line.price_unit = 0
         k_cash_line.unlink()
         return res
@@ -272,9 +272,9 @@ class sale_order(models.Model):
         return res
 
     def action_kcash_wizard(self):
-        line_kcash = self.kcash + abs(self.order_line.filtered(lambda ol: ol.product_id.name == 'K-Cash Reward').price_unit)
+        line_kcash = self.kcash + abs(self.order_line.filtered(lambda ol: ol.product_id.is_kcash_rewards).price_unit)
         return {
-                    'name': 'Apply K-Cash',
+                    'name': 'Apply Clairmont Cash',
                     'view_mode': 'form',
                     'target': 'new',
                     'res_model': 'k.cash.wizard',
@@ -286,7 +286,7 @@ class sale_order(models.Model):
 
     def action_add_kcash_wizard(self):
         return {
-                'name': 'Add K-Cash Reward',
+                'name': 'Add Clairmont Cash Reward',
                 'view_mode': 'form',
                 'target': 'new',
                 'res_model': 'add.kcash.reward.wizard',

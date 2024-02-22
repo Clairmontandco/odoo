@@ -13,6 +13,7 @@ class kcash_bonus(models.Model):
     expiry_date = fields.Date('Expiry Date',default=fields.Date.today())
     reward_fullfill = fields.Boolean()
     domain_order_ids = fields.Many2many("sale.order",'kcashbonus_saleorder_rel','kcash_bonus_id','sale_order_id','Domain Order Ids',compute="_compute_domain_sale_order",store=True)
+    kcash_type = fields.Selection([('reward','Reward'),('credit','Credit')],default='reward',string='Type')
 
     @api.depends('debit','credit')
     def _compute_balance_amount(self):

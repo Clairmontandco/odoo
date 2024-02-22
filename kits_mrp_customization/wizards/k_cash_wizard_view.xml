@@ -3,7 +3,7 @@
     <data>
 
         <record id="k_cash_wizard_view" model="ir.ui.view">
-            <field name="name">K-Cash Wizard</field>
+            <field name="name">Clairmont Cash Wizard</field>
             <field name="model">k.cash.wizard</field>
             <field name="arch" type="xml">
                 <form>
