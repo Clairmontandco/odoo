@@ -11,7 +11,11 @@
                     <notebook>
                         <page name="manufacturing_setting" string="Manufacturing Setting">
                             <group>
-                                <field name="include_subcategory"/>
+                                <group>
+                                    <field name="categ_product_tag"/>
+                                    <field name="include_subcategory"/>
+                                </group>
+                                <group></group>
                             </group>
                             <group name='update_route' string='For Update Routes'>
                                 <group>

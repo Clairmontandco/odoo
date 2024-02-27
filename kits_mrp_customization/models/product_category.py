@@ -20,10 +20,15 @@ class ProductCategory(models.Model):
 
     bom_id = fields.Many2one('mrp.bom','BOM')
 
+    categ_product_tag = fields.Many2one('x_product_tags','Shopify product tags prefix')
+
     def kits_action_update_route(self):
         for rec in self:
-            domain = [('categ_id','child_of',rec.id)] if rec.include_subcategory else [('categ_id','=',rec.id)]
-            related_products = self.env['product.product'].search(domain)
+            if self.env.context.get('product'):
+                related_products = self.env.context.get('product')
+            else:
+                domain = [('categ_id','child_of',rec.id)] if rec.include_subcategory else [('categ_id','=',rec.id)]
+                related_products = self.env['product.product'].search(domain)
             for product in related_products:
                 product.route_ids = rec.kits_route_ids
 
@@ -31,8 +36,11 @@ class ProductCategory(models.Model):
         for rec in self:
             if not rec.replenish_location_id:
                 raise UserError('Enter Location First !')
-            domain = [('categ_id','child_of',rec.id)] if rec.include_subcategory else [('categ_id','=',rec.id)]
-            related_products = self.env['product.product'].search(domain)
+            if self.env.context.get('product'):
+                related_products = self.env.context.get('product')
+            else:
+                domain = [('categ_id','child_of',rec.id)] if rec.include_subcategory else [('categ_id','=',rec.id)]
+                related_products = self.env['product.product'].search(domain)
             for product in related_products:
                 if not self.env['mrp.bom'].search(['|', ('product_id', 'in', product.ids),
                                             '&', ('product_id', '=', False), ('product_tmpl_id', 'in', product.product_tmpl_id.ids),
@@ -63,8 +71,11 @@ class ProductCategory(models.Model):
                 raise UserError('Enter - When Product arrives in - First !')
             if not rec.putaway_location_out_id:
                 raise UserError('Enter - Store to sublocation - First !')
-            domain = [('categ_id','child_of',rec.id)] if rec.include_subcategory else [('categ_id','=',rec.id)]
-            related_products = self.env['product.product'].search(domain)
+            if self.env.context.get('product'):
+                related_products = self.env.context.get('product')
+            else:
+                domain = [('categ_id','child_of',rec.id)] if rec.include_subcategory else [('categ_id','=',rec.id)]
+                related_products = self.env['product.product'].search(domain)
             for product in related_products:
                 putaway_replanish = self.env['stock.putaway.rule'].search([('product_id','=',product.id),('location_in_id','=',rec.putaway_location_in_id.id),('location_out_id','=',rec.putaway_location_out_id.id)])
                 if not putaway_replanish:
@@ -78,8 +89,11 @@ class ProductCategory(models.Model):
         for rec in self:
             if not rec.bom_id:
                 raise UserError('Enter BOM First !')
-            domain = [('categ_id','child_of',rec.id),('detailed_type','=','product')] if rec.include_subcategory else [('categ_id','=',rec.id),('detailed_type','=','product')]
-            related_product_tmpl = self.env['product.template'].search(domain)
+            if self.env.context.get('product'):
+                related_product_tmpl = self.env.context.get('product').product_tmpl_id
+            else:
+                domain = [('categ_id','child_of',rec.id),('detailed_type','=','product')] if rec.include_subcategory else [('categ_id','=',rec.id),('detailed_type','=','product')]
+                related_product_tmpl = self.env['product.template'].search(domain)
             for product_tmpl in related_product_tmpl:
                 mrp_bom = self.env['mrp.bom'].search([('product_tmpl_id','=',product_tmpl.id),('id','!=',rec.bom_id.id)])
                 if not mrp_bom:
