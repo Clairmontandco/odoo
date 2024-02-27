@@ -12,35 +12,6 @@ class ProductProduct(models.Model):
 
     manufacturing_default_code = fields.Char('Manufacturing Internal Reference')
 
-    @api.model
-    def create(self, vals_list):
-        product = super(ProductProduct, self).create(vals_list)
-        categ_product_tag = product.categ_id.categ_product_tag
-        product_tag = product.x_studio_many2many_field_bOjgj
-        if categ_product_tag in product_tag:
-            product_category = product.categ_id
-            action = product_category.with_context(product=product)
-            action.kits_action_create_update_replanish()
-            action.kits_action_create_update_putaway_rules()
-            action.action_create_bom()
-            action.kits_action_update_route()
-        return product
-
-    def write(self,vals_list):
-        if vals_list.get('x_studio_many2many_field_bOjgj'):
-            new_tag = list(filter(lambda x: x not in self.x_studio_many2many_field_bOjgj.ids, vals_list.get('x_studio_many2many_field_bOjgj')[0][2]))
-        res = super(ProductProduct,self).write(vals_list)
-        if new_tag :
-            categ_product_tag = self.categ_id.categ_product_tag
-            if categ_product_tag.id in new_tag:
-                product_category = self.categ_id
-                action = product_category.with_context(product=self)
-                action.kits_action_create_update_replanish()
-                action.kits_action_create_update_putaway_rules()
-                action.action_create_bom()
-                action.kits_action_update_route()
-        return res
-
     # Method for monthly data of current and previws year.
     def get_report_data(self):
         product_report_data = {}
