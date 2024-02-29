@@ -20,7 +20,7 @@ class ProductCategory(models.Model):
 
     bom_id = fields.Many2one('mrp.bom','BOM')
 
-    categ_product_tag = fields.Many2one('x_product_tags','Shopify product tags prefix')
+    categ_product_tag = fields.Many2one('x_product_tags','Shopify product tags')
 
     def kits_action_update_route(self):
         for rec in self:
