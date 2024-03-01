@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="inherit_stock_picking_form_view_spt" model="ir.ui.view">
+        <field name="name">inherit.stock.picking.form.view.spt</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_cancel']" position="before">
+                <button name="picking_cancel_spt" string="Cancel" attrs="{'invisible': [('state', 'in', ('assigned', 'confirmed', 'partially_available', 'cancel','draft', 'waiting'))]}" groups="cancel_stock_picking_spt.group_cancel_picking_rule_spt" type="object" />
+            </xpath>
+        </field>
+    </record>
+    
+</odoo>

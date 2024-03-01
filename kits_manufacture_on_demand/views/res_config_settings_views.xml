@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="res_config_settings_view_form" model="ir.ui.view">
+            <field name="name">res.config.settings.view.form.inherit.custom.mrp</field>
+            <field name="model">res.config.settings</field>
+            <field name="inherit_id" ref="mrp.res_config_settings_view_form" />
+            <field name="arch" type="xml">
+
+                <xpath expr="//div[@data-key='mrp']" position="inside">
+                    <h2>Order Settings</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-lg-6 col-12 o_setting_box" id="create_production">
+                            <div class="o_setting_left_pane">
+                                <field name="create_production" />
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="create_production"
+                                    string="Create Order Wise Manufacturing Order" />
+                                <div class="text-muted">
+                                    Manufacturing order will be created from confirmation of
+                                    quotation.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-12 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="create_separate_production" />
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="create_separate_production"
+                                    string="Create Separate Manufacturing Order For Same Product" />
+                                <div class="text-muted">
+                                    For same product in sale order,Manufacture order will be created
+                                    separately.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </xpath>
+
+            </field>
+        </record>
+
+    </data>
+</odoo>
+    

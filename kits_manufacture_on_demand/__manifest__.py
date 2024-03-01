@@ -1,0 +1,20 @@
+{'name': 'Manufacture On Demand',
+'category': 'Sales/Sales',
+'summary': 'This app is used to create single or multiple manufacturing order as per given access to user.',
+'website': 'https://www.keypress.co.in',
+'author': 'Keypress IT Services',
+'sequence': 1,
+'depends': ['sale_management','mrp','kits_cancel_manufacure'],
+'data': [
+          'views/product_template_view.xml',
+          'views/product_product_view.xml',
+          'views/res_config_settings_views.xml',
+          'views/sale_order_view.xml',
+          'views/mrp_production_view.xml' 
+                     ],
+'application': True,
+'installable': True,
+'auto-install': False,
+'currency': 'USD',
+'version': '15.0.0.1',
+'description': 'This app is used to create single or multiple manufacturing order as per given access to user.',}
