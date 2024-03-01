@@ -11,7 +11,7 @@ class res_partner(models.Model):
     @api.depends('kcash_bonus_ids')
     def _compute_kcash_balance(self):
         for rec in self:
-            kcash_rec = rec.kcash_bonus_ids.search([('partner_id','=',rec.id),('expiry_date','>=',fields.Date.today()),('reward_fullfill','=',False)])
+            kcash_rec = rec.kcash_bonus_ids.filtered(lambda x:x.partner_id.id == rec.id and x.expiry_date >= fields.Date.today() and not x.reward_fullfill)
             bal = sum(kcash_rec.mapped('credit'))
             bal -= sum(kcash_rec.mapped('debit'))
             rec.kcash_balance = bal

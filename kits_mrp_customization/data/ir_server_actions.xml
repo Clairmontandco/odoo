@@ -47,6 +47,28 @@
             </field>
         </record>
 
+        <record id="kits_update_rule_by_product_tmpl_tags" model="ir.actions.server">
+            <field name="name">Update Rule By Product Tags</field>
+            <field name="model_id" ref="product.model_product_template"/>
+            <field name="binding_model_id" ref="product.model_product_template" />
+            <field name="state">code</field>
+            <field name="code">
+            if record:
+                action = records.kits_update_rule_by_product_tmpl_tags()
+            </field>
+        </record>
+
+        <record id="kits_update_rule_by_product_tags" model="ir.actions.server">
+            <field name="name">Update Rule By Product Tags</field>
+            <field name="model_id" ref="product.model_product_product"/>
+            <field name="binding_model_id" ref="product.model_product_product" />
+            <field name="state">code</field>
+            <field name="code">
+            if record:
+                action = records.kits_update_rule_by_product_tags()
+            </field>
+        </record>
+
     </data>
 
 

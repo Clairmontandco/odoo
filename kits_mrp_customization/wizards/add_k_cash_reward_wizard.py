@@ -1,4 +1,5 @@
 from odoo import _, api, fields, models, tools
+from odoo.exceptions import UserError
 
 class AddKCashRewardWizard(models.TransientModel):
     _name = 'add.kcash.reward.wizard'
@@ -11,4 +12,8 @@ class AddKCashRewardWizard(models.TransientModel):
 
     def action_process(self):
         for rec in self:
-            self.env['kcash.bonus'].create({'sale_id':rec.sale_id.id,'partner_id':rec.partner_id.id,'credit':rec.amount,'expiry_date':rec.expiry_date,'kcash_type':rec.kcash_type})
+            available_reward = rec.partner_id.kcash_bonus_ids.filtered(lambda x:x.sale_id == rec.sale_id and x.kcash_type == 'reward') if rec.kcash_type == 'reward' else False
+            if available_reward:
+                raise UserError('Clairmont Cash Reward is already added !')
+            else :
+                self.env['kcash.bonus'].create({'sale_id':rec.sale_id.id,'partner_id':rec.partner_id.id,'credit':rec.amount,'expiry_date':rec.expiry_date,'kcash_type':rec.kcash_type})

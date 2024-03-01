@@ -19,8 +19,6 @@ class sale_order(models.Model):
     kcash_id = fields.Many2one('kcash.bonus')
     kcash_history_ids = fields.One2many('kcash.history', 'order_id')
 
-    is_available_kcash = fields.Boolean('Is Available Clairmont Cash',compute='_compute_is_available_kcash')
-
     paid_date = fields.Date('Paid Date',compute='_compute_paid_date',store=True)
 
     parent_order_id = fields.Many2one('sale.order','Original Order')
@@ -83,12 +81,6 @@ class sale_order(models.Model):
             if picking_ids:
                 rec.delivery_status = max(picking_ids, key=lambda x: x.create_date).state if picking_ids else None
 
-    def _compute_is_available_kcash(self):
-        for rec in self:
-            rec.is_available_kcash = False
-            if rec.partner_id.kcash_bonus_ids.filtered(lambda x:x.sale_id.id == rec.id) or rec.state != 'sale':
-                rec.is_available_kcash = True
-    
     #OverRide for set tax_totals when order have "Hide From Order" products.
     @api.depends('order_line.tax_id', 'order_line.price_unit', 'amount_total', 'amount_untaxed')
     def _compute_tax_totals_json(self):
