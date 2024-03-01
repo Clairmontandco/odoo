@@ -20,10 +20,9 @@
                     </button>
                 </xpath>
                 <xpath expr="//button[@name='action_cancel']" position="after">
-                    <field name="is_available_kcash" invisible='1'/>
                     <field name="delivery_status" invisible='1'/>
                     <button name="action_cancel_order" type="object" string="Cancel" attrs="{'invisible':[('state','in',('done','cancel'))]}"/>
-                    <button name="action_add_kcash_wizard" type="object" string="Add Clairmont Cash" class="btn btn-primary" attrs="{'invisible': [('is_available_kcash', '=', True)]}"/>
+                    <button name="action_add_kcash_wizard" type="object" string="Add Clairmont Cash" class="btn btn-primary" />
                     <button name="action_create_backorder" type="object" string="Create Backorder" class="btn btn-primary" />
                 </xpath>
                 <xpath expr="//button[@name='action_cancel']" position="attributes">

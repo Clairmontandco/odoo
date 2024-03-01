@@ -19,22 +19,17 @@ class ProductTemplate(models.Model):
                 template.write(related_vals)
         return templates
 
-    def write(self,vals_list):
-        new_tag=[]
-        if vals_list.get('x_studio_many2many_field_bOjgj'):
-            new_tag = list(filter(lambda x: x not in self.x_studio_many2many_field_bOjgj.ids, vals_list.get('x_studio_many2many_field_bOjgj')[0][2]))
-        res = super(ProductTemplate,self).write(vals_list)
-        if new_tag :
-            categ_product_tag = self.categ_id.categ_product_tag
-            if categ_product_tag.id in new_tag:
-                product_category = self.categ_id
-                for product in self.product_variant_ids:
+    def kits_update_rule_by_product_tmpl_tags(self):
+        for rec in self:
+            categ_product_tag = rec.categ_id.categ_product_tag
+            if categ_product_tag.id in rec.x_studio_many2many_field_bOjgj.ids:
+                product_category = rec.categ_id
+                for product in rec.product_variant_ids:
                     action = product_category.with_context(product=product)
                     action.kits_action_create_update_replanish()
                     action.kits_action_create_update_putaway_rules()
                     action.action_create_bom()
                     action.kits_action_update_route()
-        return res
 
     @api.depends('product_variant_ids', 'product_variant_ids.manufacturing_default_code')
     def _compute_manufacturing_default_code(self):

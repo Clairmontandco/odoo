@@ -26,21 +26,16 @@ class ProductProduct(models.Model):
             action.kits_action_update_route()
         return product
 
-    def write(self,vals_list):
-        new_tag=[]
-        if vals_list.get('x_studio_many2many_field_bOjgj'):
-            new_tag = list(filter(lambda x: x not in self.x_studio_many2many_field_bOjgj.ids, vals_list.get('x_studio_many2many_field_bOjgj')[0][2]))
-        res = super(ProductProduct,self).write(vals_list)
-        if new_tag :
-            categ_product_tag = self.categ_id.categ_product_tag
-            if categ_product_tag.id in new_tag:
-                product_category = self.categ_id
-                action = product_category.with_context(product=self)
+    def kits_update_rule_by_product_tags(self):
+        for rec in self:
+            categ_product_tag = rec.categ_id.categ_product_tag
+            if categ_product_tag.id in rec.x_studio_many2many_field_bOjgj.ids:
+                product_category = rec.categ_id
+                action = product_category.with_context(product=rec)
                 action.kits_action_create_update_replanish()
                 action.kits_action_create_update_putaway_rules()
                 action.action_create_bom()
                 action.kits_action_update_route()
-        return res
 
     # Method for monthly data of current and previws year.
     def get_report_data(self):
