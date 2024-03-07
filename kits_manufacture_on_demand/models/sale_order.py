@@ -41,6 +41,7 @@ class sale_order(models.Model):
         if create_production:
             stock_move_obj = self.env['stock.move'].sudo()
             for record in self:
+                manufacture_id = False
                 #If any product has no bom. then, user error will be raised by below function.
                 record.check_avaiblity_of_bom_in_products()
                 #if seprate production setting is enable.Then, manufacture order will be created as per order line.
@@ -53,6 +54,7 @@ class sale_order(models.Model):
                         stock_move_obj.create(manufacture_id._get_moves_finished_values())
                         manufacture_id._create_workorder()
                         manufacture_id.action_confirm()
+                        line.production_id = manufacture_id.id
                 else:
                     product_ids = list(set(self.env['sale.order.line'].search([('order_id','=',record.id),('product_id.kits_manufacture_ok','=',True)]).mapped('product_id')))
                     for product_id in product_ids:
@@ -64,6 +66,8 @@ class sale_order(models.Model):
                         stock_move_obj.create(manufacture_id._get_moves_finished_values())
                         manufacture_id._create_workorder()
                         manufacture_id.action_confirm()
+                # if manufacture_id:
+                        order_lines.production_id = manufacture_id.id
         return res
 
     def check_avaiblity_of_bom_in_products(self):

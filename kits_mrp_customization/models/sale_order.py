@@ -118,21 +118,20 @@ class sale_order(models.Model):
     def _compute_mo_count(self):
         mo_obj = self.env['mrp.production']
         kcash=0
-        kcash_id = 0
         for record in self:
             mo_ids = mo_obj
-            for line in record.order_line:
+
+            for line in record.order_line.filtered(lambda x: x.product_id.kits_manufacture_ok != True):
                 lines = self.env['report.stock.report_product_product_replenishment']._get_report_lines(False,[line.product_id.id],[line.warehouse_id.lot_stock_id.id])
                 for line in lines:
                     if line['document_out'] and line['document_out'] == record:
                         if isinstance(line['document_in'],mo_obj.__class__):
                             mo_ids |= line['document_in']
-            # record.kits_mo_count = len(mo_ids)
-            # record.mo_ids = mo_ids
+
             kcash += sum(record.partner_id.kcash_bonus_ids.search([('partner_id','=',record.partner_id.id),('sale_id','!=',record.id),('expiry_date','>=',fields.Date.today())]).mapped('credit'))
             kcash -= sum(record.partner_id.kcash_bonus_ids.search([('partner_id','=',record.partner_id.id),('sale_id','!=',record.id),('expiry_date','>=',fields.Date.today())]).mapped('debit'))
             record.write({
-                'kits_mo_count':len(mo_ids),
+                'kits_mo_count':len(mo_ids) + len(record.production_ids),
                 'mo_ids':mo_ids.ids,
                 'kcash':kcash
             })
@@ -174,10 +173,18 @@ class sale_order(models.Model):
                 'view_mode':'form',
             })
         else:
-            action.update({
+            if self.production_ids:
+                mrp_obj = self.env['mrp.production']
+                mrp_obj = self.mo_ids + self.production_ids
+                action.update({
                 'view_mode':'tree,form',
-                'domain':[('id','in',self.mo_ids.ids)],
+                'domain':[('id','in',mrp_obj.ids)],
                 })
+            else:
+                action.update({
+                    'view_mode':'tree,form',
+                    'domain':[('id','in',self.mo_ids.ids)],
+                    })
         return action
 
     @api.onchange('commitment_date', 'expected_date')

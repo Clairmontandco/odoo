@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Share Button in action menu -->
+        <record id="kits_manufacture_on_demand_custom_boolean_check" model="ir.actions.server">
+            <field name="name">Check Manufacture On Demand</field>
+            <field name="model_id" ref="product.model_product_product" />
+            <field name="binding_model_id" ref="product.model_product_product" />
+            <field name="state">code</field>
+            <field name="code">action = records.check_kits_manufacture_ok()</field>
+        </record>
+
+        <record id="kits_manufacture_on_demand_custom_boolean_uncheck" model="ir.actions.server">
+            <field name="name">Uncheck Manufacture On Demand</field>
+            <field name="model_id" ref="product.model_product_product" />
+            <field name="binding_model_id" ref="product.model_product_product" />
+            <field name="state">code</field>
+            <field name="code">action = records.uncheck_kits_manufacture_ok()</field>
+        </record>
+
+        <record id="kits_manufacture_on_demand_custom_boolean_check_template" model="ir.actions.server">
+            <field name="name">Check Manufacture On Demand</field>
+            <field name="model_id" ref="product.model_product_template" />
+            <field name="binding_model_id" ref="product.model_product_template" />
+            <field name="state">code</field>
+            <field name="code">action = records.check_kits_manufacture_ok()</field>
+        </record>
+
+        <record id="kits_manufacture_on_demand_custom_boolean_uncheck_template" model="ir.actions.server">
+            <field name="name">Uncheck Manufacture On Demand</field>
+            <field name="model_id" ref="product.model_product_template" />
+            <field name="binding_model_id" ref="product.model_product_template" />
+            <field name="state">code</field>
+            <field name="code">action = records.uncheck_kits_manufacture_ok()</field>
+        </record>
+        
+    </data>
+</odoo>

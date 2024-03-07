@@ -3,7 +3,6 @@
 'sequence': 1,
 'description': 'Easily cancel the processed sale order ',
 'images': ['static/description/Banner.png'],
-'currency': 'USD',
 'category': 'stock',
 'version': '15.0.0.1',
 'author': 'Keypress IT Services',

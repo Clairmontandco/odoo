@@ -10,48 +10,34 @@ class mrp_production(models.Model):
 
     @api.depends('sales_description','so_ids')
     def _compute_so_ids(self):
-        sale_obj = self.env['sale.order']
         for record in self:
-            # so_ids = sale_obj
-            # lines = self.env['report.stock.report_product_product_replenishment']._get_report_lines(False,[record.product_id.id],[record.location_src_id.id])
-            # for line in lines:
-            #     if line['document_in'] == self:
-            #         if line['document_out']:
-            #             if isinstance(line['document_out'],sale_obj.__class__):
-            #                 so_ids |= line['document_out']
-            
-            # commitment_dates = [date for date in so_ids.mapped('commitment_date') if date and isinstance(date,datetime)]
             commitment_dates = [date for date in record.so_ids.mapped('commitment_date') if date and isinstance(date,datetime)]
             data = {
-                # 'so_ids':[(6,0,so_ids.ids)],
                 'expected_delivery_date':min(commitment_dates) if len(commitment_dates) else False,
                 }
-            # if len(so_ids.mapped("name")):
-            #     data.update({'origin':','.join(so_ids.mapped('name'))})
             if len(record.so_ids.mapped("name")):
                 data.update({'origin':','.join(record.so_ids.mapped('name'))})
             record.write(data)
     
     @api.depends('so_ids','state','product_id')
     def compute_sales_description(self):
-        sale_obj = self.env['sale.order'].sudo()
+        sales_description = ''
+        so_ids = self.env['sale.order'].sudo()
         for record in self:
-            # so_ids = sale_obj.search([('mo_ids','in',record.ids)])
-            
-            so_ids = self.env['sale.order'].sudo()
-            for line in self.env['report.stock.report_product_product_replenishment']._get_report_lines(False,[record.product_id.id],[record.location_src_id.id]):
-                if line['document_in'] and line['document_in'] == record:
-                    if isinstance(line['document_out'],sale_obj.__class__):
-                            so_ids |= line['document_out']
-            
-            sales_description = ''
+            if not record.sale_order_line_ids:
+                #find default odoo sales orders
+                for line in self.env['report.stock.report_product_product_replenishment']._get_report_lines(False,[record.product_id.id],[record.location_src_id.id]):
+                    if line['document_in'] and line['document_in'] == record:
+                        if isinstance(line['document_out'],so_ids.__class__):
+                                so_ids |= line['document_out']
+            else:
+                #Find manufaturing on demand sales orders
+                so_ids = record.sale_order_id
+
             for sol in so_ids.mapped('order_line').filtered(lambda x: x.product_id == record.product_id):
                 if sol.name:
                     sales_description += sol.name+'\n\n'
-                else:
-                    continue
-            # record.sales_description = sales_description.strip()
-            # record.so_ids = [(6,0,so_ids.ids)]
+
             record.write({'sales_description':sales_description.strip(),'so_ids':so_ids.ids})
         
     @api.depends('so_ids','sales_description')
@@ -74,14 +60,8 @@ class mrp_production(models.Model):
             })
         else:
             action.update({
-                'domain': [('id', 'in', self.so_ids.ids)],
-                'view_mode': 'tree,form',
-            })
+                    'domain': [('id', 'in', self.so_ids.ids)],
+                    'view_mode': 'tree,form',
+                })
         return action
 
-    @api.model
-    def create(self, vals):
-        res = super(mrp_production, self).create(vals)
-        # res._compute_so_ids()
-        # res._compute_sale_order_count()
-        return res

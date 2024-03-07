@@ -23,6 +23,10 @@
                         </div>
                     </button>
                 </xpath>
+                <xpath expr="//group/field[@name='sale_order_id']" position="replace">
+                    <field name="sale_order_id"  invisible='1'/>
+                    <field name="origin"/>
+                </xpath>
             </field>
         </record>
 
@@ -36,6 +40,20 @@
                     <field name="so_ids" invisible="1" />
                     <field name="sales_description" />
                 </field>
+                <xpath expr="//field[@name='origin']" position="replace">
+                    <field name="origin" optional="show"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="kits_mrp_production_inherit_list_view_second" model="ir.ui.view">
+            <field name="name">kits.mrp.production.inherit.list.view.second</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.kits_mrp_production_inherit_list_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='sale_order_id']" position="replace">
+                    <field name="sale_order_id" optional="hide"/>
+                </xpath>
             </field>
         </record>
 

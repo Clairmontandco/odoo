@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data>
+
+        <record id="kits_warning_wizard_form_view" model="ir.ui.view">
+            <field name="name">kits.warning.wizard.form.view</field>
+            <field name="model">kits.warning.wizard</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <!-- <group> -->
+                        <field name="warning" nolabel='1' readonly='1'/>
+                        <!-- </group> -->
+                    </sheet>
+                    <footer>
+                        <button string="Ok" class="btn-secondary" special="cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+        
+    </data>
+</odoo>
