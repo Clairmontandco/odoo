@@ -46,17 +46,6 @@
             </field>
         </record>
 
-        <record id="kits_mrp_production_inherit_list_view_second" model="ir.ui.view">
-            <field name="name">kits.mrp.production.inherit.list.view.second</field>
-            <field name="model">mrp.production</field>
-            <field name="inherit_id" ref="mrp.kits_mrp_production_inherit_list_view"/>
-            <field name="arch" type="xml">
-                <xpath expr="//field[@name='sale_order_id']" position="replace">
-                    <field name="sale_order_id" optional="hide"/>
-                </xpath>
-            </field>
-        </record>
-
         <record id="kits_mrp_customization_inherit_mrp_production_search_view" model="ir.ui.view">
             <field name="name">kits.mrp.customization.inherit.mrp.production.search.view</field>
             <field name="model">mrp.production</field>
