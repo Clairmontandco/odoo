@@ -1,8 +1,7 @@
 from odoo import models,fields,api,_
 from odoo.tools import is_html_empty
 import json
-from odoo.tools.misc import formatLang, format_date, get_lang, groupby
-from odoo.exceptions import UserError, ValidationError
+from odoo.tools.misc import formatLang
 
 INVOICE_PAYMENT = [('to_invoice','To Invoice'),('not_paid','Not Paid'),('partially_paid','Partially paid'),('in_payment','In Payment'),('paid','Paid')]
 
@@ -15,7 +14,7 @@ class sale_order(models.Model):
     invoice_payment_status = fields.Selection(selection=INVOICE_PAYMENT,compute="_compute_invoice_payment_status",store=True,compute_sudo=True)
     delivery_status = fields.Selection([('draft', 'Draft'),('waiting', 'Waiting Another Operation'),('confirmed', 'Waiting'),('assigned', 'Ready'),('done', 'Done'),('cancel', 'Cancelled')],compute='_compute_delivery_status',default=None)
 
-    kcash = fields.Integer('K-cash')
+    kcash = fields.Integer('K-cash',compute="_compute_k_cash")
     kcash_id = fields.Many2one('kcash.bonus')
     kcash_history_ids = fields.One2many('kcash.history', 'order_id')
 
@@ -24,6 +23,34 @@ class sale_order(models.Model):
     parent_order_id = fields.Many2one('sale.order','Original Order')
     sale_backorder_ids = fields.One2many('sale.order','parent_order_id','Back Orders')
     backorder_count = fields.Integer('Back Orders Count',compute='_compute_backorder_count')
+
+    def _compute_k_cash(self):
+        for rec in self:
+            kcash = 0
+            kcash += sum(rec.partner_id.kcash_bonus_ids.search([('partner_id','=',rec.partner_id.id),('sale_id','!=',rec.id),('expiry_date','>=',fields.Date.today())]).mapped('credit'))
+            kcash -= sum(rec.partner_id.kcash_bonus_ids.search([('partner_id','=',rec.partner_id.id),('sale_id','!=',rec.id),('expiry_date','>=',fields.Date.today())]).mapped('debit'))
+            rec.kcash = kcash
+
+    def _create_invoices(self, grouped=False, final=False, date=None):
+        moves = super()._create_invoices(grouped=grouped, final=final, date=date)
+        moves.sale_order_id = self.id
+        return moves
+
+    @api.depends('invoice_status','invoice_ids','invoice_ids.payment_state')
+    def _compute_invoice_payment_status(self):
+        for record in self:
+            state = 'to_invoice'
+            invoice_ids = record.invoice_ids.filtered(lambda x: x.state not in ('draft','cancel'))
+            if invoice_ids:
+                state = 'not_paid'
+                payment_states = invoice_ids.mapped('payment_state')
+                if any(ps == 'partial' for ps in payment_states):
+                    state = 'partially_paid'
+                elif any(ps == 'in_payment' for ps in payment_states):
+                    state = 'in_payment'
+                elif all(ps == 'paid' for ps in payment_states):
+                    state = 'paid'
+            record.invoice_payment_status = state
 
     def action_create_backorder(self):
         for rec in self:
@@ -98,26 +125,12 @@ class sale_order(models.Model):
                 tax_totals['formatted_amount_untaxed'] = formatLang(self.env, sum(order_line.mapped('price_subtotal')), currency_obj=self.currency_id)
             order.tax_totals_json = json.dumps(tax_totals)
 
-    @api.depends('invoice_status','invoice_ids','invoice_ids.payment_state')
-    def _compute_invoice_payment_status(self):
-        for record in self:
-            state = 'to_invoice'
-            invoice_ids = record.invoice_ids.filtered(lambda x: x.state not in ('draft','cancel'))
-            if invoice_ids:
-                state = 'not_paid'
-                payment_states = invoice_ids.mapped('payment_state')
-                if any(ps == 'partial' for ps in payment_states):
-                    state = 'partially_paid'
-                elif any(ps == 'in_payment' for ps in payment_states):
-                    state = 'in_payment'
-                elif all(ps == 'paid' for ps in payment_states):
-                    state = 'paid'
-            record.invoice_payment_status = state
+
+
 
     @api.depends('mo_ids')
     def _compute_mo_count(self):
         mo_obj = self.env['mrp.production']
-        kcash=0
         for record in self:
             mo_ids = mo_obj
 
@@ -128,12 +141,9 @@ class sale_order(models.Model):
                         if isinstance(line['document_in'],mo_obj.__class__):
                             mo_ids |= line['document_in']
 
-            kcash += sum(record.partner_id.kcash_bonus_ids.search([('partner_id','=',record.partner_id.id),('sale_id','!=',record.id),('expiry_date','>=',fields.Date.today())]).mapped('credit'))
-            kcash -= sum(record.partner_id.kcash_bonus_ids.search([('partner_id','=',record.partner_id.id),('sale_id','!=',record.id),('expiry_date','>=',fields.Date.today())]).mapped('debit'))
             record.write({
                 'kits_mo_count':len(mo_ids) + len(record.production_ids),
                 'mo_ids':mo_ids.ids,
-                'kcash':kcash
             })
 
     def action_kcash(self):

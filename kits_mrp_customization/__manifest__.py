@@ -24,6 +24,7 @@
         'views/product_product.xml',
         'views/product_category.xml',
         'views/mrp_bom_view.xml',
+        'views/account_payment_term_view.xml',
         
         # Data
         'data/ir_server_actions.xml',

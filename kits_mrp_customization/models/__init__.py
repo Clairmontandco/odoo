@@ -1,4 +1,5 @@
 from . import mrp_production
+from . import account_payment_term
 from . import sale_order
 from . import product_product
 from . import product_template

@@ -21,24 +21,20 @@ class mrp_production(models.Model):
     
     @api.depends('so_ids','state','product_id')
     def compute_sales_description(self):
+        sales_description = ''
         so_ids = self.env['sale.order'].sudo()
-        sol_ids = self.env['sale.order.line'].sudo()
         for record in self:
-            sales_description = ''
             if not record.sale_order_line_ids:
                 #find default odoo sales orders
                 for line in self.env['report.stock.report_product_product_replenishment']._get_report_lines(False,[record.product_id.id],[record.location_src_id.id]):
                     if line['document_in'] and line['document_in'] == record:
                         if isinstance(line['document_out'],so_ids.__class__):
                                 so_ids |= line['document_out']
-                sol_ids = so_ids.mapped('order_line').filtered(lambda x: x.product_id == record.product_id)
             else:
                 #Find manufaturing on demand sales orders
                 so_ids = record.sale_order_id
-                sol_ids = record.sale_order_line_ids
 
-            
-            for sol in sol_ids.filtered(lambda x: x.product_id == record.product_id):
+            for sol in so_ids.mapped('order_line').filtered(lambda x: x.product_id == record.product_id):
                 if sol.name:
                     sales_description += sol.name+'\n\n'
 
