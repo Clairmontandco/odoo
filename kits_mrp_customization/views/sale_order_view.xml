@@ -120,6 +120,17 @@
             </field>
         </record>
 
+        <record id="kits_invisible_custom_manufacture_smart_button" model="ir.ui.view">
+            <field name="name">kits.invisible.custom.manufacture.smart.button</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_display_manufacture_orders']" position="replace">
+
+                </xpath>
+            </field>
+        </record>
+
         <record id="kits_mrp_customization_inherit_sale_order_search_view" model="ir.ui.view">
             <field name="name">kits.mrp.customization.inherit.sale.order.search.view</field>
             <field name="model">sale.order</field>

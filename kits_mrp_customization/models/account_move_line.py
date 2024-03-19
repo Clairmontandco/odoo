@@ -1,9 +1,16 @@
 from odoo import models,api,fields,_
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import UserError
+
 class AccountMoveLine(models.Model):
     _inherit='account.move.line'
 
     kcash_product = fields.Boolean(string='Clairmont Cash Product',compute="_compute_kcash_product")   
+
+    def reconcile(self):
+        result = super(AccountMoveLine, self).reconcile()
+        if 'full_reconcile' in result.keys():
+            self.move_id.sale_order_id.payment_term_id = self.env['account.payment.term'].search([('kits_paid','=',True)],limit = 1).id
+        return result
 
     @api.onchange('product_id')
     def _compute_kcash_product(self):
@@ -31,6 +38,8 @@ class AccountMove(models.Model):
     paid_date = fields.Date('Paid Date',compute='_compute_paid_date',store=True)
 
     date_done = fields.Date('Ship Date',compute='_compute_delivery_status',store=True)
+
+    sale_order_id = fields.Many2one('sale.order',string="Sale order")
 
     @api.depends('amount_residual')
     def _compute_paid_date(self):

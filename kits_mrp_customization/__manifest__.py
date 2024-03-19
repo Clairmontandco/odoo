@@ -9,7 +9,7 @@
     "description": """
     """,
     "license" : "OPL-1",
-    "depends" : ['sale_management','stock','mrp','sale_mrp'],
+    "depends" : ['sale_management','stock','mrp','sale_mrp','kits_manufacture_on_demand'],
     "data": [
         # Security
         'security/ir.model.access.csv',
@@ -24,6 +24,7 @@
         'views/product_product.xml',
         'views/product_category.xml',
         'views/mrp_bom_view.xml',
+        'views/account_payment_term_view.xml',
         
         # Data
         'data/ir_server_actions.xml',

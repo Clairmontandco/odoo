@@ -1,0 +1,23 @@
+{'name': 'Manufacture On Demand',
+'category': 'Sales/Sales',
+'summary': 'This App is used to create manufecturing order on demand.',
+'website': 'https://www.keypress.co.in',
+'author': 'Keypress IT Services',
+'sequence': 1,
+'depends': ['sale_management','mrp','kits_cancel_manufacure'],
+'data': [
+          'data/server_action.xml',
+          'security/ir.model.access.csv',
+          'views/product_template_view.xml',
+          'views/product_product_view.xml',
+          'views/res_config_settings_views.xml',
+          'views/sale_order_view.xml',
+          'views/mrp_production_view.xml' ,
+          'wizard/kits_warning_wizard_view.xml'
+                    ],
+'application': True,
+'installable': True,
+'auto-install': False,
+'version': '15.0.0.1',
+'description': 'This App is used to create manufecturing order on demand.',
+}
