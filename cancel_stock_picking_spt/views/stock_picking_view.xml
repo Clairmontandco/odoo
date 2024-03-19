@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
     <record id="inherit_stock_picking_form_view_spt" model="ir.ui.view">
         <field name="name">inherit.stock.picking.form.view.spt</field>
         <field name="model">stock.picking</field>
@@ -11,5 +10,4 @@
             </xpath>
         </field>
     </record>
-    
 </odoo>

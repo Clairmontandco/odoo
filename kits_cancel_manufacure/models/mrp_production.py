@@ -10,9 +10,10 @@ class mrp_production(models.Model):
         for record in self:
             if record.state == 'done':
                 record.move_finished_ids.stock_quant_update_spt()
+                record.move_raw_ids.stock_quant_update_spt()
                 record.action_cancel()
             elif record.state == 'cancel':
                 continue
             else:
                 record.action_cancel()
-        
+
