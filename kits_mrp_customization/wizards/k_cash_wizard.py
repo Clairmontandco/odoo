@@ -73,3 +73,5 @@ class KCashWizard(models.TransientModel):
                                             'kcash_product': True,
                                         })],
                                     })
+            rec.sale_id.partner_id._compute_kcash_balance()
+

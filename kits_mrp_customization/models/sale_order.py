@@ -14,7 +14,7 @@ class sale_order(models.Model):
     invoice_payment_status = fields.Selection(selection=INVOICE_PAYMENT,compute="_compute_invoice_payment_status",store=True,compute_sudo=True)
     delivery_status = fields.Selection([('draft', 'Draft'),('waiting', 'Waiting Another Operation'),('confirmed', 'Waiting'),('assigned', 'Ready'),('done', 'Done'),('cancel', 'Cancelled')],compute='_compute_delivery_status',default=None)
 
-    kcash = fields.Integer('K-cash',compute="_compute_k_cash")
+    kcash = fields.Float('K-cash',related='partner_id.kcash_balance')
     kcash_id = fields.Many2one('kcash.bonus')
     kcash_history_ids = fields.One2many('kcash.history', 'order_id')
 
@@ -24,12 +24,11 @@ class sale_order(models.Model):
     sale_backorder_ids = fields.One2many('sale.order','parent_order_id','Back Orders')
     backorder_count = fields.Integer('Back Orders Count',compute='_compute_backorder_count')
 
-    def _compute_k_cash(self):
-        for rec in self:
-            kcash = 0
-            kcash += sum(rec.partner_id.kcash_bonus_ids.search([('partner_id','=',rec.partner_id.id),('sale_id','!=',rec.id),('expiry_date','>=',fields.Date.today())]).mapped('credit'))
-            kcash -= sum(rec.partner_id.kcash_bonus_ids.search([('partner_id','=',rec.partner_id.id),('sale_id','!=',rec.id),('expiry_date','>=',fields.Date.today())]).mapped('debit'))
-            rec.kcash = kcash
+    def action_confirm(self):
+        res = super(sale_order, self).action_confirm()
+        for so in self:
+            so.partner_id._compute_kcash_balance()
+        return res
 
     def _create_invoices(self, grouped=False, final=False, date=None):
         moves = super()._create_invoices(grouped=grouped, final=final, date=date)
@@ -124,9 +123,6 @@ class sale_order(models.Model):
                 tax_totals['formatted_amount_total'] = formatLang(self.env, sum(order_line.mapped('price_subtotal')) + sum(order_line.mapped('price_tax')), currency_obj=self.currency_id)
                 tax_totals['formatted_amount_untaxed'] = formatLang(self.env, sum(order_line.mapped('price_subtotal')), currency_obj=self.currency_id)
             order.tax_totals_json = json.dumps(tax_totals)
-
-
-
 
     @api.depends('mo_ids')
     def _compute_mo_count(self):
@@ -281,17 +277,18 @@ class sale_order(models.Model):
         return res
 
     def action_kcash_wizard(self):
-        line_kcash = self.kcash + abs(self.order_line.filtered(lambda ol: ol.product_id.is_kcash_rewards).price_unit)
-        return {
-                    'name': 'Apply Clairmont Cash',
-                    'view_mode': 'form',
-                    'target': 'new',
-                    'res_model': 'k.cash.wizard',
-                    'context':{'default_sale_id': self.id,
-                               'default_available_kcash': line_kcash,
-                               'default_remain_kcash':line_kcash},
-                    'type': 'ir.actions.act_window',
-                }
+        for rec in self:
+            line_kcash = rec.kcash - sum(rec.partner_id.kcash_bonus_ids.search([('partner_id','=',rec.partner_id.id),('sale_id','=',rec.id),('expiry_date','>=',fields.Date.today())]).mapped('credit'))
+            return {
+                        'name': 'Apply Clairmont Cash',
+                        'view_mode': 'form',
+                        'target': 'new',
+                        'res_model': 'k.cash.wizard',
+                        'context':{'default_sale_id': rec.id,
+                                'default_available_kcash': line_kcash,
+                                'default_remain_kcash':line_kcash},
+                        'type': 'ir.actions.act_window',
+                    }
 
     def action_add_kcash_wizard(self):
         return {
