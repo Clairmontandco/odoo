@@ -51,6 +51,9 @@
                 <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='price_total']" position="attributes">
                     <attribute name="attrs">{'readonly': [('kcash_product','=',True)]}</attribute>
                 </xpath>
+                <xpath expr="//field[@name='invoice_date']" position="after">
+                    <field name="book_date"/>
+                </xpath>
             </field>
         </record>
 
@@ -64,6 +67,9 @@
                     <field name="date_done" readonly='1'/>
                     <field name="paid_date" readonly='1'/>
                 </xpath>
+                <xpath expr="//field[@name='invoice_date']" position="before">
+                    <field name="book_date"/>
+                </xpath>
             </field>
         </record>
 
@@ -75,10 +81,12 @@
                 <xpath expr="//group[1]/filter[@name='duedate']" position="after">
                     <filter name="paid_date" string="Paid Date" context="{'group_by':'paid_date'}" />
                     <filter name="date_done" string="Ship Date" context="{'group_by':'date_done'}" />
+                    <filter name="book_date" string="Book Date" context="{'group_by':'book_date'}" />
                 </xpath>
                 <xpath expr="//filter[@name='duedate']" position="after">
                     <filter string="Paid Date" name="paid_date" date="paid_date"/>
                     <filter string="Ship Date" name="date_done" date="date_done"/>
+                    <filter string="Book Date" name="book_date"  date="book_date"/>
                 </xpath>
             </field>
         </record>

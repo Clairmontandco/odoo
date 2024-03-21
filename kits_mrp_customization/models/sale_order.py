@@ -24,6 +24,9 @@ class sale_order(models.Model):
     sale_backorder_ids = fields.One2many('sale.order','parent_order_id','Back Orders')
     backorder_count = fields.Integer('Back Orders Count',compute='_compute_backorder_count')
 
+    book_date =  fields.Datetime('Book date',default=fields.Datetime.now)
+    
+
     def action_confirm(self):
         res = super(sale_order, self).action_confirm()
         for so in self:
