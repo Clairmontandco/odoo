@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="joint_events_only_own" model="ir.rule">
+        <field name="name">Joint Events</field>
+        <field ref="model_joint_event" name="model_id"/>
+        <field name="domain_force">[
+            "|",
+                ("company_id","=", False),
+                ("company_id", "in", company_ids),
+            "|", "|",
+                ("privacy", "=", "public"),
+                ("access_user_ids", "=", user.id),
+                ("access_user_ids", "=", False),
+        ]
+        </field>
+    </record>
+
+</odoo>
