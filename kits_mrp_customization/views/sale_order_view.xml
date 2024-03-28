@@ -85,6 +85,9 @@
                 <xpath expr="//field[@name='order_line']//tree/field[@name='product_uom_qty']" position="after">
                     <field name="backorder_qty"/>
                 </xpath>
+                <xpath expr="//field[@name='date_order']" position="after">
+                    <field name="book_date"/>
+                </xpath>
             </field>
         </record>
 
@@ -101,6 +104,9 @@
                 <field name="user_id" position="after">
                     <field name="team_id"/>
                 </field>
+                <xpath expr="//field[@name='date_order']" position="before">
+                    <field name="book_date"/>
+                </xpath>
             </field>
         </record>
 
@@ -116,6 +122,9 @@
                 </field>
                 <field name="user_id" position="after">
                     <field name="team_id"/>
+                </field>
+                <field name="create_date" position="before">
+                    <field name="book_date"/>
                 </field>
             </field>
         </record>
@@ -138,6 +147,7 @@
             <field name="arch" type="xml">
                 <xpath expr="//group[1]/filter[@name='order_month']" position="after">
                     <filter name="paid_date" string="Paid Date" context="{'group_by':'paid_date'}" />
+                    <filter name="book_date" string="Book Date" context="{'group_by':'book_date'}" />
                     <filter name="groupby_invoice_payment_status" string="Invoice Payment Status" domain="[]" context="{'group_by':'invoice_payment_status'}" />
                 </xpath>
             </field>
@@ -151,6 +161,7 @@
                 <xpath expr="//filter[@name='order_date']" position="after">
                     <filter string="Paid Date" name="paid_date" date="paid_date"/>
                     <filter string="Back Orders" name="back_order" domain="[('parent_order_id','!=',False)]"/>
+                    <filter string="Book Date" name="book_date" date="book_date"/>
                 </xpath>
             </field>
         </record>
@@ -163,6 +174,7 @@
                 <xpath expr="//filter[@name='filter_create_date']" position="after">
                     <filter string="Paid Date" name="paid_date" date="paid_date"/>
                     <filter string="Back Orders" name="back_order" domain="[('parent_order_id','!=',False)]"/>
+                    <filter string="Book Date" name="book_date" date="book_date"/>
                 </xpath>
             </field>
         </record>

@@ -13,6 +13,7 @@ class StockPicking(models.Model):
     sale_team_id = fields.Many2one('crm.team',related = 'sale_id.team_id')
     payment_term_id = fields.Many2one('account.payment.term',related = 'sale_id.payment_term_id',store=True)
     backorder_count = fields.Integer('Back Order Picking',compute = '_compute_backorder_count')
+    book_date =  fields.Datetime('Book date',related = 'sale_id.book_date')
 
     def write(self, values):
         for rec in self:

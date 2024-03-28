@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="app_res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">app.res.config.settings.view.form.inherit.sale</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="sale.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='sale_ebay']" position="before">
+                <h2>Sales Commission</h2>
+                <div class="row mt16 o_settings_container">
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <label for="commission_rule_on"/>
+                            <div class="text-muted">How to get Commission rule in sale order. And allow manual setup.</div>
+                            <field name="commission_rule_on" class="o_light_label mt16" widget="radio"/>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <label for="commission_amount_on"/>
+                            <div class="text-muted">How to calculate Commission in sale order. And allow manual adjust.</div>
+                            <field name="commission_amount_on" class="o_light_label mt16" widget="radio"/>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <label for="commission_default_product_id"/>
+                            <div class="text-muted">
+                                Product used for commission. Use for accountant.
+                            </div>
+                            <div class="text-muted">
+                                <field name="commission_default_product_id"/>
+                            </div>
+                            <div class="text-muted">You can set commission policy on this product</div>
+                            <div class="text-danger">Go to Product->Sale->Invoice Policy </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

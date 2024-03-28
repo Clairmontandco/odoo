@@ -1,0 +1,789 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* app_sale_commission_multi_level
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 15.0+e-20211129\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-01-06 10:21+0000\n"
+"PO-Revision-Date: 2022-01-06 10:21+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_order__parent_user_id
+msgid "2nd SalesPerson"
+msgstr "第二销售员"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__auto_add_person
+msgid "Add Sales 1st"
+msgstr "增加第一销售员"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__auto_add_person_parent
+msgid "Add Sales 2nd"
+msgstr "增加第二销售员"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__auto_add_leader
+msgid "Add Sales Leader"
+msgstr "增加销售主管"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_line__amount
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_rule__amount
+msgid "Amount"
+msgstr "金额"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_product_product__is_commission_apply
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_product_template__is_commission_apply
+msgid "Apply Commission?"
+msgstr "可提成"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_product_category__is_commission_apply
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_order__is_commission_apply
+msgid "Apply Commission??"
+msgstr "可提成"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields.selection,name:app_sale_commission_multi_level.selection__sale_commission_line__state__approved
+msgid "Approved"
+msgstr "已批准"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__auto_add_type
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_line__auto_add_type
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_rule__auto_add_type
+msgid "Auto Add Type"
+msgstr "自动增加类型"
+
+#. module: app_sale_commission_multi_level
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.sales_commission_level_from
+msgid "Category name"
+msgstr "类别名称"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,help:app_sale_commission_multi_level.field_sale_commission_level__customer
+#: model:ir.model.fields,help:app_sale_commission_multi_level.field_sale_commission_line__customer
+#: model:ir.model.fields,help:app_sale_commission_multi_level.field_sale_commission_rule__customer
+msgid "Check this box to allow Customer for this Commission Level."
+msgstr "勾选后允许给客户提成"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,help:app_sale_commission_multi_level.field_sale_commission_level__is_user
+#: model:ir.model.fields,help:app_sale_commission_multi_level.field_sale_commission_line__is_user
+#: model:ir.model.fields,help:app_sale_commission_multi_level.field_sale_commission_rule__is_user
+msgid "Check this box to allow Internal User for this Commission Level."
+msgstr "勾选后允许给内部员工提成"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,help:app_sale_commission_multi_level.field_sale_commission_level__supplier
+#: model:ir.model.fields,help:app_sale_commission_multi_level.field_sale_commission_line__supplier
+#: model:ir.model.fields,help:app_sale_commission_multi_level.field_sale_commission_rule__supplier
+msgid "Check this box to allow Vendor for this Commission Level."
+msgstr "勾选后允许给供应商提成"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,help:app_sale_commission_multi_level.field_sale_commission_level__auto_add_person_parent
+msgid "Check this box to auto add Parent Sales Person to sale Commission."
+msgstr "勾选后自动添加销售员上线提成"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,help:app_sale_commission_multi_level.field_sale_commission_level__auto_add_person
+msgid "Check this box to auto add Sales Person to sale Commission."
+msgstr "勾选后自动添加销售员提成"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,help:app_sale_commission_multi_level.field_sale_commission_level__auto_add_leader
+msgid "Check this box to auto add Sales Team Leader to sale Commission."
+msgstr "勾选后自动添加销售主管提成"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__child_ids
+msgid "Child Levels"
+msgstr "子级别"
+
+#. module: app_sale_commission_multi_level
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.app_view_order_form_inherit_commission3
+msgid "Comm. &amp; Exp."
+msgstr "提成与费用"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_line__commission_date
+msgid "Commission Date"
+msgstr "提成日期"
+
+#. module: app_sale_commission_multi_level
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.app_view_order_form_inherit_commission
+msgid "Commission Expense"
+msgstr "提成报销"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__name
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_line__level_id
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_rule__level_id
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.sale_commission_line_search_view
+msgid "Commission Level"
+msgstr "提成级别"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_hr_expense__commission_line_id
+msgid "Commission Line"
+msgstr "提成明细"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_res_config_settings__commission_default_product_id
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_line__commission_product_id
+msgid "Commission Product"
+msgstr "提成产品"
+
+#. module: app_sale_commission_multi_level
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.sales_commission_rule_list
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.sales_commission_rule_list_order
+msgid "Commission Rate(%)"
+msgstr "提成比率(%)"
+
+#. module: app_sale_commission_multi_level
+#: code:addons/app_sale_commission_multi_level/models/sale_order.py:0
+#, python-format
+msgid "Commission Reports for %s"
+msgstr "提成报表 - %s"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_line__rule_id
+msgid "Commission Rule"
+msgstr "提成规则"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_hr_expense__commission_partner_id
+msgid "Commission To"
+msgstr "提成人"
+
+#. module: app_sale_commission_multi_level
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.sales_commission_rule_form
+msgid "Commission for"
+msgstr "提成给"
+
+#. module: app_sale_commission_multi_level
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.sales_commission_rule_form
+msgid "Commission setting"
+msgstr "提成设置"
+
+#. module: app_sale_commission_multi_level
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.app_view_order_form_inherit_commission3
+msgid "Commissions and Expenses"
+msgstr "销售提成与费用"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model,name:app_sale_commission_multi_level.model_res_company
+msgid "Companies"
+msgstr "公司"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__company_id
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_line__company_id
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_rule__company_id
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.sale_commission_line_search_view
+msgid "Company"
+msgstr "公司"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model,name:app_sale_commission_multi_level.model_res_config_settings
+msgid "Config Settings"
+msgstr "配置设置"
+
+#. module: app_sale_commission_multi_level
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.app_view_order_form_inherit_commission
+msgid "Confirm the order first, then you can submit commission to expense."
+msgstr "请先确认销售，才能提交提成。"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model,name:app_sale_commission_multi_level.model_res_partner
+msgid "Contact"
+msgstr "联系人"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__create_uid
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_line__create_uid
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_rule__create_uid
+msgid "Created by"
+msgstr "创建者"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__create_date
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_line__create_date
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_rule__create_date
+msgid "Created on"
+msgstr "创建时间"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_line__currency_id
+msgid "Currency"
+msgstr "币种"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields.selection,name:app_sale_commission_multi_level.selection__sale_commission_level__auto_add_type__sales_partner
+msgid "Customer"
+msgstr "客户"
+
+#. module: app_sale_commission_multi_level
+#: model:sale.commission.level,name:app_sale_commission_multi_level.sales_commission_level_customer
+msgid "Customer Commission"
+msgstr "客户提成"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields.selection,name:app_sale_commission_multi_level.selection__res_company__commission_rule_on__sales_partner
+msgid "Customer of Sale Order"
+msgstr "订单中的客户"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,help:app_sale_commission_multi_level.field_sale_commission_line__commission_date
+msgid "Date when commission confirm."
+msgstr "提成确认日期"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__percentage
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_line__percentage
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_rule__percentage
+msgid "Default Rate(%)"
+msgstr "默认比率(%)"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,help:app_sale_commission_multi_level.field_res_config_settings__commission_default_product_id
+msgid "Default product use for Commission"
+msgstr "提成产品(用于绑定会计规则)"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__display_name
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_line__display_name
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_rule__display_name
+msgid "Display Name"
+msgstr "显示名称"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model,name:app_sale_commission_multi_level.model_hr_expense
+msgid "Expense"
+msgstr "费用"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_line__expense_id
+msgid "Expense Line"
+msgstr "费用明细"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model,name:app_sale_commission_multi_level.model_hr_expense_sheet
+msgid "Expense Report"
+msgstr "费用报表"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__customer
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_line__customer
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_rule__customer
+msgid "For Customer"
+msgstr "客户"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__is_user
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_line__is_user
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_rule__is_user
+msgid "For Internal User"
+msgstr "内部员工"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__supplier
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_line__supplier
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_rule__supplier
+msgid "For Vendor"
+msgstr "供应商"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__complete_name
+msgid "Full Commission Name"
+msgstr "提成名称"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_crm_team__commission_rule_on
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_res_company__commission_rule_on
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_res_config_settings__commission_rule_on
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_res_partner__commission_rule_on
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_res_users__commission_rule_on
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_order__commission_rule_on
+msgid "Get rule on"
+msgstr "提成规则基于"
+
+#. module: app_sale_commission_multi_level
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.app_res_config_settings_view_form
+msgid "Go to Product-&gt;Sale-&gt;Invoice Policy"
+msgstr "请在此设置 产品-&gt;销售-&gt;开票策略"
+
+#. module: app_sale_commission_multi_level
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.sale_commission_line_search_view
+msgid "Group By"
+msgstr "分组"
+
+#. module: app_sale_commission_multi_level
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.app_res_config_settings_view_form
+msgid "How to calculate Commission in sale order. And allow manual adjust."
+msgstr "提成计算方式。可在订单中调整"
+
+#. module: app_sale_commission_multi_level
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.app_res_config_settings_view_form
+msgid "How to get Commission rule in sale order. And allow manual setup."
+msgstr "获取提成规则方式。可在订单中调整"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__id
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_line__id
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_rule__id
+msgid "ID"
+msgstr ""
+
+#. module: app_sale_commission_multi_level
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.app_view_order_form_inherit_commission
+msgid ""
+"If you reset the commission, all the exist commission will be lost. Are you "
+"sure you want to reset it ?"
+msgstr "如果重设提成，原有提成明细将被删除。确认操作？"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__image_1920
+msgid "Image"
+msgstr "图像"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__image_1024
+msgid "Image 1024"
+msgstr "图像 1024"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__image_128
+msgid "Image 128"
+msgstr "图像128"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__image_256
+msgid "Image 256"
+msgstr "图像 256"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__image_512
+msgid "Image 512"
+msgstr "图像 512"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__child_all_count
+msgid "Indirect Surbordinates Count"
+msgstr "非直接下属数量"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_line__notes
+msgid "Internal Notes"
+msgstr "内部备注"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_line__user_id
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_rule__user_id
+msgid "Internal Sales/External Agent"
+msgstr "销售代理"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_product_product__is_commission_product
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_product_template__is_commission_product
+msgid "Is Commission Product ?"
+msgstr "是否提成产品"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_hr_expense__is_commission
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_hr_expense_sheet__is_commission
+msgid "Is Commission?"
+msgstr "是提成"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level____last_update
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_line____last_update
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_rule____last_update
+msgid "Last Modified on"
+msgstr "最后更改日"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__write_uid
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_line__write_uid
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_rule__write_uid
+msgid "Last Updated by"
+msgstr "最后更新者"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__write_date
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_line__write_date
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_rule__write_date
+msgid "Last Updated on"
+msgstr "更新时间"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields.selection,name:app_sale_commission_multi_level.selection__res_company__commission_rule_on__manual
+#: model:ir.model.fields.selection,name:app_sale_commission_multi_level.selection__sale_commission_level__auto_add_type__manual
+msgid "Manual Set"
+msgstr "手动设置"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_line__name
+msgid "Name"
+msgstr "名称"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields.selection,name:app_sale_commission_multi_level.selection__sale_commission_line__state__no_expense
+msgid "New"
+msgstr "新建"
+
+#. module: app_sale_commission_multi_level
+#: code:addons/app_sale_commission_multi_level/models/sale_order.py:0
+#, python-format
+msgid "No sales commission create."
+msgstr "没有创建提成"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields.selection,name:app_sale_commission_multi_level.selection__product_category__commission_amount_on__product_category
+#: model:ir.model.fields.selection,name:app_sale_commission_multi_level.selection__product_template__commission_amount_on__product_category
+#: model:ir.model.fields.selection,name:app_sale_commission_multi_level.selection__res_company__commission_amount_on__product_category
+msgid "Only for Category allow commission"
+msgstr "指定品类进行提成"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields.selection,name:app_sale_commission_multi_level.selection__product_category__commission_amount_on__product_template
+#: model:ir.model.fields.selection,name:app_sale_commission_multi_level.selection__product_template__commission_amount_on__product_template
+#: model:ir.model.fields.selection,name:app_sale_commission_multi_level.selection__res_company__commission_amount_on__product_template
+msgid "Only for Product allow commission"
+msgstr "指定产品进行提成"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields.selection,name:app_sale_commission_multi_level.selection__sale_commission_line__state__done
+msgid "Paid"
+msgstr "已支付"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__parent_id
+msgid "Parent Level"
+msgstr "上级"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__parent_path
+msgid "Parent Path"
+msgstr "上级路径"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields.selection,name:app_sale_commission_multi_level.selection__sale_commission_level__auto_add_type__sales_person_parent
+msgid "Parent Sales"
+msgstr "上级销售"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_rule__partner_id
+msgid "Partner"
+msgstr "业务伙伴"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.ui.menu,name:app_sale_commission_multi_level.menu_product_category_config_sale_commission_external_user
+msgid "Product Categories"
+msgstr "品类"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model,name:app_sale_commission_multi_level.model_product_category
+msgid "Product Category"
+msgstr "产品种类"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model,name:app_sale_commission_multi_level.model_product_template
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__commission_user_ids
+msgid "Product Template"
+msgstr "产品"
+
+#. module: app_sale_commission_multi_level
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.app_res_config_settings_view_form
+msgid "Product used for commission. Use for accountant."
+msgstr "提成的产品，用于绑定会计科目"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.ui.menu,name:app_sale_commission_multi_level.menu_product_in_config_sale_commission_external_user
+msgid "Products"
+msgstr "产品"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields.selection,name:app_sale_commission_multi_level.selection__sale_commission_line__state__refused
+msgid "Refused"
+msgstr "已拒绝"
+
+#. module: app_sale_commission_multi_level
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.app_view_order_form_inherit_commission
+msgid "Reset Commission"
+msgstr "重置提成"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model,name:app_sale_commission_multi_level.model_sale_commission_level
+msgid "Sale Commission Level"
+msgstr "销售提成级别"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.actions.act_window,name:app_sale_commission_multi_level.sale_commission_line_action
+msgid "Sale Commission Line"
+msgstr "销售提成明细"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_order__sale_commission_line_ids
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.app_view_order_form_inherit_commission
+msgid "Sale Commission Lines"
+msgstr "销售提成明细"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model,name:app_sale_commission_multi_level.model_sale_commission_rule
+msgid "Sale Commission Rule"
+msgstr "销售提成规则"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_crm_team__sale_commission_rule_ids
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_res_partner__sale_commission_rule_ids
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_res_users__sale_commission_rule_ids
+msgid "Sale Commission Rules"
+msgstr "销售提成规则"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_line__order_id
+msgid "Sale Order"
+msgstr "销售订单"
+
+#. module: app_sale_commission_multi_level
+#: model:product.product,name:app_sale_commission_multi_level.commission_default_product_id
+#: model:product.template,name:app_sale_commission_multi_level.commission_default_product_id_product_template
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.app_res_config_settings_view_form
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.view_template_property_form_inherit
+msgid "Sales Commission"
+msgstr "销售提成"
+
+#. module: app_sale_commission_multi_level
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.sales_commission_level_from
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.sales_commission_level_list
+msgid "Sales Commission Level"
+msgstr "销售提成级别"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.actions.act_window,name:app_sale_commission_multi_level.sales_commission_level_config_action
+#: model:ir.ui.menu,name:app_sale_commission_multi_level.sales_commission_level_config
+msgid "Sales Commission Levels"
+msgstr "销售提成级别"
+
+#. module: app_sale_commission_multi_level
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.sales_commission_line_form
+msgid "Sales Commission Line Form"
+msgstr "销售提成明细表单"
+
+#. module: app_sale_commission_multi_level
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.sales_commission_rule_list
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.sales_commission_rule_list_order
+msgid "Sales Commission Line List"
+msgstr "提成明细列表"
+
+#. module: app_sale_commission_multi_level
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.sales_commission_rule_form
+msgid "Sales Commission Rule Form"
+msgstr "销售提成明细表单"
+
+#. module: app_sale_commission_multi_level
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.crm_team_view_form_inherit_commission
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.sales_commission_rule_list_setting
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.view_partner_form_inherit_commission_user
+msgid "Sales Commission Rule Setting"
+msgstr "销售提成设置"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.ui.menu,name:app_sale_commission_multi_level.menu_sale_commission_line_expense_sheet
+msgid "Sales Commissions Expense Reports"
+msgstr "销售提成报告"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.ui.menu,name:app_sale_commission_multi_level.menu_sale_commission_line_expense
+msgid "Sales Commissions Expenses"
+msgstr "销售提成报告"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.ui.menu,name:app_sale_commission_multi_level.menu_sale_commission_line
+msgid "Sales Commissions Lines"
+msgstr "销售提成明细"
+
+#. module: app_sale_commission_multi_level
+#: model:sale.commission.level,name:app_sale_commission_multi_level.sales_commission_level_leader
+msgid "Sales Manager Commission"
+msgstr "销售主管提成"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model,name:app_sale_commission_multi_level.model_sale_order
+msgid "Sales Order"
+msgstr "销售订单"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model,name:app_sale_commission_multi_level.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "销售订单明细"
+
+#. module: app_sale_commission_multi_level
+#: model:sale.commission.level,name:app_sale_commission_multi_level.sales_commission_level_person_parent
+msgid "Sales Parent Commission"
+msgstr "销售上线提成"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields.selection,name:app_sale_commission_multi_level.selection__sale_commission_level__auto_add_type__sales_person
+msgid "Sales Person"
+msgstr "销售员"
+
+#. module: app_sale_commission_multi_level
+#: model:sale.commission.level,name:app_sale_commission_multi_level.sales_commission_level_person
+msgid "Sales Person Commission"
+msgstr "销售个人提成"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields.selection,name:app_sale_commission_multi_level.selection__res_company__commission_rule_on__sales_team
+msgid "Sales Person and Team"
+msgstr "销售员与团队"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model,name:app_sale_commission_multi_level.model_crm_team
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_line__team_id
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_rule__team_id
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.sale_commission_line_search_view
+msgid "Sales Team"
+msgstr "销售团队"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields.selection,name:app_sale_commission_multi_level.selection__sale_commission_level__auto_add_type__sales_leader
+msgid "Sales Team Leader"
+msgstr "销售主管"
+
+#. module: app_sale_commission_multi_level
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.sale_commission_line_search_view
+msgid "Sales User"
+msgstr "销售人员"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_level__sequence
+msgid "Sequence"
+msgstr "序列"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_product_category__commission_amount_on
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_product_product__commission_amount_on
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_product_template__commission_amount_on
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_res_company__commission_amount_on
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_res_config_settings__commission_amount_on
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_order__commission_amount_on
+msgid "Set Amount on"
+msgstr "计算金额基于"
+
+#. module: app_sale_commission_multi_level
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.sales_commission_level_from
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.sales_commission_rule_form
+msgid "Set commission user filter"
+msgstr "设置提成人员过滤"
+
+#. module: app_sale_commission_multi_level
+#: code:addons/app_sale_commission_multi_level/models/sale_commission_line.py:0
+#, python-format
+msgid "Sorry! You can not delete non-draft sale commission lines!"
+msgstr "抱歉！只能删除草稿状态的销售提成明细！"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,field_description:app_sale_commission_multi_level.field_sale_commission_line__state
+msgid "Status"
+msgstr "状态"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields,help:app_sale_commission_multi_level.field_sale_commission_line__state
+msgid "Status of the expense."
+msgstr "费用状态"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields.selection,name:app_sale_commission_multi_level.selection__sale_commission_line__state__reported
+msgid "Submitted"
+msgstr "发送"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields.selection,name:app_sale_commission_multi_level.selection__sale_commission_line__state__draft
+msgid "To Submit"
+msgstr "待提交"
+
+#. module: app_sale_commission_multi_level
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.sales_commission_rule_list
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.sales_commission_rule_list_order
+msgid "Total Amount"
+msgstr "总金额"
+
+#. module: app_sale_commission_multi_level
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.sales_commission_rule_list
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.sales_commission_rule_list_order
+msgid "Total Percentage"
+msgstr "总比率"
+
+#. module: app_sale_commission_multi_level
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.sales_commission_rule_list_setting
+msgid "Total Percentage (%)"
+msgstr "总比率(%)"
+
+#. module: app_sale_commission_multi_level
+#: model:product.product,uom_name:app_sale_commission_multi_level.commission_default_product_id
+#: model:product.template,uom_name:app_sale_commission_multi_level.commission_default_product_id_product_template
+msgid "Units"
+msgstr "单位"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model.fields.selection,name:app_sale_commission_multi_level.selection__product_category__commission_amount_on__amount_untaxed
+#: model:ir.model.fields.selection,name:app_sale_commission_multi_level.selection__product_template__commission_amount_on__amount_untaxed
+#: model:ir.model.fields.selection,name:app_sale_commission_multi_level.selection__res_company__commission_amount_on__amount_untaxed
+msgid "Untaxed Amount"
+msgstr "未税总额"
+
+#. module: app_sale_commission_multi_level
+#: model:sale.commission.level,name:app_sale_commission_multi_level.sales_commission_level_agent
+msgid "Vendor Agent Commission"
+msgstr "供应商提成"
+
+#. module: app_sale_commission_multi_level
+#: code:addons/app_sale_commission_multi_level/models/sale_order.py:0
+#, python-format
+msgid ""
+"You can not cancel this invoice because sales commission is invoiced/paid. "
+"Please cancel related commission lines and try again."
+msgstr "不可以取消此收据，因为提成已支付。请先取消相关提成再尝试。"
+
+#. module: app_sale_commission_multi_level
+#: code:addons/app_sale_commission_multi_level/models/sale_commission_rule.py:0
+#, python-format
+msgid "You can not set multiple level!"
+msgstr "不能设置多级别！"
+
+#. module: app_sale_commission_multi_level
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.app_res_config_settings_view_form
+msgid "You can set commission policy on this product"
+msgstr "你可以为此产品设置提成策略。"
+
+#. module: app_sale_commission_multi_level
+#: code:addons/app_sale_commission_multi_level/models/sale_commission_line.py:0
+#: code:addons/app_sale_commission_multi_level/models/sale_order.py:0
+#, python-format
+msgid ""
+"You muse set a product for sale commission in "
+"Sales->Configuration->Settings."
+msgstr "你必须设置一个产品为提成产品。请至此操作 销售->配置->设置"
+
+#. module: app_sale_commission_multi_level
+#: model_terms:ir.ui.view,arch_db:app_sale_commission_multi_level.sales_commission_level_from
+msgid "e.g. Sale Level 1"
+msgstr "如：1级提成"
+
+#. module: app_sale_commission_multi_level
+#: model:ir.model,name:app_sale_commission_multi_level.model_sale_commission_line
+msgid "sale.commission.line"
+msgstr "销售提成明细"

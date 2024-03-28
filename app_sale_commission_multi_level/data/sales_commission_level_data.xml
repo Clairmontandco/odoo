@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data noupdate="0">
+        <record id="sales_commission_level_leader" model="sale.commission.level">
+            <field name="name">Sales Manager Commission</field>
+            <field name="percentage">5</field>
+            <field name="auto_add_type">sales_leader</field>
+            <field name="is_user">True</field>
+            <field name="image_1920" type="base64" file="app_sale_commission_multi_level/static/src/img/scl1.png"/>
+        </record>
+        <record id="sales_commission_level_person_parent" model="sale.commission.level">
+            <field name="name">Sales Parent Commission</field>
+            <field name="percentage">8</field>
+            <field name="parent_id" ref="sales_commission_level_leader"/>
+            <field name="auto_add_type">sales_person_parent</field>
+            <field name="is_user">True</field>
+            <field name="image_1920" type="base64" file="app_sale_commission_multi_level/static/src/img/scl3.png"/>
+        </record>
+        <record id="sales_commission_level_person" model="sale.commission.level">
+            <field name="name">Sales Person Commission</field>
+            <field name="percentage">10</field>
+            <field name="parent_id" ref="sales_commission_level_person_parent"/>
+            <field name="auto_add_type">sales_person</field>
+            <field name="is_user">True</field>
+            <field name="image_1920" type="base64" file="app_sale_commission_multi_level/static/src/img/scl2.png"/>
+        </record>
+        <record id="sales_commission_level_agent" model="sale.commission.level">
+            <field name="name">Vendor Agent Commission</field>
+            <field name="percentage">3</field>
+            <field name="parent_id" ref="sales_commission_level_person"/>
+            <field name="auto_add_type">manual</field>
+            <field name="is_user">False</field>
+            <field name="supplier">True</field>
+            <field name="image_1920" type="base64" file="app_sale_commission_multi_level/static/src/img/scl4.png"/>
+        </record>
+        <record id="sales_commission_level_customer" model="sale.commission.level">
+            <field name="name">Customer Commission</field>
+            <field name="percentage">2</field>
+            <field name="auto_add_type">sales_partner</field>
+            <field name="is_user">False</field>
+            <field name="customer">True</field>
+            <field name="image_1920" type="base64" file="app_sale_commission_multi_level/static/src/img/scl4.png"/>
+        </record>
+    </data>
+</openerp>

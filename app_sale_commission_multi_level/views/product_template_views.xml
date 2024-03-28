@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <record id="view_template_property_form_inherit" model="ir.ui.view">
+        <field name="name">product.template.stock.property.form.inheri22t</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <group name="sale" position="after">
+                 <group string="Sales Commission" attrs="{'invisible': [('commission_amount_on', '!=', 'product_template')]}">
+                    <field name="commission_amount_on" invisible="1"/>
+                    <field name="is_commission_product" invisible="1"/>
+                    <field name="is_commission_apply"/>
+                </group>
+             </group>
+        </field>
+    </record>
+    
+</odoo>

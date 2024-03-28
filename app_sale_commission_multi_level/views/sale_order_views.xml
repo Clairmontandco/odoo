@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="app_view_order_form_inherit_commission" model="ir.ui.view">
+        <field name="name">app.sale.order.form</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="groups_id" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='payment_action_capture']" position="before">
+                <button name="action_create_commission_expense" string="Commission Expense" type="object"
+                        context="{'create_commission_bill':True}"
+                        attrs="{'invisible': [('state', '!=', 'sale')]}"/>
+            </xpath>
+            <xpath expr="//form/sheet/notebook/page[last()]" position="after">
+                <page string="Sale Commission Lines" name="order_commission">
+                    <p attrs="{'invisible': [('state','=','done')]}">Confirm the order first, then you can submit commission to expense.</p>
+                    <group>
+                        <group>
+                            <field name="is_commission_apply" invisible="1"/>
+                            <field name="parent_user_id"/>
+                        </group>
+                        <group attrs="{'invisible': [('is_commission_apply', '!=', True)]}">
+                            <label for="commission_rule_on"/>
+                            <div>
+                                <field name="commission_rule_on"/>
+                                <button name="set_forecast_commission" type="object" string=" Reset Commission"
+                                        confirm="If you reset the commission, all the exist commission will be lost. Are you sure you want to reset it ?"
+                                        class="ml8 fa fa-money btn btn-primary"
+                                        attrs="{'invisible': [('state', 'in', ('done', 'cancel'))]}"/>
+                            </div>
+                        </group>
+                    </group>
+                    <field name="sale_commission_line_ids" attrs="{'invisible': [('is_commission_apply', '!=', True)]}"
+                           context="{'tree_view_ref': 'app_sale_commission_multi_level.sales_commission_rule_list_order'}"/>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="app_view_order_form_inherit_commission2" model="ir.ui.view">
+        <field name="name">app.sale.order.form2</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="app_view_order_form_inherit_commission"/>
+        <field name="groups_id" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='parent_user_id']" position="before">
+                <xpath expr="//field[@name='user_id']" position="move"/>
+            </xpath>
+            <xpath expr="//label[@for='commission_rule_on']" position="before">
+                <xpath expr="//field[@name='team_id']" position="move"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="app_view_order_form_inherit_commission3" model="ir.ui.view">
+        <field name="name">app.sale.order.form.inherit.sale.expense</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale_expense.sale_order_form_view_inherit"/>
+        <field name="groups_id" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+        <field name="arch" type="xml">
+            <data>
+               <xpath expr="//field[@name='expense_count']" position="attributes">
+                   <attribute name="string">Comm. &amp; Exp.</attribute>
+                   <attribute name="help">Commissions and Expenses</attribute>
+                </xpath>
+            </data>
+        </field>
+    </record>
+
+</odoo>

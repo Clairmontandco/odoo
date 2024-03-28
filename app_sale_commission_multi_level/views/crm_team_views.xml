@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="crm_team_view_form_inherit_commission" model="ir.ui.view">
+        <field name="name">crm.team.form</field>
+        <field name="model">crm.team</field>
+        <field name="inherit_id" ref="sales_team.crm_team_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form/sheet/notebook" position="inside">
+                <field name="commission_rule_on" invisible="1"/>
+                <page string="Sales Commission Rule Setting" attrs="{'invisible': [('commission_rule_on', '!=', 'sales_team')]}">
+                <field name="sale_commission_rule_ids"
+                       context="{'tree_view_ref':'app_sale_commission_multi_level.sales_commission_rule_list_setting'}"/>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

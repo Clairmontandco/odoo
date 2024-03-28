@@ -30,6 +30,10 @@
                 <xpath expr="//field[@name='date_done']" position="attributes">
                     <attribute name="string">Ship Date</attribute>
                 </xpath>
+                
+                <xpath expr="//field[@name='date_deadline']" position="after">
+                    <field name="book_date"/>
+                </xpath>
             </field>
         </record>
 
@@ -62,10 +66,12 @@
                     <separator/>
                     <filter string="Paid Date" name="paid_date" date="paid_date"/>
                     <filter string="Ship Date" name="date_done" date="date_done"/>
+                    <filter string="Book Date" name="book_date" date="book_date"/>
                 </xpath>
                 <filter name="expected_date" position="after">
                     <filter name="paid_date" string="Paid Date" context="{'group_by':'paid_date'}" />
                     <filter name="date_done" string="Ship Date" context="{'group_by':'date_done'}" />
+                    <filter name="book_date" string="Book Date" context="{'group_by':'book_date'}" />
                 </filter>
             </field>
         </record>

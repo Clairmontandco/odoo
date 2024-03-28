@@ -5,7 +5,7 @@
 'images': ['static/description/Banner.png'],
 'currency': 'USD',
 'category': 'stock',
-'version': '15.0.0.4',
+'version': '15.0.0.0',
 'author': 'Keypress IT Services',
 'website': 'https://www.keypress.co.in',
 'depends': ['stock', 'account'],

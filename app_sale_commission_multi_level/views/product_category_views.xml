@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="app_product_category_form_view" model="ir.ui.view">
+        <field name="name">app.product.category.form</field>
+        <field name="model">product.category</field>
+        <field name="inherit_id" ref="product.product_category_form_view"/>
+        <field name="arch" type="xml">
+            <field name="parent_id" position="after">
+                <field name="commission_amount_on" invisible="1"/>
+                <field name="is_commission_apply" attrs="{'invisible': [('commission_amount_on', '!=', 'product_category')]}"/>
+            </field>
+        </field>
+    </record>
+
+    <menuitem id="menu_product_in_config_sale_commission_external_user" name="Products" parent="sale.menu_sale_config" sequence="11"/>
+    <menuitem
+        action="product.product_category_action_form" id="menu_product_category_config_sale_commission_external_user"
+        parent="menu_product_in_config_sale_commission_external_user" sequence="2"/>
+</odoo>

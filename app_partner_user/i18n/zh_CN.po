@@ -1,0 +1,95 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* app_partner_user
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 15.0+e-20200628\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-04-19 02:49+0000\n"
+"PO-Revision-Date: 2021-04-19 02:49+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: app_partner_user
+#: model:ir.model.fields,field_description:app_partner_user.field_res_users__is_account
+#: model_terms:ir.ui.view,arch_db:app_partner_user.app_view_users_search
+msgid "Account User"
+msgstr "财务用户"
+
+#. module: app_partner_user
+#: model_terms:ir.ui.view,arch_db:app_partner_user.app_view_users_form
+msgid "Change Password"
+msgstr "更改密码"
+
+#. module: app_partner_user
+#: model_terms:ir.ui.view,arch_db:app_partner_user.app_view_users_form
+msgid "Change the user password."
+msgstr "更改当前用户的密码"
+
+#. module: app_partner_user
+#: model:ir.model,name:app_partner_user.model_res_partner
+msgid "Contact"
+msgstr "联系人"
+
+#. module: app_partner_user
+#: model:ir.model.fields,field_description:app_partner_user.field_res_partner__is_user
+#: model:ir.model.fields,field_description:app_partner_user.field_res_users__is_user
+msgid "Is a Internal User"
+msgstr "系统用户"
+
+#. module: app_partner_user
+#: model:ir.model.fields,field_description:app_partner_user.field_res_users__is_mrp
+#: model_terms:ir.ui.view,arch_db:app_partner_user.app_view_users_search
+msgid "Mrp User"
+msgstr "生产用户"
+
+#. module: app_partner_user
+#: model:ir.model.fields,field_description:app_partner_user.field_res_users__is_portal
+#: model_terms:ir.ui.view,arch_db:app_partner_user.app_view_users_search
+msgid "Portal User"
+msgstr "门户用户"
+
+#. module: app_partner_user
+#: model:ir.model.fields,field_description:app_partner_user.field_res_users__is_purchase
+#: model_terms:ir.ui.view,arch_db:app_partner_user.app_view_users_search
+msgid "Purchase User"
+msgstr "采购用户"
+
+#. module: app_partner_user
+#: model:ir.model.fields,field_description:app_partner_user.field_res_partner__related_user_id
+#: model:ir.model.fields,field_description:app_partner_user.field_res_users__related_user_id
+msgid "Related User"
+msgstr "相关用户"
+
+#. module: app_partner_user
+#: model:ir.model.fields,field_description:app_partner_user.field_res_users__is_sale
+#: model_terms:ir.ui.view,arch_db:app_partner_user.app_view_users_search
+msgid "Sale User"
+msgstr "销售用户"
+
+#. module: app_partner_user
+#: model:ir.model.fields,field_description:app_partner_user.field_res_users__is_stock
+#: model_terms:ir.ui.view,arch_db:app_partner_user.app_view_users_search
+msgid "Stock User"
+msgstr "仓库用户"
+
+#. module: app_partner_user
+#: model:ir.model.fields,help:app_partner_user.field_res_partner__is_user
+#: model:ir.model.fields,help:app_partner_user.field_res_users__is_user
+msgid "Technical field used to get whether this partner is a user"
+msgstr "技术字段，判断用户是否系统用户"
+
+#. module: app_partner_user
+#: model_terms:ir.ui.view,arch_db:app_partner_user.app_res_partner_view_search
+msgid "User"
+msgstr "登录用户"
+
+#. module: app_partner_user
+#: model:ir.model,name:app_partner_user.model_res_users
+msgid "Users"
+msgstr "用户"

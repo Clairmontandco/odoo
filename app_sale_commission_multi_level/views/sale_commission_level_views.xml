@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="sales_commission_level_from" model="ir.ui.view">
+            <field name="name">Sales Commission Level From</field>
+            <field name="model">sale.commission.level</field>
+            <field name="arch" type="xml">
+                <form string="Sales Commission Level">
+                    <div id="o_node_container">
+                        <div id="o_node_main">
+                            <field name="image_1920" widget="image" class="oe_avatar"
+                                   options="{'preview_image': 'image_128', 'size': [90, 90]}"/>
+                            <div class="oe_title">
+                                <label for="name" string="Category name" class="oe_edit_only"/>
+                                <h1>
+                                    <field name="name" placeholder="e.g. Sale Level 1"/>
+                                </h1>
+                            </div>
+                            <group>
+                                <group>
+                                    <field name="parent_id"/>
+                                    <field name="percentage"/>
+                                    <field name="auto_add_type"/>
+                                </group>
+                                <group string="Set commission user filter">
+                                    <field name="is_user" widget="boolean_toggle"/>
+                                    <field name="customer" widget="boolean_toggle"/>
+                                    <field name="supplier" widget="boolean_toggle"/>
+                                </group>
+                            </group>
+                        </div>
+                        <div id="o_node_right">
+                            <field name="child_ids" widget="ztree_chart" nolabel="1"/>
+                        </div>
+                    </div>
+                </form>
+            </field>
+        </record>
+        
+        <record id="sales_commission_level_list" model="ir.ui.view">
+            <field name="name">Sales Commission Level List</field>
+            <field name="model">sale.commission.level</field>
+                <field name="arch" type="xml">
+                    <tree string="Sales Commission Level">
+                        <field name="sequence" widget="handle"/>
+                        <field name="name"/>
+                        <field name="parent_id"/>
+                        <field name="percentage"/>
+                        <field name="auto_add_type"/>
+                        <field name="is_user" widget="boolean_toggle"/>
+                        <field name="customer" widget="boolean_toggle"/>
+                        <field name="supplier" widget="boolean_toggle"/>
+                    </tree>
+                </field>
+        </record>
+        
+        <record id="sales_commission_level_config_action" model="ir.actions.act_window">
+            <field name="name">Sales Commission Levels</field>
+            <field name="res_model">sale.commission.level</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="sales_commission_level_list"/>
+        </record>
+        
+        <menuitem name="Sales Commission Levels"
+            id="sales_commission_level_config"
+            parent="sale.menu_sale_config"
+            action="sales_commission_level_config_action"/>
+
+    </data>
+</odoo>
+        

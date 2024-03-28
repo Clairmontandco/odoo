@@ -41,6 +41,8 @@ class AccountMove(models.Model):
 
     sale_order_id = fields.Many2one('sale.order',string="Sale order")
 
+    book_date =  fields.Datetime('Book date',related = 'sale_order_id.book_date')
+
     @api.depends('amount_residual')
     def _compute_paid_date(self):
         for rec in self:

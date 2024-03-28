@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_inherit_commission_user" model="ir.ui.view">
+        <field name="name">res.partner.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <!--多数是在客户中指定team，在team中设置提成-->
+            <xpath expr="//form/sheet/notebook/page[last()]" position="after">
+                <page string="Sales Commission Rule Setting"
+                      attrs="{'invisible': ['|',('customer_rank', '&gt;', 0),('commission_rule_on', '!=', 'sales_partner')]}">
+                    <field name="customer_rank" invisible="1"/>
+                    <field name="commission_rule_on" invisible="1"/>
+                    <field name="sale_commission_rule_ids"
+                           context="{'tree_view_ref':'app_sale_commission_multi_level.sales_commission_rule_list_setting'}"/>
+                </page>
+            </xpath>
+        </field>
+    </record>
+    
+</odoo>

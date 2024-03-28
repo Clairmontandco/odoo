@@ -13,7 +13,8 @@
           'views/res_config_settings_views.xml',
           'views/sale_order_view.xml',
           'views/mrp_production_view.xml' ,
-          'wizard/kits_warning_wizard_view.xml'
+          'wizard/kits_warning_wizard_view.xml',
+          'wizard/product_replenish_view.xml',
                     ],
 'application': True,
 'installable': True,

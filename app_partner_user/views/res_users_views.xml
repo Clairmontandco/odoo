@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="app_view_users_tree" model="ir.ui.view">
+        <field name="name">app.res.users.tree.view</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_tree"/>
+        <field name="arch" type="xml">
+            <field name="name" position="before">
+                <field name="id" groups="base.group_no_one"/>
+            </field>
+        </field>
+    </record>
+    <record id="app_view_users_form" model="ir.ui.view">
+        <field name="name">app.res.users.form</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button string="Change Password" type="action" name="%(base.change_password_wizard_action)d" help="Change the user password."/>
+            </xpath>
+        </field>
+    </record>
+    <record id="app_view_users_search" model="ir.ui.view">
+        <field name="name">app.res.users.search</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='no_share']" position="after">
+                <filter name="is_portal" string="Portal User" domain="[('is_portal','=',True)]"/>
+                <filter name="is_account" string="Account User" domain="[('is_account','=',True)]"/>
+                <filter name="is_sale" string="Sale User" domain="[('is_sale','=',True)]"/>
+                <filter name="is_purchase" string="Purchase User" domain="[('is_purchase','=',True)]"/>
+                <filter name="is_stock" string="Stock User" domain="[('is_stock','=',True)]"/>
+                <filter name="is_mrp" string="Mrp User" domain="[('is_mrp','=',True)]"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

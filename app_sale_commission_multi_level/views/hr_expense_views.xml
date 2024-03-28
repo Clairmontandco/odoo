@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+        <record id="app_view_expenses_tree" model="ir.ui.view">
+            <field name="name">app.hr.expense.tree</field>
+            <field name="model">hr.expense</field>
+            <field name="inherit_id" ref="hr_expense.view_expenses_tree"/>
+            <field name="arch" type="xml">
+                <field name="name" position="after">
+                    <field name="commission_partner_id"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="app_hr_expense_view_form" model="ir.ui.view">
+            <field name="name">app.hr.expense.view.form</field>
+            <field name="model">hr.expense</field>
+            <field name="inherit_id" ref="hr_expense.hr_expense_view_form"/>
+            <field name="arch" type="xml">
+                <field name="product_id" position="before">
+                    <field name="commission_partner_id"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="app_hr_expense_form_view_inherit_sale_expense" model="ir.ui.view">
+            <field name="name">app.hr.expense.form.inherit.sale.expense</field>
+            <field name="model">hr.expense</field>
+            <field name="inherit_id" ref="sale_expense.hr_expense_form_view_inherit_sale_expense"/>
+            <field name="arch" type="xml">
+                <field name="sale_order_id" position="after">
+                    <field name="commission_line_id"/>
+                </field>
+            </field>
+        </record>
+
+</odoo>

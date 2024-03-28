@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="app_view_hr_expense_sheet_form" model="ir.ui.view">
+        <field name="name">app.hr.expense.sheet.form</field>
+        <field name="model">hr.expense.sheet</field>
+        <field name="inherit_id" ref="hr_expense.view_hr_expense_sheet_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='expense_line_ids']/tree//field[@name='name']" position="after">
+                <field name="commission_partner_id"/>
+            </xpath>
+            <xpath expr="//field[@name='expense_line_ids']/tree//field[@name='state']" position="attributes">
+                <attribute name="invisible"/>
+            </xpath>
+            <xpath expr="//field[@name='expense_line_ids']/tree//field[@name='total_amount']" position="attributes">
+                <attribute name="widget">monetary</attribute>
+                <attribute name="options">{'currency_field': 'currency_id'}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='expense_line_ids']/tree//field[@name='total_amount_company']" position="attributes">
+                <attribute name="widget">monetary</attribute>
+                <attribute name="options">{'currency_field': 'company_currency_id'}</attribute>
+            </xpath>
+        <!-- 调整位置，更方便   -->
+            <xpath expr="//group" position="inside">
+                <group name="add_other">
+                </group>
+            </xpath>
+            <xpath expr="//group[@name='add_other']" position="inside">
+                <field name="journal_id" position="move"/>
+                <field name="bank_journal_id" position="move"/>
+                <field name="accounting_date" position="move"/>
+                <field name="account_move_id" position="move"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
